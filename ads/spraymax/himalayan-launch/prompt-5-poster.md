@@ -1,0 +1,11 @@
+Epic cinematic movie-poster key art, photorealistic, in the style of a big-budget film poster shot on location with an ARRI Alexa 65 and an anamorphic lens. Vertical 4:5 frame.
+
+SUBJECT: a young Indian man in his late 20s, seen fully from behind (we never see his face), standing tall and still on a narrow snow-covered Himalayan ridge in a snowstorm. He wears a long, heavy, deep indigo-navy wool overcoat whose hem is whipped sideways to the left by a strong wind, dark trousers and rugged dark boots. His hair is the hero detail: thick, dark, textured and voluminous, with a matte finish and natural separation, slightly tousled by the wind but clearly holding its shape and volume. His right arm hangs relaxed at his side; in his right hand, at hip level, he loosely holds a small white plastic spray bottle (white ribbed collar, clear cap) turned so its label faces his leg — only the plain white back of the bottle and a thin edge of a dark-blue band are visible, no readable text.
+
+FRAMING (follow closely): full body, centred horizontally. Top of his head at about 33% of the frame height, his boots at about 84%. His figure, including the flaring coat, spans roughly the middle third to half of the frame width. The top 22% of the frame is only dark, heavy storm clouds with falling snow — completely empty of subject, for a title. The bottom-right corner (right quarter, bottom quarter) is plain, smooth, low-detail snow — keep it clean.
+
+ENVIRONMENT: behind and below him, a vast range of jagged snow-covered Himalayan peaks stretching to the horizon at about 63% of frame height, partly veiled in drifting mist. A low, bright sun sits on the horizon just behind his left hip, creating a strong backlight and a natural lens flare, rim-lighting his hair, shoulders and coat edges. Wind-blown snow particles fill the air, some sharp in the foreground, most soft and out of focus.
+
+LIGHT & COLOUR: high-contrast, cold and dramatic. Steel-grey and slate storm clouds, bright white-blue snow, the indigo coat as the only strong colour. Glowing backlight, deep shadows, subtle film grain, natural photographic detail in the fabric, snow and rock. Heroic, tough, quiet confidence.
+
+STRICTLY: no text, no titles, no logos, no watermarks, no capes or superhero costumes or emblems, no other people. His face is not visible.
