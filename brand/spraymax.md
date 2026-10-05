@@ -9,6 +9,9 @@ Facts below come from the product label, brand creatives and https://spraymax.in
 - **Price point:** ₹449 sale price on site (M.R.P. ₹600), 100 ml. Free shipping India-wide.
 - **Where we sell:** India (manufactured by UPP Cosmetic Division, Delhi)
 
+## Founder
+- **Founder:** Chadtag, from Himachal Pradesh (per user)
+
 ## Audience
 - **Primary customer:** [VERIFY] Guys 18–35 who want messy, textured, "effortless" hair without wax or gel
 - **Their main problem:** Flat, lifeless hair; wax/gel feels stiff, greasy or heavy
@@ -27,7 +30,7 @@ Facts below come from the product label, brand creatives and https://spraymax.in
 
 ## Proof (only real, verifiable facts)
 - **Free-from (site):** no parabens, no sulfates (SLS/SLES), no silicones, no phthalates, no drying alcohols, no heavy resins/plastic fixatives
-- **Site claims:** "Tested for skin safety"; 14 reviews on the product page (rating not shown); lab test results page is currently empty
+- **Site claims:** "Tested for skin safety"; 14 reviews on the product page (rating not shown); lab test results are published as images on https://spraymax.in/pages/lab-test-results (per user)
 - **Label badges:** Organic Ingredients, Cruelty Free, Paraben Free, Lab Certified, ISO, GMP Quality, Natural Extracts, Proudly Made in India
 - **Customer numbers / ratings:** none provided
 - **Testimonials:** none provided
@@ -41,7 +44,7 @@ Facts below come from the product label, brand creatives and https://spraymax.in
 
 ## Compliance & rules
 - Avoid "100% natural" — the formula contains benzyl alcohol, salicylic acid and sorbic acid (preservatives). Use "naturally derived ingredients" (the label's own wording).
-- "Born in Himachal" is the brand's own claim (site). Label says manufactured in Delhi; use "Born in Himachal" only as brand line, never "made in the Himalayas".
+- "Born in Himachal" is legit: the founder (Chadtag, per user) is from Himachal. Manufacturing is in Delhi (label), so say "Born in Himachal", not "made in the Himalayas".
 - No hair-growth, hair-fall or medical claims.
 
 ## Visual identity
