@@ -76,7 +76,7 @@ def upload(path: Path):
     parts.append(f"--{boundary}--\r\n".encode())
     data = request("POST", UPLOAD, b"".join(parts),
                    {"Content-Type": f"multipart/form-data; boundary={boundary}"})
-    return data["fileUrl"]
+    return data.get("fileUrl") or data["downloadUrl"]
 
 
 def wait_for(task_id, timeout=600):
