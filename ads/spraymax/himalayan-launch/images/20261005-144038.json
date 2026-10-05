@@ -1,0 +1,20 @@
+{
+  "task_id": "31089f518901f3b83f19da42e47480e8",
+  "request": {
+    "model": "nano-banana-pro",
+    "input": {
+      "prompt": "Edit the FIRST reference image (the caf\u00e9 photo with the Spraymax bottle on a wooden railing). Keep the photo identical in every way \u2014 same framing, camera angle, lighting, colors, phone-camera look, grain, depth of field, wooden railing with all its cracks and grain, the glass of chai and its position, the trees, houses, prayer flags, mountains and sky. Do not re-style, re-light, sharpen or \"improve\" the photo.\n\nMake only these two changes:\n\n1. Clean the Spraymax bottle and label. Remove all the brown dirt, grime and stains from the label and the bottle, repair the torn and peeling sticker edge at the top of the label so the label lies flat and intact, and remove the chipped white marks at the bottom of the label. The bottle should look like a real bottle that has been carried around and used for a few days \u2014 clean, with its natural slightly off-white semi-matte plastic and soft real-world reflections \u2014 but not dirty, not damaged, and not a glossy perfect render. Keep the label artwork exactly as in the other reference images: \"Spraymax\" vertical in deep indigo rounded letters, \"Instant Hair Volume & Texture\", the dark blue ocean-wave band with \"FOR ALL HAIR TYPES\" and \"100ml/3.38fl.oz.\" Same bottle size, shape, position and angle.\n\n2. Remove the sunglasses lying on the railing behind the chai glass, and fill that area naturally with the same weathered wooden railing surface, matching its grain, texture, lighting and blur.\n\nNo added text, people, hands, objects or graphics.",
+      "image_input": [
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/20261005-143811-1.png",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/label-flat.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/bottle-real-photo.jpg"
+      ],
+      "aspect_ratio": "4:5",
+      "resolution": "2K",
+      "output_format": "png"
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/models/nano-banana-pro/1791211236618-wub5am0omc.png"
+  ]
+}
