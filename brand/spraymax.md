@@ -1,12 +1,12 @@
 # Brand: Spraymax
 
-All facts below come from the product label and brand creatives supplied on 2026-10-05.
+Facts below come from the product label, brand creatives and https://spraymax.in (checked 2026-10-05).
 
 ## Basics
-- **Website:** [VERIFY — not provided]
+- **Website:** https://spraymax.in (Shopify store)
 - **What we sell (one sentence):** A Himalayan sea salt hair spray that adds instant volume and texture with a matte, lightweight finish.
 - **Category / industry:** Men's / unisex hair styling
-- **Price point:** M.R.P. ₹600 (100 ml, incl. of all taxes)
+- **Price point:** ₹449 sale price on site (M.R.P. ₹600), 100 ml. Free shipping India-wide.
 - **Where we sell:** India (manufactured by UPP Cosmetic Division, Delhi)
 
 ## Audience
@@ -20,10 +20,14 @@ All facts below come from the product label and brand creatives supplied on 2026
   1. Instantly adds natural volume and texture
   2. Lightweight matte finish — never greasy or sticky, not stiff or waxy
   3. Works for all hair types; safe for daily use
+- **Brand positioning (site):** "The Original Himalayan Sea Salt Spray. Born in Himachal. Trusted Across India."
+- **Tagline (site):** "Shake. Spray. Style." — styles "in under 10 seconds"
 - **What makes us different:** "A true Himalayan sea salt hair spray"; naturally derived ingredients incl. aloe vera and hydrolyzed rice protein
 - **Competitors:** [VERIFY — do not name]
 
 ## Proof (only real, verifiable facts)
+- **Free-from (site):** no parabens, no sulfates (SLS/SLES), no silicones, no phthalates, no drying alcohols, no heavy resins/plastic fixatives
+- **Site claims:** "Tested for skin safety"; 14 reviews on the product page (rating not shown); lab test results page is currently empty
 - **Label badges:** Organic Ingredients, Cruelty Free, Paraben Free, Lab Certified, ISO, GMP Quality, Natural Extracts, Proudly Made in India
 - **Customer numbers / ratings:** none provided
 - **Testimonials:** none provided
@@ -37,7 +41,7 @@ All facts below come from the product label and brand creatives supplied on 2026
 
 ## Compliance & rules
 - Avoid "100% natural" — the formula contains benzyl alcohol, salicylic acid and sorbic acid (preservatives). Use "naturally derived ingredients" (the label's own wording).
-- Don't claim the product is made in the Himalayas; the *salt* is Himalayan, the product is made in Delhi.
+- "Born in Himachal" is the brand's own claim (site). Label says manufactured in Delhi; use "Born in Himachal" only as brand line, never "made in the Himalayas".
 - No hair-growth, hair-fall or medical claims.
 
 ## Visual identity

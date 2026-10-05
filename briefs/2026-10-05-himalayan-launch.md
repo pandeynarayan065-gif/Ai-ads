@@ -8,11 +8,11 @@
 ## Goal
 - **Objective:** Sales / awareness (pitch piece)
 - **Primary KPI:** Impress the brand; in-market: CTR
-- **Landing page URL:** [VERIFY]
+- **Landing page URL:** https://spraymax.in
 
 ## Offer
 - **What we're promoting:** Spraymax Himalayan Sea Salt Hair Spray, 100 ml
-- **Offer / promo:** none
+- **Offer / promo:** ₹449 (M.R.P. ₹600), free shipping India-wide
 - **CTA:** Shop Now
 
 ## Creative direction

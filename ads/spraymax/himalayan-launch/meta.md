@@ -7,7 +7,7 @@ brief: briefs/2026-10-05-himalayan-launch.md
 
 # Meta ad: Himalayan Launch (Instagram/Facebook feed 4:5)
 
-Image: `images/` (generated from `prompt-1.md`). On-image text: "CONQUER FLAT HAIR." / "HIMALAYAN SEA SALT SPRAY"
+Image: `images/` (generated from `prompt-1.md`). On-image text: "CONQUER FLAT HAIR." / "THE ORIGINAL HIMALAYAN SEA SALT SPRAY"
 
 ## Variation 1 — Pain (PAS)
 - **Primary text:** Flat hair by noon? Gel too stiff, wax too greasy. Spraymax adds instant volume and a matte finish.
@@ -28,13 +28,19 @@ Image: `images/` (generated from `prompt-1.md`). On-image text: "CONQUER FLAT HA
 - **CTA button:** Shop Now
 
 ## Variation 4 — Objection
-- **Primary text:** Not sticky. Not stiff. Not heavy. Just Himalayan sea salt texture that lasts all day. [VERIFY "all day"]
+- **Primary text:** Not sticky. Not stiff. Not heavy. No silicones, no sulfates. Just Himalayan sea salt texture.
 - **Headline:** Volume without the crunch
 - **Description:** Paraben free. Cruelty free.
+- **CTA button:** Shop Now
+
+## Variation 6 — Origin (brand line)
+- **Primary text:** The original Himalayan sea salt spray. Born in Himachal. Shake, spray, style in under 10 seconds.
+- **Headline:** Born in Himachal
+- **Description:** Free shipping India-wide
 - **CTA button:** Shop Now
 
 ## Variation 5 — Curiosity
 - **Primary text:** The secret to that messy, just-off-the-mountain hair? 10 minutes and one bottle of Spraymax.
 - **Headline:** The Himalayan hair secret
-- **Description:** 100 ml · ₹600
+- **Description:** ₹449 + free shipping
 - **CTA button:** Shop Now

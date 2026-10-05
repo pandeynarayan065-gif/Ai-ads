@@ -8,5 +8,5 @@ LIGHTING & MOOD: dramatic, tough, epic, cold. Deep slate-black and glacier-blue 
 
 TYPOGRAPHY (render exactly, correctly spelled, nothing else):
 - Top center, large bold condensed white uppercase letters with generous letter spacing: "CONQUER FLAT HAIR."
-- Directly below it, smaller thin white uppercase letters: "HIMALAYAN SEA SALT SPRAY"
+- Directly below it, smaller thin white uppercase letters: "THE ORIGINAL HIMALAYAN SEA SALT SPRAY"
 Leave clean negative space in the sky for the text. No other words, logos, watermarks or badges anywhere in the image.
