@@ -33,13 +33,13 @@ Image: `images/` (generated from `prompt-1.md`). On-image text: "CONQUER FLAT HA
 - **Description:** Paraben free. Cruelty free.
 - **CTA button:** Shop Now
 
-## Variation 6 — Origin (brand line)
+## Variation 5 — Origin (brand line)
 - **Primary text:** The original Himalayan sea salt spray. Born in Himachal. Shake, spray, style in under 10 seconds.
 - **Headline:** Born in Himachal
 - **Description:** Free shipping India-wide
 - **CTA button:** Shop Now
 
-## Variation 5 — Curiosity
+## Variation 6 — Curiosity
 - **Primary text:** The secret to that messy, just-off-the-mountain hair? 10 minutes and one bottle of Spraymax.
 - **Headline:** The Himalayan hair secret
 - **Description:** ₹449 + free shipping
