@@ -22,3 +22,9 @@ Single bottle: ₹449 (site sale price). "Was" prices = 2× / 3× ₹449.
 - Soundtrack is a synthesized placeholder groove; swap in licensed music in the edit.
 - The full ribbon (band + bow) appears only on the two pack-reveal clips (Pack of 2, Pack of 3); every other shot shows clean bottles. A band without the bow reads as a bar over the logo, so never use it alone. Bow source: the bow is cut from the brand's own combo creative (`brand/spraymax/assets/ribbon-bow.png`), the band is drawn to match its measured navy.
 - Re-render: `python3 video/render_combo.py` (all) or `--only main|pack2|pack3`.
+
+## AI B-roll cut (`video/combo-ai-broll-15s.mp4`)
+Gemini clips (Drive folder) cut as 1–1.5 s full-screen B-roll between the graphics, with text, offer stickers,
+light leak and frame-mark overlays. Only frame-checked windows are used (g2 2.0–3.5, g5 3.0–4.5, g7 2.3–3.8,
+g6 1.8–3.3 s). Source clips are 720p, so B-roll is softer than the graphics. Turn on Meta's "AI info" label
+when posting. Re-render: `python3 video/render_mix.py <clips_dir>`.
