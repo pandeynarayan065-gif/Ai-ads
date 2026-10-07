@@ -28,3 +28,11 @@ Gemini clips (Drive folder) cut as 1–1.5 s full-screen B-roll between the grap
 light leak and frame-mark overlays. Only frame-checked windows are used (g2 2.0–3.5, g5 3.0–4.5, g7 2.3–3.8,
 g6 1.8–3.3 s). Source clips are 720p, so B-roll is softer than the graphics. Turn on Meta's "AI info" label
 when posting. Re-render: `python3 video/render_mix.py <clips_dir>`.
+
+## "Beach hair, bottled." (`video/combo-beach-hair-19s.mp4`)
+Desire first, offer second. Slow-motion B-roll (ffmpeg minterpolate) from frame-checked windows:
+hair = g7 9.42–10.0 s @0.19×, sea = g2 2.0–3.5 s @0.57×, spray = g7 2.3–3.8 s @0.48×, splash = g6 1.8–3.3 s @0.48×.
+0–3 "That beach-day hair?" · 3–5.5 "We bottled it." · 5.5–8.5 "Shake. Spray. Style." / "Done in under 10 seconds." ·
+8.5–11.5 "Himalayan sea salt." / "Matte texture. Zero grease." · 11.5–16 offer cards (₹799 / ₹999, per-bottle, save, best value,
+free shipping) · 16–19 end card. 0.35 s dissolves, ~90 BPM placeholder bed.
+Re-render: `python3 video/render_beach.py <slowmo_dir>`.

@@ -123,7 +123,7 @@ def broll(key, lines, sub=None, over=None):
         lk = LEAK.copy()
         k = 0.35 + 0.35 * np.sin(lt * 3.1 + len(key))
         lk[..., 3] = (lk[..., 3].astype(np.float32) * k).astype(np.uint8)
-        c.alpha_composite(Image.fromarray(lk, "RGBA"), (int(-60 * lt), 0))
+        c.alpha_composite(Image.fromarray(lk, "RGBA"))
         frame_marks(c, ease_out_quint(prog(lt, 0.0, 0.3)))
         lg = rc.LOGO_WHITE
         c.alpha_composite(lg, (int(W / 2 - lg.width / 2), 120))
