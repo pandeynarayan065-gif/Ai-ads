@@ -20,5 +20,5 @@ Single bottle: ₹449 (site sale price). "Was" prices = 2× / 3× ₹449.
 ## Notes
 - Their combo creatives say "100% natural sea salt spray"; left out on purpose (formula contains preservatives).
 - Soundtrack is a synthesized placeholder groove; swap in licensed music in the edit.
-- Packs wear a satin ribbon band; the bow appears only on the two pack-reveal clips (Pack of 2, Pack of 3): the bow is cut from the brand's own combo creative (`brand/spraymax/assets/ribbon-bow.png`), the band is drawn to match its measured navy.
+- The full ribbon (band + bow) appears only on the two pack-reveal clips (Pack of 2, Pack of 3); every other shot shows clean bottles. A band without the bow reads as a bar over the logo, so never use it alone. Bow source: the bow is cut from the brand's own combo creative (`brand/spraymax/assets/ribbon-bow.png`), the band is drawn to match its measured navy.
 - Re-render: `python3 video/render_combo.py` (all) or `--only main|pack2|pack3`.
