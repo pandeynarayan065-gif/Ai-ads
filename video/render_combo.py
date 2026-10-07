@@ -461,7 +461,7 @@ def s_three(lt, dur):
              dict(x=W / 2, base=1630, h=900, angle=0),
              dict(x=W / 2 + 185, base=1630, h=900, angle=6)]
     bottles(c, items, floor=False, glow=True, layer_rot=22 + 18 * (1 - p),
-            layer_off=(620 * (1 - p), 520 * (1 - p) - 70), pivot=(W / 2, 1180), wrap=(1, 1))
+            layer_off=(620 * (1 - p), 520 * (1 - p) - 70), pivot=(W / 2, 1180), wrap=(1, 0))
     reveal(c, txt("THREE’S", "InterTight-800", 176, WHITE), W / 2, 300, lt, 0.15, 0.5, out_t=dur - 0.2, out_dur=0.2)
     reveal(c, txt("THE MOVE.", "InterTight-800", 176, WHITE), W / 2, 482, lt, 0.28, 0.5, out_t=dur - 0.2, out_dur=0.2)
     return c, "indigo"
@@ -481,7 +481,7 @@ def s_compare(lt, dur):
         else:
             its = [dict(x=cx - 110, base=1140 + dy, h=470, angle=-14), dict(x=cx + 110, base=1140 + dy, h=470, angle=14),
                    dict(x=cx, base=1150 + dy, h=505, angle=0)]
-        bottles(c, its, floor=False, wrap=(1, 1))
+        bottles(c, its, floor=False, wrap=(1, 0))
         tag = pill(txt(PRICES[n][1], "InterTight-800", 78, INDIGO), WHITE, pad=(22, 8), radius=18)
         put(c, tag, cx, 1270 + dy)
         each = "Under ₹400 each" if n == 2 else "Just ₹333 each"
@@ -509,7 +509,7 @@ def s_end(variant):
                    dict(x=W / 2, base=1272 + 60 * (1 - k), h=650, angle=0)]
         for it in its:
             it["alpha"] = k
-        bottles(c, its, wrap=(1, 1, k))
+        bottles(c, its, wrap=(1, 0, k))
         hand_note(c, lt, 0.35, W / 2, 1405, size=50)
         q = ease_out_quint(prog(lt, 0.55, 0.45))
         if q > 0:
