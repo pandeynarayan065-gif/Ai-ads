@@ -140,15 +140,15 @@ def broll(key, lines, sub=None, over=None):
 
 TL = [
     (broll("sea", [("ONE’S", 520, 190), ("GOOD.", 720, 190)], over=("new", 0.5)), 1.5, False),
-    (rc.s_two, 1.5, True),
+    (rc.s_two, 1.5, False),
     (rc.s_pack(2), 2.0, False),
-    (broll("spray", [("INSTANT", 560, 150), ("VOLUME.", 720, 150)], over=(2, 0.12)), 1.0, True),
-    (rc.s_three, 1.5, True),
-    (rc.s_pack(3), 2.0, True),
-    (broll("splash", [("REAL", 560, 150), ("TEXTURE.", 720, 150)], over=(3, 0.12)), 1.0, True),
-    (rc.s_compare, 2.0, True),
-    (broll("shore", [("HIMALAYAN", 560, 132), ("SEA SALT.", 710, 132)], over=("ship", 0.15)), 1.0, True),
-    (rc.s_end(0), 1.5, True),
+    (broll("spray", [("INSTANT", 560, 150), ("VOLUME.", 720, 150)], over=(2, 0.12)), 1.0, False),
+    (rc.s_three, 1.5, False),
+    (rc.s_pack(3), 2.0, False),
+    (broll("splash", [("REAL", 560, 150), ("TEXTURE.", 720, 150)], over=(3, 0.12)), 1.0, False),
+    (rc.s_compare, 2.0, False),
+    (broll("shore", [("HIMALAYAN", 560, 132), ("SEA SALT.", 710, 132)], over=("ship", 0.15)), 1.0, False),
+    (rc.s_end(0), 1.5, False),
 ]
 
 

@@ -405,8 +405,8 @@ def s_one(lt, dur):
     c = INDIGO_SET.copy()
     p = ease_out_quint(prog(lt, 0.05, 0.75))
     bottles(c, [dict(x=W / 2, base=1745 + 900 * (1 - p), h=1000, angle=70 * (1 - p))], floor=False, glow=True)
-    reveal(c, txt("ONE’S", "InterTight-800", 210, WHITE), W / 2, 330, lt, 0.15, 0.5, out_t=dur - 0.2, out_dur=0.2)
-    reveal(c, txt("GOOD.", "InterTight-800", 210, WHITE), W / 2, 535, lt, 0.28, 0.5, out_t=dur - 0.2, out_dur=0.2)
+    reveal(c, txt("ONE’S", "InterTight-800", 210, WHITE), W / 2, 330, lt, 0.15, 0.5)
+    reveal(c, txt("GOOD.", "InterTight-800", 210, WHITE), W / 2, 535, lt, 0.28, 0.5)
     q = ease_out_quint(prog(lt, 0.9, 0.4))
     put(c, txt("1 × 100 ml  ·  ₹449", "InterTight-600", 40, (205, 205, 255)), W / 2, 1840 + 12 * (1 - q), alpha=q)
     return c, "indigo"
@@ -421,8 +421,8 @@ def pair_items(lt, slide_t0=0.0):
 def s_two(lt, dur):
     c = PAPER_SET.copy()
     bottles(c, pair_items(lt, 0.05), wrap=(prog(lt, 0.72, 0.4), prog(lt, 1.02, 0.42)))
-    reveal(c, txt("TWO’S", "InterTight-800", 210, gradient=True), W / 2, 330, lt, 0.15, 0.5, out_t=dur - 0.22, out_dur=0.22)
-    reveal(c, txt("BETTER.", "InterTight-800", 210, gradient=True), W / 2, 535, lt, 0.28, 0.5, out_t=dur - 0.22, out_dur=0.22)
+    reveal(c, txt("TWO’S", "InterTight-800", 210, gradient=True), W / 2, 330, lt, 0.15, 0.5)
+    reveal(c, txt("BETTER.", "InterTight-800", 210, gradient=True), W / 2, 535, lt, 0.28, 0.5)
     return c, "paper"
 
 
@@ -462,8 +462,8 @@ def s_three(lt, dur):
              dict(x=W / 2 + 185, base=1630, h=900, angle=6)]
     bottles(c, items, floor=False, glow=True, layer_rot=22 + 18 * (1 - p),
             layer_off=(620 * (1 - p), 520 * (1 - p) - 70), pivot=(W / 2, 1180))
-    reveal(c, txt("THREE’S", "InterTight-800", 176, WHITE), W / 2, 300, lt, 0.15, 0.5, out_t=dur - 0.2, out_dur=0.2)
-    reveal(c, txt("THE MOVE.", "InterTight-800", 176, WHITE), W / 2, 482, lt, 0.28, 0.5, out_t=dur - 0.2, out_dur=0.2)
+    reveal(c, txt("THREE’S", "InterTight-800", 176, WHITE), W / 2, 300, lt, 0.15, 0.5)
+    reveal(c, txt("THE MOVE.", "InterTight-800", 176, WHITE), W / 2, 482, lt, 0.28, 0.5)
     return c, "indigo"
 
 
