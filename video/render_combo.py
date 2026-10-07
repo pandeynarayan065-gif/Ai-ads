@@ -528,7 +528,10 @@ TIMELINES = {
     "pack2": [(s_two, 2.0, True), (s_pack(2), 2.5, False), (s_end(2), 1.5, True)],
     "pack3": [(s_three, 2.0, True), (s_pack(3), 2.5, True), (s_end(3), 1.5, True)],
 }
-FILES = {"main": "combo-15s.mp4", "pack2": "combo-pack2-6s.mp4", "pack3": "combo-pack3-6s.mp4"}
+# slower cut of the main film: same clips, ~2x hold time, no cut punch
+TIMELINES["slow"] = [(s_one, 2.5, False), (s_two, 2.5, False), (s_pack(2), 3.5, False), (s_three, 2.5, False),
+                     (s_pack(3), 3.5, False), (s_compare, 3.0, False), (s_end(0), 3.0, False)]
+FILES = {"slow": "combo-slow-20s.mp4", "main": "combo-15s.mp4", "pack2": "combo-pack2-6s.mp4", "pack3": "combo-pack3-6s.mp4"}
 
 
 def frame_at(tl, t, i):

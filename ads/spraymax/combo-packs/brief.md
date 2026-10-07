@@ -36,3 +36,14 @@ hair = g7 9.42–10.0 s @0.19×, sea = g2 2.0–3.5 s @0.57×, spray = g7 2.3–
 8.5–11.5 "Himalayan sea salt." / "Matte texture. Zero grease." · 11.5–16 offer cards (₹799 / ₹999, per-bottle, save, best value,
 free shipping) · 16–19 end card. 0.35 s dissolves, ~90 BPM placeholder bed.
 Re-render: `python3 video/render_beach.py <slowmo_dir>`.
+
+## Real UGC ad, Hinglish (`video/combo-real-ugc-20s.mp4`)
+Real phone footage (Drive, VID_2026…): hook "FLAT HAIR? Roz subah yahi scene?" (r5 1.0 s) → "Bas spray karo…" (r5 33.0 s)
+→ "…aur haathon se scrunch." (r5 52.2 s) → stacked before/after, same session (r5 12.5 s vs 78.3 s) "Same din. Same banda."
+→ close-up result (r6 0–2.5 s) "Volume. Texture. Chipchipa bilkul nahi." → bottle in hand (r4 2.0 s, mirrored front-camera
+shot flipped so the label reads) → parking lot (r2 2.0 s) "College ready. Office ready." → "Combo mein aur sasta." offer → end card.
+Re-render: `python3 video/render_real.py <real_clips_dir>`.
+
+## Slower graphics-only cut (`video/combo-slow-20s.mp4`)
+Same seven graphic clips as `combo-15s.mp4` with longer holds (2.5–3.5 s each, 20.5 s) and no cut punch.
+Re-render: `python3 video/render_combo.py --only slow`.
