@@ -171,9 +171,9 @@ def spray(canvas, t, t0, ox, oy, dur=0.75):
 
 # ---------- product: split the clear overcap off the cut-out ----------
 # crop coords of Bottle.base (crop origin 440,770 in bottle-blank.png)
-CAP_BOX = (134, 14, 361, 306)          # clear overcap incl. rims
-ACT = (207, 322, 58, 215)              # actuator x0, x1, y0, y1
-FERRULE = (168, 326, 215, 304)         # pump base under the actuator
+CAP_BOX = (145, 18, 356, 302)          # clear overcap (procedural sprite of this size)
+ACT = (168, 328, 54, 224)              # actuator x0, x1, y0, y1 (real pump: ~2/3 collar width)
+FERRULE = (157, 339, 218, 304)         # pump ring under the actuator (slightly wider)
 
 
 def _cyl(x0, x1, y0, y1, h, w, tint=(244, 246, 251), spec=0.12):
@@ -192,41 +192,68 @@ def make_capless(base):
         col = _cyl(x0, x1, y0, y1, h, w, tint)
         a[y0:y1, x0:x1, :3] = col[x0:x1][None, :, :]
         a[y0:y1, x0:x1, 3] = 1
-    # rounded top of the actuator and a soft shadow line where it meets the ferrule
-    x0, x1, y0, _ = ACT
-    r = 10
-    for yy in range(r):
-        inset = int(r - math.sqrt(max(0, r * r - (r - yy) ** 2)))
-        a[y0 + yy, x0:x0 + inset, 3] = 0
-        a[y0 + yy, x1 - inset:x1, 3] = 0
-    a[ACT[3] - 2:ACT[3] + 3, FERRULE[0]:FERRULE[1], :3] *= 0.82
-    # spray orifice on the actuator's right side
     yy, xx = np.mgrid[0:h, 0:w]
-    hole = ((xx - 313) / 6) ** 2 + ((yy - 98) / 8) ** 2 <= 1
-    a[hole, :3] = np.array([0.36, 0.38, 0.45])
+    # ring details: bright lip where the actuator enters, a groove near the bottom
+    fx0, fx1, fy0, fy1 = FERRULE
+    a[fy0:fy0 + 3, fx0:fx1, :3] = np.minimum(1, a[fy0:fy0 + 3, fx0:fx1, :3] * 1.06)
+    a[fy0 + 3:fy0 + 6, fx0:fx1, :3] *= 0.86
+    g = fy1 - 16
+    a[g:g + 2, fx0:fx1, :3] *= 0.8
+    a[g + 2:g + 4, fx0:fx1, :3] = np.minimum(1, a[g + 2:g + 4, fx0:fx1, :3] * 1.05)
+    # actuator: rounded top corners, thin bright top edge, contact shadow on the ring lip
+    x0, x1, y0, y1 = ACT
+    r = 7
+    for k in range(r):
+        inset = int(r - math.sqrt(max(0, r * r - (r - k) ** 2)))
+        a[y0 + k, x0:x0 + inset, 3] = 0
+        a[y0 + k, x1 - inset:x1, 3] = 0
+    a[y0:y0 + 4, x0 + 4:x1 - 4, :3] = np.minimum(1, a[y0:y0 + 4, x0 + 4:x1 - 4, :3] * 1.04)
+    a[y0 + 4:y0 + 6, x0 + 4:x1 - 4, :3] *= 0.93
+    a[y1 - 4:y1, x0:x1, :3] *= 0.84
+    # nozzle insert on the right edge (seen from the side, as in the reference photo): cream disc
+    # foreshortened to an oval, darker orifice in the middle
+    cxo, cyo = x1 - 9, y0 + 40
+    disc = ((xx - cxo) / 8) ** 2 + ((yy - cyo) / 21) ** 2 <= 1
+    a[disc & (xx < x1), :3] = np.array([0.88, 0.87, 0.80])
+    a[disc & (xx < x1), 3] = 1
+    rim = (((xx - cxo) / 9.5) ** 2 + ((yy - cyo) / 23) ** 2 <= 1) & ~disc & (xx < x1)
+    a[rim, :3] *= 0.8
+    hole = ((xx - cxo - 1) / 3.2) ** 2 + ((yy - cyo) / 6) ** 2 <= 1
+    a[hole, :3] = np.array([0.55, 0.55, 0.52])
     return a
 
 
-def make_cap(base):
-    x0, y0, x1, y1 = CAP_BOX
-    cap = base[y0:y1, x0:x1].copy()
-    h, w = cap.shape[:2]
-    alpha = np.zeros((h, w), np.float32)
-    for y in range(h):
-        xs = np.where(cap[y, :, 3] > 0.5)[0]
-        if len(xs) < 20:
-            continue
-        l, r_ = xs.min(), xs.max()
-        cl, cr = cap[y, l + 8, :3], cap[y, r_ - 8, :3]
-        for x in range(l + 12, r_ - 11):  # clear interior: remove the actuator seen through it
-            k = (x - l) / max(1, r_ - l)
-            cap[y, x, :3] = np.minimum(1, (cl * (1 - k) + cr * k) * 0.6 + 0.4)
-        alpha[y, l:r_ + 1] = 0.28
-        alpha[y, l:l + 12] = alpha[y, r_ - 11:r_ + 1] = 0.85
-    alpha[:16][alpha[:16] > 0] = 0.85                 # top rim
-    alpha[-24:][alpha[-24:] > 0] = np.maximum(alpha[-24:][alpha[-24:] > 0], 0.7)  # bottom rim
-    cap[:, :, 3] = alpha
-    return Image.fromarray((np.clip(cap, 0, 1) * 255).astype(np.uint8), "RGBA")
+def make_cap(base=None):
+    """Procedural clear overcap: thin tinted walls, specular streaks, top and bottom rims.
+    Sized to the cap in the cut-out (crop x 145..355, y 18..302) and drawn over the actuator."""
+    w, h = 211, 284
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    u = (xx - (w - 1) / 2) / ((w - 1) / 2)
+    au = np.abs(u)
+    alpha = np.full((h, w), 0.11, np.float32)
+    col = np.zeros((h, w, 3), np.float32) + np.array([0.93, 0.95, 0.98])
+    wall = np.exp(-(1 - au) / 0.035)                       # walls seen edge-on
+    alpha += 0.78 * wall
+    col = col * (1 - wall[..., None]) + np.array([0.74, 0.78, 0.86]) * wall[..., None]
+    for c0, wd, a in ((-0.58, 0.07, 0.55), (-0.42, 0.025, 0.32), (0.72, 0.035, 0.40)):  # highlights
+        sp = np.exp(-((u - c0) / wd) ** 2)
+        alpha += a * sp
+        col = col * (1 - sp[..., None]) + sp[..., None]
+    top = np.exp(-yy / 6)                                   # top face edge
+    alpha += 0.68 * top
+    rim = np.exp(-((yy - (h - 14)) / 7) ** 2)              # bottom rim band
+    alpha += 0.48 * rim
+    col = col * (1 - 0.4 * rim[..., None]) + np.array([0.82, 0.85, 0.91]) * 0.4 * rim[..., None]
+    line = np.exp(-((yy - (h - 24)) / 1.5) ** 2) * 0.35    # rim highlight line
+    alpha += line
+    col = np.minimum(1, col + line[..., None] * 0.5)
+    r = 9                                                   # rounded top corners
+    corner = ((yy < r) & ((xx < r) | (xx > w - 1 - r)))
+    dx = np.where(xx < r, r - xx, xx - (w - 1 - r))
+    alpha[corner & ((dx ** 2 + (r - yy) ** 2) > r * r)] = 0
+    alpha[au > 1] = 0
+    rgba = np.dstack([np.clip(col, 0, 1), np.clip(alpha, 0, 0.92)])
+    return Image.fromarray((rgba * 255).astype(np.uint8), "RGBA")
 
 
 BOTTLE = None
@@ -237,7 +264,9 @@ LOGO = None
 
 
 def place_bottle(canvas, t, angle, cx, scale, tilt=0.0, lift=0.0, presence=1.0, capped=True, cap_fx=None):
-    img = (BOTTLE if capped else BOTTLE_NC).render(angle)
+    img = BOTTLE_NC.render(angle)
+    if capped and cap_fx is None:
+        cap_fx = (0, 0, 0, 1.0)
     if scale != 1:
         img = img.resize((int(img.width * scale), int(img.height * scale)), Image.BICUBIC)
     if tilt:
@@ -277,8 +306,8 @@ def place_bottle(canvas, t, angle, cx, scale, tilt=0.0, lift=0.0, presence=1.0, 
             ccx = cx - bw / 2 + (CAP_BOX[0] + CAP_BOX[2]) / 2 * s + dx
             ccy = top + (CAP_BOX[1] + CAP_BOX[3]) / 2 * s + dy
             canvas.alpha_composite(cp, (int(ccx - cp.width / 2), int(ccy - cp.height / 2)))
-    # spray orifice on the actuator (crop x≈319, y≈98; bottle crop centre x=250)
-    return cx - bw / 2 + 319 * s, top + 98 * s, top, bh
+    # spray origin = nozzle insert on the actuator's right edge
+    return cx - bw / 2 + (ACT[1] - 6) * s, top + (ACT[2] + 40) * s, top, bh
 
 
 def callout(canvas, t, t0, x0, y0, x1, label, sub):
@@ -471,13 +500,13 @@ def main():
     BOTTLE = Bottle(height=1060)
     BOTTLE_NC = Bottle(height=1060)
     BOTTLE_NC.base = make_capless(BOTTLE.base)
-    CAP = make_cap(BOTTLE.base)
+    CAP = make_cap()
     logo = Image.open(ASSETS / "logo-wide.png").convert("RGBA")
     logo = logo.crop(logo.getbbox())
     LOGO = logo.resize((560, int(560 * logo.height / logo.width)), Image.LANCZOS)
 
     if "--preview" in sys.argv:
-        for ts in (6.9, 7.3, 7.6, 8.15, 9.0, 11.65, 13.7, 13.95, 14.6):
+        for ts in (6.6, 8.3, 9.6, 14.9):
             frame(ts).save(OUT / f"v2_preview_{ts:05.2f}.jpg", quality=90)
         print("previews written")
         return
