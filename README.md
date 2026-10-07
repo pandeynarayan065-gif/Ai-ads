@@ -22,3 +22,13 @@ A Claude Code workspace for generating ad copy and creative concepts.
 | `.claude/commands/` | The slash commands above |
 
 Supported platforms: Google Search, Google Display, Meta (Facebook/Instagram), LinkedIn, TikTok, X.
+
+## Image generation with kie.ai
+
+1. Get your key at https://kie.ai/api-key.
+2. Add it as the environment variable `KIE_API_KEY` in this cloud environment's settings
+   (environment menu in the session title bar → Edit → environment variables), then start a new session.
+   Running locally instead: put `KIE_API_KEY=...` in a `.env` file in the repo root (it's gitignored).
+3. `python3 scripts/kie_generate.py credits` checks your balance.
+4. `python3 scripts/kie_generate.py image --prompt-file <prompt.md> --out <dir> --ref product.jpg`
+   does a dry run first. Add `--yes` to actually generate and spend credits.
