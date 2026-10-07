@@ -182,10 +182,80 @@ class Packshot:
 
 
 PS = None
+BOW = None
+BAND_TEX = None
+RIB = (37, 63, 118)           # satin navy measured from the brand's combo creative
 
 
-def bottles(c, items, floor=True, glow=False, layer_rot=0.0, layer_off=(0, 0), pivot=None):
-    """items: dicts x, base, h, angle, [alpha]; drawn in list order (back to front)."""
+def make_band_texture(w=1400, h=120):
+    """Satin band: measured navy, soft sheen across the middle, fine woven grain, stitched edges."""
+    r = np.random.default_rng(3)
+    y = np.linspace(0, 1, h)[:, None]
+    sheen = 0.82 + 0.34 * np.exp(-((y - 0.36) / 0.15) ** 2) - 0.14 * (np.abs(y - 0.5) * 2) ** 3
+    fine = r.normal(0, 1, (h, w))
+    low = np.cumsum(r.normal(0, 1, (h, w)), 1)
+    low = (low - np.convolve(low.mean(0), np.ones(25) / 25, mode="same")[None, :]) / 40
+    tex = sheen * (1 + 0.045 * fine + 0.08 * np.tanh(low))
+    for e in (0.07, 0.93):  # stitch lines near the edges
+        tex += 0.10 * np.exp(-((y - e) / 0.012) ** 2)
+    rgb = np.clip(np.array(RIB, np.float32)[None, None, :] / 255 * tex[..., None], 0, 1)
+    return Image.fromarray((rgb * 255).astype(np.uint8), "RGB").convert("RGBA")
+
+
+def ribbon(L, items, band_p, bow_p, alpha=1.0):
+    """Wrap a satin band across the pack (grows from the centre) and pop the brand's bow on top."""
+    if band_p <= 0 or not items:
+        return
+    front = items[-1]
+    hf = front["h"]
+    cy = front["base"] - hf + 0.59 * hf
+    t = max(6, int(0.091 * hf))
+    halfw = [0.2514 * it["h"] / 2 for it in items]
+    x0 = min(it["x"] - hw for it, hw in zip(items, halfw))
+    x1 = max(it["x"] + hw for it, hw in zip(items, halfw))
+    mid = (x0 + x1) / 2
+    gx0 = mid - (mid - x0) * ease_out_quint(band_p)
+    gx1 = mid + (x1 - mid) * ease_out_quint(band_p)
+    wpx = int(gx1 - gx0)
+    if wpx < 2:
+        return
+    band = BAND_TEX.resize((BAND_TEX.width, t), Image.BICUBIC).crop((0, 0, wpx, t))
+    xs = np.arange(wpx) + gx0
+    shade = np.full(wpx, 0.78)
+    for it, hw in zip(items, halfw):  # wrap shading: darker where the band turns away on each bottle
+        u = (xs - it["x"]) / hw
+        inside = np.abs(u) < 1
+        shade = np.where(inside, 0.6 + 0.4 * np.sqrt(np.clip(1 - u ** 2, 0, 1)), shade)  # front bottle wins
+    arr = np.asarray(band).astype(np.float32)
+    arr[..., :3] *= shade[None, :, None]
+    arr[..., 3] = 255 * alpha
+    band = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA")
+    shadow = Image.new("RGBA", (wpx + 40, t + 40), (0, 0, 0, 0))
+    sd = Image.new("RGBA", (wpx, t), (10, 10, 40, int(110 * alpha)))
+    shadow.alpha_composite(sd, (20, 26))
+    L.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(7)), (int(gx0 - 20), int(cy - t / 2 - 20)))
+    L.alpha_composite(band, (int(gx0), int(cy - t / 2)))
+    q = prog(bow_p, 0, 1)
+    if q > 0:
+        k = hf / 1055.0
+        sc = (0.4 + 0.6 * (1 + 2.7 * (q - 1) ** 3 + 1.7 * (q - 1) ** 2)) if q < 1 else 1.0
+        bw, bh = int(BOW.width * k * sc), int(BOW.height * k * sc)
+        if bw > 4 and bh > 4:
+            bow = BOW.resize((bw, bh), Image.LANCZOS)
+            a_ = min(1, q * 3) * alpha
+            if a_ < 1:
+                bow.putalpha(bow.getchannel("A").point(lambda v: int(v * a_)))
+            bsh = Image.new("RGBA", (bw + 40, bh + 40), (0, 0, 0, 0))
+            sil = Image.new("RGBA", bow.size, (10, 10, 40, 0))
+            sil.putalpha(bow.getchannel("A").point(lambda v: int(v * 0.45)))
+            bsh.alpha_composite(sil, (20, 28))
+            L.alpha_composite(bsh.filter(ImageFilter.GaussianBlur(8)), (int(mid - bw / 2 - 20), int(cy - 86 * k * sc - 20)))
+            L.alpha_composite(bow, (int(mid - bw / 2), int(cy - 86 * k * sc)))
+
+
+def bottles(c, items, floor=True, glow=False, layer_rot=0.0, layer_off=(0, 0), pivot=None, wrap=None):
+    """items: dicts x, base, h, angle, [alpha]; drawn in list order (back to front).
+    wrap: (band_progress, bow_progress[, alpha]) to add the ribbon."""
     L = Image.new("RGBA", (W, H), (0, 0, 0, 0)) if (layer_rot or layer_off != (0, 0)) else c
     for it in items:
         img = PS.get(it.get("angle", 0), it["h"])
@@ -215,6 +285,8 @@ def bottles(c, items, floor=True, glow=False, layer_rot=0.0, layer_off=(0, 0), p
             im = img.copy()
             im.putalpha(img.getchannel("A").point(lambda v: int(v * a)))
         L.alpha_composite(im, (int(x - img.width / 2), int(top)))
+    if wrap:
+        ribbon(L, items, *wrap)
     if L is not c:
         if layer_rot:
             L = L.rotate(layer_rot, resample=Image.BICUBIC, center=pivot or (W / 2, H / 2))
@@ -348,7 +420,7 @@ def pair_items(lt, slide_t0=0.0):
 
 def s_two(lt, dur):
     c = PAPER_SET.copy()
-    bottles(c, pair_items(lt, 0.05))
+    bottles(c, pair_items(lt, 0.05), wrap=(prog(lt, 0.72, 0.4), prog(lt, 1.02, 0.42)))
     reveal(c, txt("TWO’S", "InterTight-800", 210, gradient=True), W / 2, 330, lt, 0.15, 0.5, out_t=dur - 0.22, out_dur=0.22)
     reveal(c, txt("BETTER.", "InterTight-800", 210, gradient=True), W / 2, 535, lt, 0.28, 0.5, out_t=dur - 0.22, out_dur=0.22)
     return c, "paper"
@@ -366,7 +438,8 @@ def s_pack(n):
                      dict(x=W / 2 + 205 * p, base=1585, h=860, angle=12 * p),
                      dict(x=W / 2, base=1600, h=930, angle=0)]
             target = (W / 2 + 300, 860)
-        bottles(c, items)
+        wrap = (1, 1) if n == 2 else (prog(lt, 0.55, 0.4), prog(lt, 0.85, 0.42))
+        bottles(c, items, wrap=wrap)
         reveal(c, txt(f"PACK OF {n}", "InterTight-800", 172, gradient=True), W / 2, 300, lt, 0.05, 0.5)
         tag_end = price_line(c, lt, 0.3, n, 468)
         dashed_arrow(c, lt, 1.15, tag_end, target)
@@ -379,13 +452,16 @@ def s_pack(n):
 def s_three(lt, dur):
     c = INDIGO_SET.copy()
     p = ease_out_quint(prog(lt, 0.02, 0.7))
+    f = ease_out_quint(prog(lt, 0.2, 0.6))  # crisp indigo frame behind the pack (brand trio creative)
+    fy = 700 * (1 - f)
+    d = ImageDraw.Draw(c)
+    d.rectangle((330, 650 + fy, 750, 1720 + fy), fill=(10, 0, 178, 255))
+    d.rectangle((330, 650 + fy, 750, 1720 + fy), outline=(185, 185, 255, 150), width=2)
     items = [dict(x=W / 2 - 185, base=1630, h=900, angle=-6),
              dict(x=W / 2, base=1630, h=900, angle=0),
              dict(x=W / 2 + 185, base=1630, h=900, angle=6)]
     bottles(c, items, floor=False, glow=True, layer_rot=22 + 18 * (1 - p),
-            layer_off=(620 * (1 - p), 520 * (1 - p) - 70), pivot=(W / 2, 1180))
-    g = ease_out_quint(prog(lt, 0.35, 0.6))
-    glass(c, (300, 1380 + 600 * (1 - g), 930, 1650 + 600 * (1 - g)), radius=4, tint=0.05, blur=24)
+            layer_off=(620 * (1 - p), 520 * (1 - p) - 70), pivot=(W / 2, 1180), wrap=(1, 1))
     reveal(c, txt("THREE’S", "InterTight-800", 176, WHITE), W / 2, 300, lt, 0.15, 0.5, out_t=dur - 0.2, out_dur=0.2)
     reveal(c, txt("THE MOVE.", "InterTight-800", 176, WHITE), W / 2, 482, lt, 0.28, 0.5, out_t=dur - 0.2, out_dur=0.2)
     return c, "indigo"
@@ -405,7 +481,7 @@ def s_compare(lt, dur):
         else:
             its = [dict(x=cx - 110, base=1140 + dy, h=470, angle=-14), dict(x=cx + 110, base=1140 + dy, h=470, angle=14),
                    dict(x=cx, base=1150 + dy, h=505, angle=0)]
-        bottles(c, its, floor=False)
+        bottles(c, its, floor=False, wrap=(1, 1))
         tag = pill(txt(PRICES[n][1], "InterTight-800", 78, INDIGO), WHITE, pad=(22, 8), radius=18)
         put(c, tag, cx, 1270 + dy)
         each = "Under ₹400 each" if n == 2 else "Just ₹333 each"
@@ -433,7 +509,7 @@ def s_end(variant):
                    dict(x=W / 2, base=1272 + 60 * (1 - k), h=650, angle=0)]
         for it in its:
             it["alpha"] = k
-        bottles(c, its)
+        bottles(c, its, wrap=(1, 1, k))
         hand_note(c, lt, 0.35, W / 2, 1405, size=50)
         q = ease_out_quint(prog(lt, 0.55, 0.45))
         if q > 0:
@@ -555,8 +631,10 @@ def audio(path, tl, sr=44100):
 
 
 def setup():
-    global PS, PAPER_SET, PAPER_PLAIN, INDIGO_SET, LOGO, LOGO_WHITE
+    global PS, PAPER_SET, PAPER_PLAIN, INDIGO_SET, LOGO, LOGO_WHITE, BOW, BAND_TEX
     PS = Packshot(1000)
+    BOW = Image.open(ASSETS / "ribbon-bow.png").convert("RGBA")
+    BAND_TEX = make_band_texture()
     PAPER_SET = make_paper(1395)
     PAPER_PLAIN = make_paper(None)
     INDIGO_SET = make_indigo()
