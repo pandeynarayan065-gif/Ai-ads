@@ -415,7 +415,10 @@ def main():
     at, nframes = SHOTS[shot](sc)
     frames = [int(x) for x in a[a.index("--frames") + 1].split(",")] if "--frames" in a else range(1, nframes + 1)
     out.mkdir(parents=True, exist_ok=True)
+    skip = "--skip-existing" in a
     for f in frames:
+        if skip and (out / f"{shot}_{f:04d}.png").exists():
+            continue
         sc.frame_set(f)
         at(f)
         sc.render.filepath = str(out / f"{shot}_{f:04d}.png")
