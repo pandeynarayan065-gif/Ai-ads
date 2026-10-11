@@ -108,34 +108,15 @@ def aim(ob, target):
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 
-# ---------------------------------------------------------------- scene
-def build(samples=64, res_scale=100):
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    sc = bpy.context.scene
-    sc.render.engine = "CYCLES"
-    sc.cycles.device = "CPU"
-    sc.cycles.samples = samples
-    sc.cycles.use_denoising = True
-    sc.cycles.max_bounces = 8
-    sc.cycles.transmission_bounces = 8
-    sc.cycles.caustics_reflective = False
-    sc.cycles.caustics_refractive = False
-    sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
-    sc.render.resolution_percentage = res_scale
-    sc.render.film_transparent = False
-    sc.view_settings.view_transform = "AgX"
-    sc.view_settings.look = "AgX - Medium High Contrast"
-    world = bpy.data.worlds.new("W")
-    world.use_nodes = True
-    world.node_tree.nodes["Background"].inputs[0].default_value = (0.004, 0.003, 0.02, 1)
-    world.node_tree.nodes["Background"].inputs[1].default_value = 1.0
-    sc.world = world
-
+# ---------------------------------------------------------------- bottle
+def make_bottle(with_cap=True):
+    """The Spraymax bottle: lathed body, wrapped real label, ribbed collar, pump, nozzle insert, clear cap.
+    Returns (root empty, body radius). Front label panel and nozzle face -Y."""
     # --- bottle body (shoulder -> body -> rounded base), measured from the cut-out
     R = r(436)
     body_prof = [(0.0, 0.0), (R - 0.004, 0.0), (R - 0.0012, 0.0006), (R, 0.003)]
     body_prof += [(R, z(1430)), (R * 0.98, z(1395)), (R * 0.9, z(1355)), (R * 0.75, z(1320)), (r(250), z(1295)), (r(250), z(1285))]
-    white = principled("BottleWhite", (0.92, 0.92, 0.94), rough=0.22, coat=0.6, sss=0.05)
+    white = principled("BottleWhite", (0.92, 0.92, 0.94), rough=0.22, coat=0.6)
     body = lathe("Body", body_prof, segs=160)
     body.data.materials.append(white)
 
@@ -165,9 +146,9 @@ def build(samples=64, res_scale=100):
     label.data.materials.append(m)
 
     # --- ribbed collar, pump ring, actuator, nozzle insert
-    plastic = principled("PumpWhite", (0.9, 0.9, 0.92), rough=0.35, sss=0.03)
+    plastic = principled("PumpWhite", (0.9, 0.9, 0.92), rough=0.35)
     col_prof = [(0.0, z(1290)), (r(236), z(1290)), (r(244), z(1284)), (r(244), z(1092)), (r(236), z(1085)), (r(150), z(1085)), (0.0, z(1085))]
-    collar = lathe("Collar", col_prof, segs=192, rib=(64, r(10), z(1280), z(1095)))
+    collar = lathe("Collar", col_prof, segs=192, rib=(48, r(22), z(1280), z(1095)))
     collar.data.materials.append(plastic)
     ring = lathe("PumpRing", [(0.0, z(1085)), (r(182), z(1085)), (r(182), z(1010)), (r(170), z(1000)), (0.0, z(1000))], segs=96)
     ring.data.materials.append(plastic)
@@ -181,6 +162,8 @@ def build(samples=64, res_scale=100):
     cap_outer = [(0.0, z(800)), (r(196), z(800)), (r(206), z(806)), (r(208), z(1080)), (r(212), z(1088))]
     cap_prof = cap_outer + [(r(198), z(1088)), (r(194), z(1080)), (r(192), z(814)), (r(184), z(810)), (0.0, z(810))]
     cap = lathe("Cap", cap_prof[::-1], segs=128)
+    if not with_cap:
+        cap.hide_render = True
     # thin clear plastic: mostly see-through with a Fresnel-weighted gloss, so the pump reads through it
     cm = bpy.data.materials.new("ClearCap")
     cm.use_nodes = True
@@ -199,11 +182,39 @@ def build(samples=64, res_scale=100):
     cn.links.new(mix.outputs["Shader"], cn.nodes["Material Output"].inputs["Surface"])
     cap.data.materials.append(cm)
 
-    bottle = [body, label, collar, ring, act, nozzle, cap]
+    bottle = [body, label, collar, ring, act, nozzle] + ([cap] if with_cap else [])
     root = bpy.data.objects.new("Bottle", None)
     bpy.context.collection.objects.link(root)
     for o in bottle:
         o.parent = root
+    return root, R
+
+
+
+# ---------------------------------------------------------------- scene
+def build(samples=64, res_scale=100):
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    sc = bpy.context.scene
+    sc.render.engine = "CYCLES"
+    sc.cycles.device = "CPU"
+    sc.cycles.samples = samples
+    sc.cycles.use_denoising = True
+    sc.cycles.max_bounces = 8
+    sc.cycles.transmission_bounces = 8
+    sc.cycles.caustics_reflective = False
+    sc.cycles.caustics_refractive = False
+    sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
+    sc.render.resolution_percentage = res_scale
+    sc.render.film_transparent = False
+    sc.view_settings.view_transform = "AgX"
+    sc.view_settings.look = "AgX - Medium High Contrast"
+    world = bpy.data.worlds.new("W")
+    world.use_nodes = True
+    world.node_tree.nodes["Background"].inputs[0].default_value = (0.004, 0.003, 0.02, 1)
+    world.node_tree.nodes["Background"].inputs[1].default_value = 1.0
+    sc.world = world
+
+    root, R = make_bottle()
     root.location = (0, 0, 0.012)       # sits slightly sunk into the salt bed
 
     # --- set: indigo cove (floor curving up into a backdrop)
