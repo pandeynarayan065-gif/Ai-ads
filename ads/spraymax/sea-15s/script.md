@@ -2,14 +2,14 @@
 
 Structure (per Narayan): 7 clips x 2s. 3 product clips with the real bottle,
 3 storytelling clips, 1 studio clip (AI-generated studio look). No human face.
-Palette: deep ocean blue/teal + warm golden sunlight (matches the label's wave band).
+Palette: deep ocean blue/teal in natural daylight with real sunlight reflections, no golden tint (matches the label's wave band).
 Reference image for the bottle: brand/spraymax/assets/bottle-ref-clean.jpg.
 
 | Time | Clip | Type | Picture | Text | Sound |
 |---|---|---|---|---|---|
-| 0:00-0:02 | 1 | Story | Turquoise wave curls, golden light through its lip | none | Wave roar, music hit |
+| 0:00-0:02 | 1 | Story | Turquoise wave curls, natural sunlight through its lip | none | Wave roar, music hit |
 | 0:02-0:04 | 2 | Product | Bottle bursts up out of deep blue water, crown splash | none | Splash |
-| 0:04-0:06 | 3 | Story | From behind: he surfaces and flips his wet hair, golden droplet arc | none | Water burst |
+| 0:04-0:06 | 3 | Story | From behind: he surfaces and flips his wet hair, droplet arc sparkling in sunlight | none | Water burst |
 | 0:06-0:08 | 4 | Product | Bottle on salt-crusted wet rock, wave explodes behind | HIMALAYAN SEA SALT | Wave crash |
 | 0:08-0:10 | 5 | Product | Hand sprays Spraymax into his hair, mist glowing | none | Spray "psst" |
 | 0:10-0:12 | 6 | Story | Himalayan ridge above clouds, wind lifts his textured hair | INSTANT VOLUME & TEXTURE | Wind gust |
