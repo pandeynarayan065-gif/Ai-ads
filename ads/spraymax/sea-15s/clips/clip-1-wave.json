@@ -1,0 +1,20 @@
+{
+  "task_id": "9a4d91bf72e7162a00a644fd4936f721",
+  "request": {
+    "model": "veo-3-1",
+    "input": {
+      "prompt": "Real slow-motion surf footage, shot at 120fps and played back at 24fps. The wave keeps pitching forward: the thick lip throws out and pours down into the curl, then explodes into white foam; offshore wind blows a veil of spray back off the crest; the foreground chop rises and falls. Camera: ARRI Alexa 35 in a water housing, held by a surf cinematographer at the waterline, 24mm lens, f/5.6, 180-degree shutter; gentle natural bobbing with the swell and a slow drift backwards as the wave approaches. Natural daylight, true-to-life colour, realistic water physics, no glow, no golden tint. Sound: only the roar of the wave and the wind, no music, no voices. No people, no text.",
+      "model": "veo3_fast",
+      "aspect_ratio": "9:16",
+      "resolution": "1080p",
+      "duration": 8,
+      "generation_type": "FIRST_AND_LAST_FRAMES_2_VIDEO",
+      "image_urls": [
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/still-1-v2.jpg"
+      ]
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/v/a8a5e74fb825136f1e1f5c4cf07d5eb1_0_1791918648.mp4"
+  ]
+}

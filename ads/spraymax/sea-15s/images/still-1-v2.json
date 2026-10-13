@@ -1,0 +1,16 @@
+{
+  "task_id": "0362cbcc0dc623ebdca358fb0008ddea",
+  "request": {
+    "model": "nano-banana-pro",
+    "input": {
+      "prompt": "Real photograph, a single frame from 4K surf documentary footage: a powerful ocean wave pitching forward and starting to curl over in bright midday sunlight, seen from in the water at surface level. The thick lip of the wave throws forward, offshore wind blows a veil of spray back off the crest, uneven chop and foam in the foreground, a few water droplets on the camera's lens port. Shot on ARRI Alexa 35 in a water housing, 24mm lens, f/5.6, 1/1000s shutter, ISO 400, camera half-submerged at the waterline. Natural, unedited, true-to-life colour: blue-green ocean water, white foam, pale blue sky. Realistic exposure and dynamic range, no HDR, no oversaturation, no glow, no golden tint, slight natural motion blur on the flying spray. No people, no text, no logos, no watermark.",
+      "image_input": [],
+      "aspect_ratio": "9:16",
+      "resolution": "2K",
+      "output_format": "png"
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/workers/images/image_4a3465ba831e7e690793b6b202dc5878.png"
+  ]
+}
