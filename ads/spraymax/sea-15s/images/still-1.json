@@ -1,0 +1,16 @@
+{
+  "task_id": "701ce3ccbc0a0383b1e0087a31d62cd2",
+  "request": {
+    "model": "nano-banana-pro",
+    "input": {
+      "prompt": "A massive turquoise ocean wave curling over in bright natural daylight, seen from water level, sunlight shining through the translucent lip of the wave, spray blowing off the crest in the wind, droplets catching the light. Cinematic colour: deep ocean blue and teal tones in clear natural daylight, true-to-life colour, real sunlight reflections and sparkle on the water, no golden or orange tint, rich contrast, shot on ARRI Alexa 65 with anamorphic lens, shallow depth of field, high-end commercial cinematography, ultra-realistic. No face visible. No text, no logos, no watermark.",
+      "image_input": [],
+      "aspect_ratio": "9:16",
+      "resolution": "2K",
+      "output_format": "png"
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/workers/images/image_0fc4c0827bc8bfbb9ec575fe76b12c9b.png"
+  ]
+}
