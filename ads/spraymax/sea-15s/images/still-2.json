@@ -1,0 +1,20 @@
+{
+  "task_id": "6de5f0c4f7a6aba7a854a99d3ea63231",
+  "request": {
+    "model": "nano-banana-pro",
+    "input": {
+      "prompt": "Real photograph, a single frame from high-speed product commercial footage. Product: the Spraymax bottle exactly as shown in the reference images. Image 1 is the complete bottle seen from the front, image 2 is the exact front label artwork, image 3 is the real pump and ribbed collar. Reproduce the bottle identically: same shape and proportions, same glossy white plastic, same white ribbed collar and white spray pump, same clear cap, the same vertical indigo-blue \"Spraymax\" wordmark in the same rounded font, the same \"Instant Hair Volume & Texture\" line, and the same ocean-wave band with \"FOR ALL HAIR TYPES\" and \"100ml/3.38fl.oz.\". Do not redesign, restyle, simplify, bend or add anything to the bottle or the label. Scene: the bottle stands perfectly still and upright in ankle-deep clear sea water, only its base submerged, facing the camera straight on; a small wave has just hit it and a crown of splashing sea water and droplets bursts up around the bottle without covering the label. Real foam and chop, sunlight sparkling on the water. Shot on Phantom Flex4K at 1000fps, 100mm macro lens, f/8, 1/2000s, locked-off camera at the waterline, level with the label, outdoors in bright midday sunlight. Natural, unedited, true-to-life colour: blue-green sea, white foam, the bottle's real white and indigo. Realistic exposure and dynamic range, no HDR, no oversaturation, no glow, no golden tint. Label text sharp, straight and fully readable. No people, no extra text, no extra logos, no watermark.",
+      "image_input": [
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/bottle-ref-clean.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/label-front-panel.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/pump-real-crop.jpg"
+      ],
+      "aspect_ratio": "9:16",
+      "resolution": "2K",
+      "output_format": "png"
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/workers/images/image_08092e319964294a3ff61056ed5550d0.png"
+  ]
+}
