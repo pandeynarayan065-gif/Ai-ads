@@ -1,0 +1,15 @@
+A real photograph, a single frame from live-action footage shot by a surf cinematographer: camera in a water housing at the ocean surface, 24mm lens at f/2.8, lens half-submerged at the waterline, extreme low angle. Not a 3D render, not CGI, not a studio packshot.
+
+SUBJECT: the real Spraymax bottle from the reference photos (images 1 and 2 are real photos of the actual bottle, image 3 is its label artwork), floating in rolling blue-green sea swells. It floats the way a real 100 ml bottle does: lying at about 40 degrees from upright, roughly a third of its body under water, bobbing with the swell, sea water washing over its lower third.
+
+THE BOTTLE (match the references exactly): slim cylinder about as long as a palm with a rounded shoulder; slightly greyish off-white, semi-matte, opaque plastic; a matte white finely ribbed collar; a white spray pump; a cloudy translucent overcap with the pump visible inside. A bright white paper sticker label wraps the body from just below the shoulder: "Spraymax" printed vertically along the bottle, reading top to bottom, in royal indigo-blue rounded letters; the small line "Instant Hair Volume & Texture"; and a dark navy ocean-wave photo band at the bottom with "FOR ALL HAIR TYPES" in white. The label follows the curve of the bottle and its letters are exactly those of the reference. No other text.
+
+HOW IT SITS IN THE WATER (this is what makes it real): a curved water meniscus where the sea meets the plastic; the submerged part seen through the water, slightly distorted by refraction and tinted blue-green; a soft dark shadow in the water under the bottle; tiny foam bubbles collecting along the waterline and around the collar; beads of water and thin running drips on the exposed plastic and label; the wet plastic slightly darker and shinier than dry plastic, with soft, blurred reflections of the sky and waves (satin plastic, so reflections are soft, not mirror-like); the shadow side of the white bottle picks up blue-green bounce light from the sea, so it is not pure white anywhere; the water around it reflects the bottle's pale shape.
+
+LIGHT: natural late-morning sun, high and slightly behind the camera to one side, a few broken clouds; true-to-life daylight colour, no golden tint, no glow, no studio light. Sun glints sparkle on the wave surfaces.
+
+CAMERA LOOK: shallow depth of field, focus on the label; foreground water and the background swells and horizon blurred naturally. The bottle has exactly the same sharpness, grain, haze and colour balance as everything around it: nothing is crisper or cleaner than the rest of the frame. A few water droplets on the lens port near the edge of frame. Fine natural film grain.
+
+COMPOSITION: vertical 9:16, bottle slightly right of centre, about 40 percent of the frame height, horizon tilted a little with the swell, open sky in the top third.
+
+No people, no hands, no added text, captions, logos or watermarks. Avoid anything symmetrical, perfectly arranged, glossy, toy-like or CGI.
