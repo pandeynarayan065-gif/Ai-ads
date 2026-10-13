@@ -8,8 +8,11 @@ Usage:
   python3 scripts/kie_generate.py credits
   python3 scripts/kie_generate.py image --prompt-file <prompt.md> --out <dir> \
       [--aspect 4:5] [--resolution 2K] [--ref product.jpg --ref logo.png] [--yes]
+  python3 scripts/kie_generate.py video --prompt-file <motion.md> --out <dir> \
+      [--image first-frame.jpg] [--model veo3_fast] [--aspect 9:16] \
+      [--resolution 1080p] [--duration 8] [--yes]
 
-Without --yes, `image` only prints what it would send and spends nothing.
+Without --yes, `image` and `video` only print what they would send and spend nothing.
 Reference images (--ref) can be local files (uploaded to kie.ai first) or URLs.
 """
 import argparse
@@ -86,7 +89,10 @@ def wait_for(task_id, timeout=600):
         state = data.get("state")
         print(f"  state: {state}", flush=True)
         if state == "success":
-            return json.loads(data["resultJson"])["resultUrls"]
+            result = json.loads(data["resultJson"])
+            nested = result.get("data") or {}
+            return (result.get("resultUrls") or result.get("result_urls")
+                    or nested.get("result_urls") or nested.get("resultUrls"))
         if state == "fail":
             sys.exit(f"Generation failed: {data.get('failCode')} {data.get('failMsg')}")
         time.sleep(5)
@@ -137,6 +143,48 @@ def cmd_image(args):
     print(f"Credits after: {credits()} (was {before})")
 
 
+def cmd_video(args):
+    prompt = Path(args.prompt_file).read_text(encoding="utf-8").strip()
+    images = args.image or []
+    body = {
+        "model": "veo-3-1",
+        "input": {
+            "prompt": prompt,
+            "model": args.model,
+            "aspect_ratio": args.aspect,
+            "resolution": args.resolution,
+            "duration": args.duration,
+        },
+    }
+    if images:
+        body["input"]["generation_type"] = "FIRST_AND_LAST_FRAMES_2_VIDEO"
+    print(f"Model: veo-3-1 / {args.model} | aspect {args.aspect} | {args.resolution} | {args.duration}s")
+    print(f"Frames: {images or 'none (text to video)'}")
+    print(f"Prompt ({len(prompt)} chars):\n{prompt}\n")
+    if not args.yes:
+        print("Dry run — nothing sent, no credits spent. Re-run with --yes to generate.")
+        return
+
+    before = credits()
+    print(f"Credits before: {before}")
+    if images:
+        body["input"]["image_urls"] = [upload(Path(i)) if not i.startswith("http") else i for i in images]
+    task_id = request("POST", f"{API}/api/v1/jobs/createTask", body)["taskId"]
+    print(f"Task: {task_id}")
+    urls = wait_for(task_id, timeout=1500)
+
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    for i, url in enumerate(urls, 1):
+        dest = out / f"{stamp}-{i}.mp4"
+        urllib.request.urlretrieve(url, dest)
+        print(f"Saved {dest}")
+    (out / f"{stamp}.json").write_text(json.dumps(
+        {"task_id": task_id, "request": body, "result_urls": urls}, indent=2))
+    print(f"Credits after: {credits()} (was {before})")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -150,6 +198,16 @@ def main():
     img.add_argument("--ref", action="append", help="reference image path or URL (max 8)")
     img.add_argument("--yes", action="store_true", help="actually generate and spend credits")
     img.set_defaults(func=cmd_image)
+    vid = sub.add_parser("video")
+    vid.add_argument("--prompt-file", required=True)
+    vid.add_argument("--out", required=True)
+    vid.add_argument("--image", action="append", help="first (and optional last) frame, path or URL")
+    vid.add_argument("--model", default="veo3_fast", choices=["veo3_fast", "veo3_lite", "veo3"])
+    vid.add_argument("--aspect", default="9:16", choices=["9:16", "16:9", "Auto"])
+    vid.add_argument("--resolution", default="1080p", choices=["720p", "1080p", "4k"])
+    vid.add_argument("--duration", type=int, default=8, choices=[4, 6, 8])
+    vid.add_argument("--yes", action="store_true", help="actually generate and spend credits")
+    vid.set_defaults(func=cmd_video)
     args = parser.parse_args()
     args.func(args)
 

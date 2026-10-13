@@ -24,3 +24,17 @@ from the label/brand file.
 7 clips (Veo 3.1 Fast, 60 each; best 2s used from each 8s clip) = 420
 Music (Suno, instrumental, 120 BPM so a cut lands every 4 beats) = 12
 Total = 558 of 1,008 (about 450 left for retries)
+
+## Camera sheet (used in every still and motion prompt)
+
+All shots: natural daylight, true-to-life colour, no HDR, no glow, no golden tint.
+
+| Clip | Camera | Lens | Aperture / shutter | Frame rate | Position |
+|---|---|---|---|---|---|
+| 1 Wave | ARRI Alexa 35 in water housing | 24mm | f/5.6, 1/1000s | 120fps slow motion | Half-submerged at the waterline |
+| 2 Bottle splash | Phantom Flex4K | 100mm macro | f/8 | 1000fps | Low, level with the bottle |
+| 3 Hair flip | ARRI Alexa 35 in water housing | 35mm | f/4 | 120fps | Waist-deep, 2m behind him |
+| 4 Bottle on salt rock | ARRI Alexa 35 | 50mm | f/2.8 | 48fps | Low angle, 40cm from the bottle |
+| 5 Hand spray | ARRI Alexa 35 | 85mm | f/2 | 96fps | Over his shoulder, from behind |
+| 6 Himalaya ridge | ARRI Alexa 35 | 35mm | f/8 | 24fps | On the ridge, 3m behind him |
+| 7 Studio | Phantom Flex4K | 100mm macro | f/11 | 1000fps | Studio, level with the bottle |
