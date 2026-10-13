@@ -10,7 +10,7 @@ Usage:
       [--aspect 4:5] [--resolution 2K] [--ref product.jpg --ref logo.png] [--yes]
   python3 scripts/kie_generate.py video --prompt-file <motion.md> --out <dir> \
       [--image first-frame.jpg] [--model veo3_fast] [--aspect 9:16] \
-      [--resolution 1080p] [--duration 8] [--yes]
+      [--resolution 1080p] [--duration 8] [--mode frames|reference] [--yes]
 
 Without --yes, `image` and `video` only print what they would send and spend nothing.
 Reference images (--ref) can be local files (uploaded to kie.ai first) or URLs.
@@ -157,9 +157,15 @@ def cmd_video(args):
         },
     }
     if images:
-        body["input"]["generation_type"] = "FIRST_AND_LAST_FRAMES_2_VIDEO"
+        if args.mode == "reference":
+            if not 1 <= len(images) <= 3 or args.duration != 8:
+                sys.exit("Reference mode needs 1-3 --image references and --duration 8.")
+            body["input"]["generation_type"] = "REFERENCE_2_VIDEO"
+        else:
+            body["input"]["generation_type"] = "FIRST_AND_LAST_FRAMES_2_VIDEO"
     print(f"Model: veo-3-1 / {args.model} | aspect {args.aspect} | {args.resolution} | {args.duration}s")
-    print(f"Frames: {images or 'none (text to video)'}")
+    label = "References" if args.mode == "reference" else "Frames"
+    print(f"{label}: {images or 'none (text to video)'}")
     print(f"Prompt ({len(prompt)} chars):\n{prompt}\n")
     if not args.yes:
         print("Dry run — nothing sent, no credits spent. Re-run with --yes to generate.")
@@ -201,7 +207,9 @@ def main():
     vid = sub.add_parser("video")
     vid.add_argument("--prompt-file", required=True)
     vid.add_argument("--out", required=True)
-    vid.add_argument("--image", action="append", help="first (and optional last) frame, path or URL")
+    vid.add_argument("--image", action="append", help="first (and optional last) frame, or a reference image, path or URL")
+    vid.add_argument("--mode", default="frames", choices=["frames", "reference"],
+                     help="frames: images are first/last frames; reference: images are product references (1-3)")
     vid.add_argument("--model", default="veo3_fast", choices=["veo3_fast", "veo3_lite", "veo3"])
     vid.add_argument("--aspect", default="9:16", choices=["9:16", "16:9", "Auto"])
     vid.add_argument("--resolution", default="1080p", choices=["720p", "1080p", "4k"])
