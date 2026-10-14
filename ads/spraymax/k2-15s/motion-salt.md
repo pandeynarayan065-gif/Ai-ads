@@ -1,0 +1,5 @@
+Real macro footage, filmed on a 100 mm macro lens on a tripod, of a single rough chunk of raw pink Himalayan rock salt resting on dark, wet slate high in the mountains. The crystal is irregular and natural: flat cleavage faces, chipped edges, internal cracks and cloudy inclusions, its colour uneven from pale pink to deep salmon with white veins, its surfaces frosted and partly translucent. The crystal itself never moves or changes shape.
+
+Fine powder snow drifts down and settles on it. Where the flakes touch the salt they slowly melt into tiny clear beads of water that gather on its faces and run down its edges onto the slate. Low, hard sun from behind shines through the salt so it glows pink-orange from inside, with a few bright glints on the wet edges.
+
+Shallow depth of field: the background is dark, out-of-focus rock with soft points of falling snow. The camera is almost still, with a very slow push-in. Natural light, true colour, real-time speed, no slow motion, no cinematic effects. Sound: soft wind and the faint tick of snow landing, no music, no voices. No text, no people.
