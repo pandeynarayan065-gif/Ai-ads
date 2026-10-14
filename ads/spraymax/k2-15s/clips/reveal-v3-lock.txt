@@ -1,0 +1,16 @@
+reveal-v3-8s.mp4 = Veo 3.1 Fast first-frame continuation (65 credits, old account), prompt motion-reveal-v3.md.
+
+Usable: frames 0-18 (buried, mitt arriving; bottle still) and 55-191 (revealed, still).
+Frames 19-54: Veo makes the bottle swell and shrink during the wipe - not used.
+
+reveal-v3-final.mp4 (6.5 s) = frames 0-18 + cut + frames 55-191, real label locked on both:
+
+common: --art brand/spraymax/assets/label-flat.jpg --art-u-c 702 --art-radius 192.3 --edge-margin 3 --rim 22
+        --wm-top 956 --wm-bottom 1368 --old-band-top 1800 --old-band-bottom 1850
+        --label-clear --keep-frost --grain --art-blur 1.0
+        --track-rects "900,1500,880,1050;1300,1800,30,250"
+segment 0-18:   --xc 634 --r 154 --wm-x 661 (no --specks: no blowing snow yet)
+  --visible "478,915 790,915 788,950 775,965 750,985 730,1010 716,1040 702,1070 692,1100 684,1128 672,1150 610,1154 560,1160 520,1162 496,1163 478,1160"
+segment 55-191: --xc 630 --r 150 --wm-x 656 --specks
+  --visible "478,915 786,915 780,1150 770,1260 752,1310 740,1360 735,1420 720,1470 700,1515 660,1535 620,1525 580,1495 540,1460 510,1430 492,1400 484,1340 478,1250"
+Label rotated ~10 deg right in both, so the bottle does not turn at the cut.

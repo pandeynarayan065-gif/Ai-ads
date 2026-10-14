@@ -70,6 +70,13 @@ ap.add_argument("--label-clear", action="store_true",
                 help="nothing lies on the visible label (only the drift at its outline): skip per-frame "
                      "snow detection there, and drop the AI's painted-on frost flecks (bright dots that "
                      "never move) instead of carrying them over")
+ap.add_argument("--art-blur", type=float, default=0.75, help="softness of the printed art (px) to match the footage")
+ap.add_argument("--grain", action="store_true",
+                help="add grain matched to the footage where the label has none of its own (where the AI's "
+                     "letters were), so the new print does not look smoother than the rest of the frame")
+ap.add_argument("--keep-frost", action="store_true",
+                help="with --label-clear: keep the AI's still frost crystals, drop only those tracing its old text")
+ap.add_argument("--debug-frame", type=int, default=None, help="write this frame's masks next to --debug")
 ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
@@ -134,7 +141,7 @@ s_c = r_y * np.arcsin(np.clip((a.wm_x - a.xc) / a.r, -1, 1))
 u = (ART_U_C + (s - s_c) / k_u).astype(np.float32)
 v = v_of_y(gy).astype(np.float32)
 A = cv2.remap(art, u, v, cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
-A = cv2.GaussianBlur(A, (0, 0), 0.75)
+A = cv2.GaussianBlur(A, (0, 0), a.art_blur)
 
 
 def lin(x):
@@ -249,7 +256,7 @@ BURIED = ~VIS
 VIS_CORE = cv2.erode(VIS.astype(np.uint8), np.ones((2 * a.rim + 1, 2 * a.rim + 1), np.uint8)).astype(bool)
 VIS_RIM = VIS & ~VIS_CORE                 # where the drift's own edge may still cover the label
 
-cols, rowgs, facs, snows, gloves, brights = {}, {}, {}, {}, {}, {}
+cols, rowgs, facs, snows, gloves, brights, ainks, excess = {}, {}, {}, {}, {}, {}, {}, {}
 SEED = cv2.dilate(BURIED.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
 
 
@@ -312,6 +319,11 @@ for i in idx:
     elif a.visible:                        # the drift's rim: bright snow lying over the traced edge
         snow |= rim.astype(np.uint8)
     brights[i] = ((L - S.mean(axis=2)) > 22).astype(np.uint8)
+    if a.label_clear:
+        excess[i] = (L - S.mean(axis=2)).astype(np.float16)
+    if a.keep_frost or a.label_clear:          # the AI's own print in this frame (to tell text-flecks apart)
+        aink = (((Bc - Rc) - (S[..., 0] - S[..., 2])) > 15) & (L < S.mean(axis=2) - 25)
+        ainks[i] = cv2.dilate(aink.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
     snows[i] = cv2.morphologyEx(snow, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     # the mitt: big red or black blobs (the opening removes thin letter strokes)
     glove = (((Rc - Gc) > 60) | ((L < 75) & ((Bc - Rc) < 15))).astype(np.uint8)
@@ -350,13 +362,26 @@ snows = {i: vote[n] >= 3 for n, i in enumerate(idx)}     # majority of 5 frames:
 del snow_stack, pad, vote
 # AI frost flecks: small bright dots that stay put for 17+ frames (real blowing snow moves on)
 flecks = {i: np.zeros((BH, BW), bool) for i in idx}
+statics = {i: np.zeros((BH, BW), bool) for i in idx}
+transient = {}
 if a.label_clear:
+    # a passing flake is much brighter than that pixel usually is around this moment
+    ex = np.stack([excess[i] for i in idx]).astype(np.float32)
+    for n, i in enumerate(idx):
+        lo, hi = max(0, n - 12), min(len(idx), n + 13)
+        transient[i] = (ex[n] - np.median(ex[lo:hi], axis=0)) > 18
+    del ex, excess
     bs = np.stack([brights[i] for i in idx])
     for n, i in enumerate(idx):
         lo, hi = max(0, n - 8), min(len(idx), n + 9)
         still = bs[lo:hi].min(axis=0).astype(np.uint8)
+        statics[i] = still.astype(bool)
         nl, lab, st, _ = cv2.connectedComponentsWithStats(still)
-        small = np.isin(lab, np.flatnonzero(st[:, cv2.CC_STAT_AREA] <= 60)) & (lab > 0)
+        if a.keep_frost:                       # real-looking frost stays; anything still that touches the
+            lab_near = np.unique(lab[(lab > 0) & ainks[i]])   # old text goes (dots, halos), whatever its size
+            small = np.isin(lab, lab_near[lab_near > 0])
+        else:
+            small = np.isin(lab, np.flatnonzero(st[:, cv2.CC_STAT_AREA] <= 60)) & (lab > 0)
         flecks[i] = cv2.dilate(small.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool)
     del bs
 
@@ -371,18 +396,42 @@ for i in idx:
     white = (sat < 45) & (L > 110)
     white &= ~cv2.dilate((~white).astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
     carry = white & VIS
-    if a.specks:                               # blowing snow crossing the label stays on top of it
+    if a.label_clear:                          # nothing still from right around the AI's old letters (their halo)
+        carry &= ~cv2.dilate(ainks[i].astype(np.uint8), np.ones((17, 17), np.uint8)).astype(bool)
+    if a.specks and a.label_clear:             # blowing snow crossing the label stays on top of it
+        carry |= transient[i]
+    elif a.specks:
         carry |= (L - S.mean(axis=2)) > 22
-    carry &= ~flecks[i]
+    carry &= ~flecks[i] | (transient[i] if a.label_clear else False)
     if a.label_clear:                          # never carry the AI's ink, however faint
         carry &= ((box[..., 0] - box[..., 2]) - (S[..., 0] - S[..., 2])) < 6
     detail = np.where(carry[..., None], box - S, 0.0)
+    if a.label_clear:                          # broad shading continues smoothly where nothing is carried
+        paper = (carry & ~(transient[i])).astype(np.float32)
+        low = cv2.GaussianBlur(np.where(paper[..., None] > 0, np.clip(box - S, -25, 25), 0.0), (0, 0), 8)
+        low /= cv2.GaussianBlur(paper, (0, 0), 8)[..., None] + 1e-3
+        detail = np.where(carry[..., None], detail, low)
     detail = cv2.GaussianBlur(np.clip(detail, -25, 90 if a.specks else 80), (0, 0), 0.6)
     new = np.clip(srgb(alb * lin(S)) + detail, 0, 255)
     new[PRINT] = np.clip(new[PRINT] * facs[i], 0, 255)
+    if a.grain:                                # the footage's own noise level, measured on clean paper
+        hp = L - cv2.GaussianBlur(L, (0, 0), 1.2)
+        ref_px = hp[white & VIS_CORE & ~((L - S.mean(axis=2)) > 22)]
+        sigma = 1.4826 * np.median(np.abs(ref_px - np.median(ref_px))) if ref_px.size > 500 else 0.0
+        g = cv2.GaussianBlur(np.random.default_rng(1000 + i).normal(0, 1, (BH, BW)).astype(np.float32), (0, 0), 0.6)
+        g_hp = g - cv2.GaussianBlur(g, (0, 0), 1.2)
+        g *= sigma / (g_hp.std() + 1e-6)
+        bare = cv2.GaussianBlur((~carry).astype(np.float32), (0, 0), 1.0)
+        new = np.clip(new + (g * bare)[..., None], 0, 255)
     keep = cv2.dilate((snows[i] | gloves[i].astype(bool)).astype(np.uint8), np.ones((5, 5), np.uint8))
     keep |= BURIED.astype(np.uint8)
     m = edge * (1 - cv2.GaussianBlur(keep.astype(np.float32), (0, 0), 2.5))
+    if a.debug and a.debug_frame == i:
+        base = a.debug.rsplit(".", 1)[0]
+        cv2.imwrite(base + f"-f{i}-box.png", np.clip(box, 0, 255).astype(np.uint8))
+        cv2.imwrite(base + f"-f{i}-new.png", np.clip(new, 0, 255).astype(np.uint8))
+        cv2.imwrite(base + f"-f{i}-masks.png", np.dstack([carry * 255, flecks[i] * 255, keep * 255]).astype(np.uint8))
+        cv2.imwrite(base + f"-f{i}-detail.png", np.clip(128 + detail * 3, 0, 255).astype(np.uint8))
 
     # warp the label + its mask from bottle coordinates onto frame i (sub-pixel)
     Wm = warp_of(i)
