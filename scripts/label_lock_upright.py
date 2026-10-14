@@ -16,10 +16,20 @@ coordinates and warped onto each frame with that transform, so it stays glued to
 bottle with no whole-pixel hops. Paper shading, ink colour and the snow mask are
 smoothed over time so nothing flickers from one frame to the next.
 
-Usage:
+Usage (K2 reveal, first clip: bottle face-on, camera pushing in):
   python3 scripts/label_lock_upright.py in.mp4 out.mp4 \
       --xc 598.5 --r 156.5 --wm-top 920 --wm-bottom 1392 --wm-x 596 \
-      --old-band-top 1440 --old-band-bottom 1614 --from 96
+      --old-band-top 1440 --old-band-bottom 1614 --static-below 1400 --glove-pad 25 --from 96
+
+K2 reveal v2 (bottle half-buried and turned ~17 deg, phone held still, spindrift): the full
+wrap-around label, camera followed by the rocks, label only inside the traced unburied outline,
+blowing snow carried over it and the AI's painted-on frost dropped:
+  python3 scripts/label_lock_upright.py reveal-v2-8s.mp4 out.mp4 \
+      --art brand/spraymax/assets/label-flat.jpg --art-u-c 702 --art-radius 192.3 \
+      --xc 627 --r 151 --edge-margin 3 --rim 22 --wm-top 960 --wm-bottom 1349 --wm-x 672 \
+      --old-band-top 1700 --old-band-bottom 1750 \
+      --track-rects "900,1500,880,1060;1300,1800,20,250" --visible "<outline, see the commit>" \
+      --specks --label-clear --from 64
 """
 import argparse
 import subprocess
@@ -38,6 +48,28 @@ ap.add_argument("--wm-bottom", type=float, required=True, help="y of the AI word
 ap.add_argument("--wm-x", type=float, required=True, help="x of the AI wordmark's centre")
 ap.add_argument("--old-band-top", type=float, required=True, help="y where the AI's band starts")
 ap.add_argument("--old-band-bottom", type=float, required=True, help="y where the AI's band ends")
+ap.add_argument("--band-y", type=float, default=None,
+                help="y where the AI's wave band starts; with it the label follows perspective along the bottle")
+ap.add_argument("--r-far", type=float, default=None, help="bottle radius at --band-y (default: --r)")
+ap.add_argument("--xc-far", type=float, default=None, help="bottle centre x at --band-y (default: --xc)")
+ap.add_argument("--art-radius", type=float, default=None,
+                help="bottle radius in art px (default: fitted so the wordmark is not stretched)")
+ap.add_argument("--art-u-c", type=float, default=247.0,
+                help="art column of the wordmark's centre (247 for label-front-panel, 702 for label-flat)")
+ap.add_argument("--track-rects", default=None,
+                help="'y0,y1,x0,x1;...' static scenery to follow the camera by (translation only) "
+                     "instead of tracking parts of the bottle")
+ap.add_argument("--visible", default=None,
+                help="'x,y x,y ...' polygon of the label surface that is not buried (last frame); "
+                     "outside it the original pixels (snow) are kept")
+ap.add_argument("--specks", action="store_true",
+                help="carry bright blowing-snow specks over the new label instead of losing them")
+ap.add_argument("--edge-margin", type=float, default=8.0, help="px of the real silhouette left untouched")
+ap.add_argument("--rim", type=int, default=12, help="px inside the --visible outline where bright snow is kept")
+ap.add_argument("--label-clear", action="store_true",
+                help="nothing lies on the visible label (only the drift at its outline): skip per-frame "
+                     "snow detection there, and drop the AI's painted-on frost flecks (bright dots that "
+                     "never move) instead of carrying them over")
 ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
@@ -46,14 +78,35 @@ ap.add_argument("--crf", type=int, default=16, help="x264 quality (0 = lossless 
 ap.add_argument("--debug", default=None, help="write per-frame track + check numbers here (csv)")
 a = ap.parse_args()
 
-# art geometry (label-front-panel.jpg, measured): wordmark rows 48..628, centre column 247
-ART_WM_TOP, ART_WM_BOTTOM, ART_U_C = 48.0, 628.0, 247.0
+# art geometry (label-front-panel.jpg, measured): wordmark rows 48..628, wave band from row 703,
+# centre column 247
+ART_WM_TOP, ART_WM_BOTTOM, ART_BAND = 48.0, 628.0, 703.0
+ART_U_C = a.art_u_c
 art = cv2.imread(a.art, cv2.IMREAD_COLOR).astype(np.float32)
 art[:9] = 255.0                                   # print border line at the top edge
 NV, NU = art.shape[:2]
-k = (a.wm_bottom - a.wm_top) / (ART_WM_BOTTOM - ART_WM_TOP)     # frame px per art px
-y0 = a.wm_top - ART_WM_TOP * k                                   # where the label starts
-s_c = a.r * np.arcsin(np.clip((a.wm_x - a.xc) / a.r, -1, 1))
+k = (a.wm_bottom - a.wm_top) / (ART_WM_BOTTOM - ART_WM_TOP)     # frame px per art px (mean, along)
+# along the bottle: frame y = (p0 + p1 v) / (1 + p2 v) for art row v. Uniform (p2 = 0) for a
+# bottle seen square-on; with --band-y it is fitted to three marks so it follows perspective.
+if a.band_y is None:
+    p0, p1, p2 = a.wm_top - ART_WM_TOP * k, k, 0.0
+else:
+    vs, ys_ = (ART_WM_TOP, ART_WM_BOTTOM, ART_BAND), (a.wm_top, a.wm_bottom, a.band_y)
+    p0, p1, p2 = np.linalg.solve([[1, v_, -v_ * y_] for v_, y_ in zip(vs, ys_)], ys_)
+
+
+def y_of_v(v_):
+    return (p0 + p1 * v_) / (1 + p2 * v_)
+
+
+def v_of_y(y_):
+    return (y_ - p0) / (p1 - p2 * y_)
+
+
+y0 = y_of_v(0.0)                                                 # where the label starts
+r_far = a.r if a.r_far is None else a.r_far
+xc_far = a.xc if a.xc_far is None else a.xc_far
+art_radius = a.art_radius or a.r / k
 
 cap = cv2.VideoCapture(a.src)
 fps = cap.get(cv2.CAP_PROP_FPS)
@@ -68,13 +121,18 @@ N = len(frames)
 idx = list(range(a.start, N))
 
 # ---- label layer geometry, in last-frame coordinates ------------------------------------
-x0, x1 = int(a.xc - a.r) + 1, int(a.xc + a.r)
-ya, yb = int(y0), min(H, int(y0 + NV * k))
+x0, x1 = int(min(a.xc - a.r, xc_far - r_far)) + 1, int(max(a.xc + a.r, xc_far + r_far))
+ya, yb = int(y0), min(H, int(y_of_v(NV)))
 BH, BW = yb - ya, x1 - x0
 gx, gy = np.meshgrid(np.arange(x0, x1, dtype=np.float32), np.arange(ya, yb, dtype=np.float32))
-s = a.r * np.arcsin(np.clip((gx - a.xc) / a.r, -1, 1))
-u = (ART_U_C + (s - s_c) / k).astype(np.float32)
-v = ((gy - y0) / k).astype(np.float32)
+tt = 0.0 if a.band_y is None else (gy - a.wm_top) / (a.band_y - a.wm_top)
+r_y = a.r + (r_far - a.r) * tt                                   # radius and axis along the bottle
+xc_y = a.xc + (xc_far - a.xc) * tt
+k_u = r_y / art_radius                                           # frame px per art px, around
+s = r_y * np.arcsin(np.clip((gx - xc_y) / r_y, -1, 1))
+s_c = r_y * np.arcsin(np.clip((a.wm_x - a.xc) / a.r, -1, 1))
+u = (ART_U_C + (s - s_c) / k_u).astype(np.float32)
+v = v_of_y(gy).astype(np.float32)
 A = cv2.remap(art, u, v, cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
 A = cv2.GaussianBlur(A, (0, 0), 0.75)
 
@@ -90,11 +148,11 @@ def srgb(x):
 
 
 alb = lin(A)
-edge = np.clip((a.r - 8 - np.abs(gx - a.xc)) / 10.0, 0, 1) * np.clip((gy - y0) / 4.0, 0, 1)   # keep the real silhouette
+edge = np.clip((r_y - a.edge_margin - np.abs(gx - xc_y)) / (10.0 if a.edge_margin >= 8 else 4.0), 0, 1) * np.clip((gy - y0) / 4.0, 0, 1)   # keep the real silhouette
 art_print = ((art[..., 0] - art[..., 2]) > 50) & (art.mean(axis=2) < 170)
 art_print[640:] = False                                                              # wordmark only, not the wave band
 PRINT = cv2.remap(art_print.astype(np.float32), u, v, cv2.INTER_LINEAR) > 0.5      # new wordmark pixels
-paper_rows = max(10, int(640 * k))                    # label rows above the old tagline/band
+paper_rows = max(10, int(y_of_v(640.0) - ya))          # label rows above the old tagline/band
 old_wm = (np.abs(gx - a.wm_x) < 62) & (gy > a.wm_top - 12) & (gy < a.wm_bottom + 12)
 old_tag = (gy > a.wm_bottom + 10) & (gy < a.old_band_top + 4)
 old_band = (gy >= a.old_band_top) & (gy <= a.old_band_bottom)
@@ -129,13 +187,17 @@ def track(i, p):
     return x - P + dx, y - P + dy, sc
 
 
+if a.track_rects:
+    parts = [tuple(int(float(v_)) for v_ in r_.split(",")) for r_ in a.track_rects.split(";")]
+    parts = [(max(P + 1, p0), min(H - P - 1, p1), max(P + 1, q0), min(W - P - 1, q1)) for p0, p1, q0, q1 in parts]
+    X_ONLY = [False] * len(parts)
 centres = np.array([((l0 + l1) / 2.0, (t0 + t1) / 2.0) for t0, t1, l0, l1 in parts], np.float64)
 params = np.full((N, 4), np.nan)          # similarity p' = [a -b; b a] p + [tx, ty]
 fit_err = np.zeros(N)
 for i in idx:
     tr = np.array([track(i, p) for p in parts])
     good = tr[:, 2] > 0.8
-    if good[:5].sum() < 2 or good.sum() < 3:
+    if (good.sum() < 1) if a.track_rects else (good[:5].sum() < 2 or good.sum() < 3):
         continue
     rows, rhs = [], []
     for (qx, qy), (dx, dy, _), g_, xo in zip(centres, tr, good, X_ONLY):
@@ -145,7 +207,10 @@ for i in idx:
         if not xo:
             rows.append([qy, qx, 0, 1]); rhs.append(qy + dy)
     M, rhs = np.array(rows), np.array(rhs)
-    sol, *_ = np.linalg.lstsq(M, rhs, rcond=None)
+    if a.track_rects:                         # scenery: the camera only shifts (scale/rotation stay 1/0)
+        sol = np.array([1.0, 0.0, *np.mean((rhs - M[:, :2] @ [1.0, 0.0]).reshape(-1, 2), axis=0)])
+    else:
+        sol, *_ = np.linalg.lstsq(M, rhs, rcond=None)
     params[i] = sol
     fit_err[i] = np.abs(M @ sol - rhs).max()
 for c in range(4):                        # fill gaps, then smooth: the real camera moves smoothly
@@ -173,7 +238,27 @@ def to_ref(i):
 
 
 # ---- pass 1: measure paper shading, ink colour and what must be kept, per frame ---------
-cols, rowgs, facs, snows, gloves = {}, {}, {}, {}, {}
+# the part of the label that is not buried (static, from the traced outline)
+VIS = np.ones((BH, BW), bool)
+if a.visible:
+    poly = np.array([[float(c_) for c_ in pt.split(",")] for pt in a.visible.split()], np.float32)
+    vm = np.zeros((BH, BW), np.uint8)
+    cv2.fillPoly(vm, [np.round(poly - [x0, ya]).astype(np.int32)], 1)
+    VIS = vm.astype(bool)
+BURIED = ~VIS
+VIS_CORE = cv2.erode(VIS.astype(np.uint8), np.ones((2 * a.rim + 1, 2 * a.rim + 1), np.uint8)).astype(bool)
+VIS_RIM = VIS & ~VIS_CORE                 # where the drift's own edge may still cover the label
+
+cols, rowgs, facs, snows, gloves, brights = {}, {}, {}, {}, {}, {}
+SEED = cv2.dilate(BURIED.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+
+
+def touching(cand, seed):
+    """Components of cand that touch seed (the drift's own snow spilling over the outline)."""
+    n_, lab_ = cv2.connectedComponents((cand | seed).astype(np.uint8))
+    hit = np.unique(lab_[seed])
+    return cand & np.isin(lab_, hit[hit > 0])
+
 ref_box = to_ref(N - 1)
 for i in idx:
     box = to_ref(i)
@@ -182,7 +267,7 @@ for i in idx:
     Bc, Gc, Rc = box[..., 0], box[..., 1], box[..., 2]
     white = (sat < 45) & (L > 110)
     white &= ~cv2.dilate((~white).astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
-    pw = white.copy()
+    pw = white & VIS_CORE
     pw[paper_rows:] = False
     col = np.full((BW, 3), np.nan, np.float32)
     for j in range(BW):
@@ -221,6 +306,12 @@ for i in idx:
     snow_band = (old_band & (L > 138) & (sat < 55)).astype(np.uint8)
     snow_band = cv2.morphologyEx(snow_band, cv2.MORPH_OPEN, np.ones((9, 9), np.uint8))
     snow = snow_paper | snow_band | (below & (L > 120)).astype(np.uint8)
+    rim = VIS_RIM & (L > S.mean(axis=2) + 12) & (sat < 40)
+    if a.label_clear:                      # only the drift itself, spilling over the traced edge
+        snow = touching(rim, SEED).astype(np.uint8)
+    elif a.visible:                        # the drift's rim: bright snow lying over the traced edge
+        snow |= rim.astype(np.uint8)
+    brights[i] = ((L - S.mean(axis=2)) > 22).astype(np.uint8)
     snows[i] = cv2.morphologyEx(snow, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     # the mitt: big red or black blobs (the opening removes thin letter strokes)
     glove = (((Rc - Gc) > 60) | ((L < 75) & ((Bc - Rc) < 15))).astype(np.uint8)
@@ -257,6 +348,17 @@ pad = np.pad(snow_stack, ((2, 2), (0, 0), (0, 0)), mode="edge")
 vote = sum(pad[d:d + len(idx)].astype(np.uint8) for d in range(5))
 snows = {i: vote[n] >= 3 for n, i in enumerate(idx)}     # majority of 5 frames: no one-frame blips
 del snow_stack, pad, vote
+# AI frost flecks: small bright dots that stay put for 17+ frames (real blowing snow moves on)
+flecks = {i: np.zeros((BH, BW), bool) for i in idx}
+if a.label_clear:
+    bs = np.stack([brights[i] for i in idx])
+    for n, i in enumerate(idx):
+        lo, hi = max(0, n - 8), min(len(idx), n + 9)
+        still = bs[lo:hi].min(axis=0).astype(np.uint8)
+        nl, lab, st, _ = cv2.connectedComponentsWithStats(still)
+        small = np.isin(lab, np.flatnonzero(st[:, cv2.CC_STAT_AREA] <= 60)) & (lab > 0)
+        flecks[i] = cv2.dilate(small.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool)
+    del bs
 
 # ---- pass 2: build the label in bottle coordinates and warp it onto each frame ----------
 out_frames = list(frames[:a.start])
@@ -268,11 +370,18 @@ for i in idx:
     sat = box.max(axis=2) - box.min(axis=2)
     white = (sat < 45) & (L > 110)
     white &= ~cv2.dilate((~white).astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
-    detail = np.where(white[..., None], box - S, 0.0)
-    detail = cv2.GaussianBlur(np.clip(detail, -25, 80), (0, 0), 0.6)
+    carry = white & VIS
+    if a.specks:                               # blowing snow crossing the label stays on top of it
+        carry |= (L - S.mean(axis=2)) > 22
+    carry &= ~flecks[i]
+    if a.label_clear:                          # never carry the AI's ink, however faint
+        carry &= ((box[..., 0] - box[..., 2]) - (S[..., 0] - S[..., 2])) < 6
+    detail = np.where(carry[..., None], box - S, 0.0)
+    detail = cv2.GaussianBlur(np.clip(detail, -25, 90 if a.specks else 80), (0, 0), 0.6)
     new = np.clip(srgb(alb * lin(S)) + detail, 0, 255)
     new[PRINT] = np.clip(new[PRINT] * facs[i], 0, 255)
     keep = cv2.dilate((snows[i] | gloves[i].astype(bool)).astype(np.uint8), np.ones((5, 5), np.uint8))
+    keep |= BURIED.astype(np.uint8)
     m = edge * (1 - cv2.GaussianBlur(keep.astype(np.float32), (0, 0), 2.5))
 
     # warp the label + its mask from bottle coordinates onto frame i (sub-pixel)

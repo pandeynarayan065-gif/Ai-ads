@@ -1,0 +1,9 @@
+Visible (unburied) label outline used for reveal-v2-8s.mp4, frames 64-191 (frame px, x,y):
+470,915 785,915 778,1000 772,1040 752,1056 746,1095 726,1106 722,1160 712,1172 708,1186 694,1204 686,1224 680,1246 672,1268 654,1290 632,1302 600,1302 560,1280 522,1260 500,1244 486,1228 476,1214 470,1195
+
+Frames 16-56 of reveal-v2-8s.mp4 are NOT usable: Veo re-draws the label under the moving mitt
+and shoves the bottle ~27 px. Use frames 72+ (mitt gone, bottle still).
+
+reveal-v3-edit.mp4 (4.62 s) = reveal-v2 locked frames 84-131 (gust) + reveal-ref-8s frames 34-48
+(mitt sweep, label hidden) + reveal-ref-8s locked frames 111-158 (clean real-label hold).
+reveal-v2-still-5s.mp4 = reveal-v2 locked frames 72-191.
