@@ -1,0 +1,9 @@
+Real, unedited footage from a climber's phone at 8,000 metres on K2. One continuous take that starts exactly on the first frame and never cuts. The phone is held still about 60 cm above the snow, looking down at the half-buried spray bottle; the framing stays the same for the whole shot: no zoom, no pan, no push-in, only a faint natural hand tremor.
+
+At the start a gloved hand comes in from the top-left edge of the frame: a thick black down mitt with a red cuff, crusted with ice, at the same distance from the camera as the bottle and in sharp focus. It brushes the snow off the bottle in two short, firm strokes from the shoulder down toward the base, pushing the powder off to the right. The snow breaks into clumps and slides away; fine crystals lift and drift off in the wind. The mitt only touches the snow and the edge of the bottle, never hides the whole bottle and never comes near the lens. After the second stroke, about three seconds in, the hand pulls back out of frame and does not return.
+
+The bottle is heavy and stays exactly where it lies: it does not roll, slide, tilt, grow or change shape. Its label is printed and rigid; as the snow comes off, the same blue letters appear and stay identical in every frame. For the last five seconds nothing touches it: the bottle lies still with a few grains of snow stuck to it, spindrift streams low across the frame, and a little loose powder trickles off its side.
+
+Light and colour stay exactly as in the first frame: cold, true colour, no warm or golden tint. Natural phone-camera image: real sharpness, fine noise in the shadows, bright snow close to clipping. Real-time speed, no slow motion, no cinematic effects.
+
+Sound: strong wind, the crunch and swish of the mitt on the snow. No music, no voices. No faces. No text except the bottle's own label.
