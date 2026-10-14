@@ -1,0 +1,10 @@
+ridge-8s.mp4 = Veo 3.1 Fast text-to-video (65 credits, old account), prompt motion-ridge.md.
+Veo made a rope-mate's view from behind (rope to camera, gear at the bottom edge) instead of a
+helicopter aerial. Climber stays hooded, face never visible.
+
+Fix: dark streaks crossing the sky near the sun in most frames (AI artifacts). Removed with
+  python3 scripts/clean_sky.py ridge-8s.mp4 ridge-8s-clean.mp4 --rows 330
+(the top 330 px are sky only; the clip's median sky is the clean plate, real brighter light and
+snow is kept). Small pale flakes remain and read as blown ice.
+
+ridge-cut-3s.mp4 = cleaned frames 64-135 (spindrift plume pouring over the ridge past the climber).
