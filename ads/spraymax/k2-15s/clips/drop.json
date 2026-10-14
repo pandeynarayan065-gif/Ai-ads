@@ -1,0 +1,22 @@
+{
+  "task_id": "0f16e45d5d7f3c1ae27e0b43ef042d00",
+  "request": {
+    "model": "veo-3-1",
+    "input": {
+      "prompt": "Real high-speed product footage, shot at 240 fps through the glass of a studio water tank and played back at normal speed, so everything moves ten times slower than real life. Camera locked off underwater, level with the bottle, facing its label. At the top of the frame the water surface, seen from below, is a rippling silver mirror.\n\nThe Spraymax bottle from the reference images, exactly as it is: slim white bottle, white ribbed pump collar, clear cap, white label with the vertical indigo \"Spraymax\" wordmark and the navy ocean-wave band at the base. Dropped from just above the surface, it enters base first, upright and perfectly straight, label to camera. It never spins, tilts or tumbles; the rigid plastic never bends.\n\nIn order: the flat base slaps the surface and trapped air escapes around its rim as a ring of tiny bubbles. The bottle plunges, dragging a silvery tube of air behind it, which pinches shut below the surface and breaks into silver bubbles clinging to the cap, while a thin jet of water shoots up out of the surface. Drag slows the bottle quickly; bubbles overtake it and rise past it, small ones round, big ones wobbling. At the end it almost stops in mid-water, slightly buoyant, as moving lines of light from the rocking surface play over it.\n\nPink Himalayan salt chunks rest on the dark slate floor. Hard backlight: clear blue-grey water with faint floating specks, bright rims on bubbles and bottle edges. Real water, real physics. The label stays identical in every frame.\n\nSound: a deep slowed-down plunge, then rumbling bubbles. No music, voices, people, hands or text except the label.",
+      "model": "veo3_fast",
+      "aspect_ratio": "9:16",
+      "resolution": "1080p",
+      "duration": 8,
+      "generation_type": "REFERENCE_2_VIDEO",
+      "image_urls": [
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/bottle-real-front-crop.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/bottle-ref-clean.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/label-front-panel.jpg"
+      ]
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/v/ba3f59e27d90a05a610d0506c1e0693e_0_1792013391.mp4"
+  ]
+}

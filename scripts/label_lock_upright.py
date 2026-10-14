@@ -77,6 +77,16 @@ ap.add_argument("--grain", action="store_true",
 ap.add_argument("--keep-frost", action="store_true",
                 help="with --label-clear: keep the AI's still frost crystals, drop only those tracing its old text")
 ap.add_argument("--debug-frame", type=int, default=None, help="write this frame's masks next to --debug")
+ap.add_argument("--chain", action="store_true",
+                help="the bottle travels far (e.g. sinking): track backwards from the last frame, each frame "
+                     "searched around the next frame's position")
+ap.add_argument("--keep-moving", action="store_true",
+                help="keep the AI's own pixels wherever the image differs strongly from the settled bottle "
+                     "(air cavities, big bubble clusters), so the label is never crisp under turbulent water")
+ap.add_argument("--no-base", action="store_true",
+                help="don't track the band's base (when it shows moving background, e.g. water around a falling bottle)")
+ap.add_argument("--pad-bottom", type=int, default=0,
+                help="art rows of plain bottle below the label, to cover AI print that runs past the real label")
 ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
@@ -91,6 +101,8 @@ ART_WM_TOP, ART_WM_BOTTOM, ART_BAND = 48.0, 628.0, 703.0
 ART_U_C = a.art_u_c
 art = cv2.imread(a.art, cv2.IMREAD_COLOR).astype(np.float32)
 art[:9] = 255.0                                   # print border line at the top edge
+if a.pad_bottom:
+    art = np.vstack([art, np.full((a.pad_bottom, art.shape[1], 3), 247.0, np.float32)])   # bare plastic
 NV, NU = art.shape[:2]
 k = (a.wm_bottom - a.wm_top) / (ART_WM_BOTTOM - ART_WM_TOP)     # frame px per art px (mean, along)
 # along the bottle: frame y = (p0 + p1 v) / (1 + p2 v) for art row v. Uniform (p2 = 0) for a
@@ -176,13 +188,20 @@ parts = [(a.wm_top + 5, a.wm_top + 140, xc - 90, xc + 90),                  # wo
          (a.wm_top - 20, a.wm_bottom + 10, xc - r - 20, xc - r + 25),       # left edge (x only)
          (a.wm_top - 20, a.wm_bottom + 10, xc + r - 25, xc + r + 20)]       # right edge (x only)
 X_ONLY = [False, False, False, False, False, True, True]   # a long vertical edge can't tell up from down
+if a.no_base:
+    del parts[4], X_ONLY[4]
 parts = [(max(30, int(p0)), min(H - 30, int(p1)), max(30, int(q0)), min(W - 30, int(q1))) for p0, p1, q0, q1 in parts]
 P = 25
 
 
-def track(i, p):
+def track(i, p, off=(0, 0)):
     t0, t1, l0, l1 = p
-    res = cv2.matchTemplate(gray[i][t0 - P:t1 + P, l0 - P:l1 + P], gray[-1][t0:t1, l0:l1], cv2.TM_CCOEFF_NORMED)
+    ox, oy = int(round(off[0])), int(round(off[1]))
+    s0, s1 = max(0, t0 + oy - P), min(H, t1 + oy + P)
+    q0, q1 = max(0, l0 + ox - P), min(W, l1 + ox + P)
+    if s1 - s0 < t1 - t0 + 2 or q1 - q0 < l1 - l0 + 2:
+        return 0.0, 0.0, -1.0
+    res = cv2.matchTemplate(gray[i][s0:s1, q0:q1], gray[-1][t0:t1, l0:l1], cv2.TM_CCOEFF_NORMED)
     _, sc, _, (x, y) = cv2.minMaxLoc(res)
     dx = dy = 0.0
     if 0 < x < res.shape[1] - 1:
@@ -191,7 +210,7 @@ def track(i, p):
     if 0 < y < res.shape[0] - 1:
         l_, c_, r_ = res[y - 1, x], res[y, x], res[y + 1, x]
         dy = 0.5 * (l_ - r_) / (l_ - 2 * c_ + r_ - 1e-9)
-    return x - P + dx, y - P + dy, sc
+    return x + q0 - l0 + dx, y + s0 - t0 + dy, sc
 
 
 if a.track_rects:
@@ -201,8 +220,14 @@ if a.track_rects:
 centres = np.array([((l0 + l1) / 2.0, (t0 + t1) / 2.0) for t0, t1, l0, l1 in parts], np.float64)
 params = np.full((N, 4), np.nan)          # similarity p' = [a -b; b a] p + [tx, ty]
 fit_err = np.zeros(N)
-for i in idx:
-    tr = np.array([track(i, p) for p in parts])
+prev = None
+for i in (idx[::-1] if a.chain else idx):
+    if a.chain and prev is not None:          # predict each part from the frame after this one
+        pa, pb, ptx, pty = prev
+        offs = [(pa * cx - pb * cy + ptx - cx, pb * cx + pa * cy + pty - cy) for cx, cy in centres]
+    else:
+        offs = [(0, 0)] * len(parts)
+    tr = np.array([track(i, p, o) for p, o in zip(parts, offs)])
     good = tr[:, 2] > 0.8
     if (good.sum() < 1) if a.track_rects else (good[:5].sum() < 2 or good.sum() < 3):
         continue
@@ -219,6 +244,7 @@ for i in idx:
     else:
         sol, *_ = np.linalg.lstsq(M, rhs, rcond=None)
     params[i] = sol
+    prev = sol
     fit_err[i] = np.abs(M @ sol - rhs).max()
 for c in range(4):                        # fill gaps, then smooth: the real camera moves smoothly
     col = params[a.start:, c]
@@ -328,7 +354,12 @@ for i in idx:
     # the mitt: big red or black blobs (the opening removes thin letter strokes)
     glove = (((Rc - Gc) > 60) | ((L < 75) & ((Bc - Rc) < 15))).astype(np.uint8)
     glove = cv2.morphologyEx(glove, cv2.MORPH_OPEN, np.ones((17, 17), np.uint8))
-    if glove.any():
+    if a.keep_moving:                          # turbulent water over the label: keep the AI's refraction
+        gain = box.mean() / max(ref_box.mean(), 1.0)
+        mv = (np.abs(box - ref_box * gain).sum(axis=2) > 70).astype(np.uint8)
+        mv = cv2.morphologyEx(mv, cv2.MORPH_OPEN, np.ones((13, 13), np.uint8))
+        glove |= cv2.dilate(mv, np.ones((9, 9), np.uint8))
+    if glove.any() and not a.keep_moving:
         # snow the mitt is pushing around: changed vs the clean last frame, near the mitt only
         gain = box.mean() / max(ref_box.mean(), 1.0)
         moving = (np.abs(box - ref_box * gain).sum(axis=2) > 70).astype(np.uint8)

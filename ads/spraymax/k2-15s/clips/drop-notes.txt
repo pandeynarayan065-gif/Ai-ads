@@ -1,0 +1,15 @@
+drop-8s.mp4 = Veo 3.1 Fast REFERENCE_2_VIDEO with the real bottle photos (65 credits, old account),
+prompt motion-drop.md (physics in ../drop-physics.md). Starts just after entry: air cavity trails
+the cap, pinches off into a bubble burst (~2-3 s), drag stops the bottle, it drifts back up ~110 px.
+Bottle stays upright, no spin.
+
+Label locked (real wrap-around label) with:
+  python3 scripts/label_lock_upright.py drop-8s.mp4 out.mp4 --art brand/spraymax/assets/label-flat.jpg
+    --art-u-c 702 --art-radius 192.3 --xc 568 --r 148 --edge-margin 3 --wm-top 820 --wm-bottom 1267
+    --wm-x 570 --old-band-top 1319 --old-band-bottom 1515 --chain --no-base --pad-bottom 20
+    --keep-moving --specks --label-clear --keep-frost --grain --art-blur 1.0 --from 0
+Track residual <= 2.0 px; label flicker mean 0.98 (Veo's own 1.59); AI band text gone.
+Note: frames ~72-120 Veo's bottle base sits ~2% higher (slight tilt or redraw) - reads naturally.
+
+drop-cut-3s.mp4 = frames 30-101 (plunge, cavity collapse, bubble burst, bottoming out).
+Frames 120-191 (bottle hanging, bubbles rising) suit the end card background.
