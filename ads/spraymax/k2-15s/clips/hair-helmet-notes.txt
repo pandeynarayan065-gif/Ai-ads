@@ -1,0 +1,9 @@
+hair-helmet-8s.mp4 = Veo 3.1 Fast text-to-video (65 credits, old account), prompt motion-hair-helmet.md.
+Mood from a manga panel the user shared (helmet held to the chest, wind-torn hair); original
+faceless climber, no character or real-person likeness.
+
+Face check (YuNet, every frame + by eye): frames 10-20 turn far enough to show the cheekbone ->
+excluded. Frames 22-191 show only ear, jaw and neck (the detector fires on that shape and on the
+helmet/hands; checked by eye: no eyes, nose or mouth).
+
+hair-helmet-cut-3s.mp4 = frames 28-99 (helmet at chest, hair in the gust).
