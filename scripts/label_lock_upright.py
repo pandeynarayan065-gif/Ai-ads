@@ -31,6 +31,7 @@ ap.add_argument("--wm-bottom", type=float, required=True, help="y of the AI word
 ap.add_argument("--wm-x", type=float, required=True, help="x of the AI wordmark's centre")
 ap.add_argument("--old-band-top", type=float, required=True, help="y where the AI's band starts")
 ap.add_argument("--old-band-bottom", type=float, required=True, help="y where the AI's band ends")
+ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
 ap.add_argument("--still", default=None, help="also write the last fixed frame here")
@@ -175,7 +176,7 @@ for i, f in enumerate(frames):
     gain = box.mean() / max(refb.mean(), 1.0)
     moving = (np.abs(box - refb * gain).sum(axis=2) > 70).astype(np.uint8)
     moving = cv2.morphologyEx(moving, cv2.MORPH_OPEN, np.ones((13, 13), np.uint8))
-    moving = cv2.dilate(moving, np.ones((25, 25), np.uint8)).astype(bool)
+    moving = cv2.dilate(moving, np.ones((a.glove_pad, a.glove_pad), np.uint8)).astype(bool)
     if a.static_below is not None:
         moving &= (gy + sy) < a.static_below                     # nothing passes over the lower label
     keep = cv2.dilate((snow | glove | moving).astype(np.uint8), np.ones((5, 5), np.uint8))
