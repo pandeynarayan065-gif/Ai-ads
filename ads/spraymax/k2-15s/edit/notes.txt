@@ -30,3 +30,11 @@ v2 (k2-15s-v2.mp4), Narayan: "add the ocean spray shot back in, also the hand wi
   rhyming with the mountain wind in the shot before);
 - new order: ridge, helmet hair, pink salt, ocean spray, bottle drop, studio crown, then the double-time run
   (mountain hair, sea hair, bubbles, water over the shoulder, wet close-up), end card on the drop.
+
+End screen for Narayan's own CapCut cut (narayan-cut.mp4, 8.97 s, 30 fps; music = the K2 reel's track from 5.434 s):
+his cut ends on 46 black frames (7.433 s on), starting on a low hit of the outro.
+end-screen.mp4 (46 frames, 1.53 s, 30 fps) = the white Spraymax wordmark, BORN IN HIMACHAL, spraymax.in on near-black
+(Narayan: "i js want the spraymax born in Himachal screen with spraymax.in text overlay"); the wordmark settles in on
+the cut, the line and the URL on the next hit, slow drift in. No "8,000 metres up..." line.
+narayan-cut-with-end.mp4 = his cut with the end screen in the black tail, his audio untouched.
+  python3 ads/spraymax/k2-15s/end_screen.py - end-screen.mp4 46 30 --into narayan-cut.mp4 narayan-cut-with-end.mp4
