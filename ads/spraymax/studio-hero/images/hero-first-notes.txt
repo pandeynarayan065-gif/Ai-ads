@@ -18,3 +18,17 @@ hero-first-768.png = the mockup with
   The water drops that sat on the band in the mockup are gone (the splash around the base stays).
 hero-first.jpg = that, centre-cropped to exact 9:16 (5 px top / 6 px bottom) and resized to 1080x1920 (Lanczos),
 JPEG q95: the first frame for Veo (kie.ai failed on a large non-9:16 PNG before; the JPEG went through).
+
+hero-first-v2.jpg = the first frame at the REAL bottle's proportions (Narayan: "the label sticker isn't visible and
+there's no gap at the bottom"). Built by build_first_v2.py from hero-first.jpg with its cap made clear
+(clear_cap.py, clarity 0.7):
+  the old squat bottle taken off the backdrop; cap/collar/shoulder kept; the straight body rebuilt longer, lit by
+  the old body's own light (column x row, read off its plain paper, matched to the kept shoulder at the seam);
+  the real full wrap label (label-flat.jpg, white side margins with the back-label text at the edges) as a
+  sticker: top edge 0.05 WL under the shoulder, ends at the bottom of the wave panel, 0.11 WL of bare plastic
+  below (real bottle: bottle-real-hand-close.jpg), body width 0.68 WL; sticker a touch whiter than the greyish
+  plastic, fine bright line on its top edge, faint shadow under its bottom edge; bottle scaled 0.93 to keep the
+  headroom, standing on the same spot; contact droplets put back.
+  real-vs-first-v2.jpg: next to the real bottle at the same label size, sticker edges and base line up.
+    python3 ads/spraymax/studio-hero/clear_cap.py hero-first-2frames.mkv cap 0.7 0
+    python3 ads/spraymax/studio-hero/build_first_v2.py cap-f0.png hero-first-v2.png
