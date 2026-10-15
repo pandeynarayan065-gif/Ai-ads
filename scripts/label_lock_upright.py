@@ -30,6 +30,15 @@ blowing snow carried over it and the AI's painted-on frost dropped:
       --old-band-top 1700 --old-band-bottom 1750 \
       --track-rects "900,1500,880,1060;1300,1800,20,250" --visible "<outline, see the commit>" \
       --specks --label-clear --from 64
+
+Spray, ocean (small hand-held bottle, r ~45 px, moving through the shot; bare fingers and hair cross the
+label; Veo's 1080p is over-sharpened): flow tracking, skin/hair kept, no relight:
+  python3 scripts/label_lock_upright.py spray-ocean-v2-8s.mp4 out.mp4 \
+      --art brand/spraymax/assets/label-flat.jpg --art-u-c 702 --art-radius 192.3 \
+      --xc 593 --r 45.5 --edge-margin 3 --wm-top 702 --wm-bottom 827 --wm-x 602 --band-end-y 893 \
+      --old-band-top 840 --old-band-bottom 897 --part-scale 0.3 --min-paper 6 --track-flow --no-base \
+      --no-glove --skin --specks --label-clear --keep-frost --low-conf --grain --art-blur 0.5 --sharp \
+      --band-match --unsharp 0.6 --from 0
 """
 import argparse
 import subprocess
@@ -96,6 +105,24 @@ ap.add_argument("--relight", action="store_true",
 ap.add_argument("--band-match", action="store_true",
                 help="match the wave band's brightness/colour to how the scene lit the AI's band")
 ap.add_argument("--no-glove", action="store_true", help="no hand in this shot: skip the dark-mitt detector")
+ap.add_argument("--skin", action="store_true",
+                help="bare fingers and loose hair cross the label: keep the footage there (warmer/redder than "
+                     "the paper, or dark brown strands)")
+ap.add_argument("--track-flow", action="store_true",
+                help="follow the bottle frame to frame with optical flow on its own print (backwards from the last "
+                     "frame) instead of matching parts against the last frame: for a hand-held bottle that moves "
+                     "a lot while hair, spray or waves pass behind or over it")
+ap.add_argument("--min-match", type=float, default=0.8,
+                help="template match score a tracked part needs (lower when hair/spray/waves cross the bottle)")
+ap.add_argument("--unsharp", type=float, default=0.0,
+                help="sharpen the new label by this amount to match over-sharpened (e.g. upscaled) footage")
+ap.add_argument("--low-conf", action="store_true",
+                help="fade the carried broad shading out where little clean paper supports it (small bottles with "
+                     "bold AI lettering), instead of stretching a few pixels into blotches")
+ap.add_argument("--min-paper", type=int, default=20,
+                help="clean paper pixels a label column/row needs to be measured (lower for a small bottle)")
+ap.add_argument("--part-scale", type=float, default=1.0,
+                help="size of the tracked parts relative to a ~150 px radius bottle (e.g. 0.3 for r ~45)")
 ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
@@ -203,13 +230,14 @@ below = gy > a.old_band_bottom
 # ---- track the bottle: six parts, each matched against the clean last frame -------------
 gray = [cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) for f in frames]
 xc, r = a.xc, a.r
-parts = [(a.wm_top + 5, a.wm_top + 140, xc - 90, xc + 90),                  # wordmark start
-         ((a.wm_top + a.wm_bottom) / 2 - 100, (a.wm_top + a.wm_bottom) / 2 + 100, xc - 90, xc + 90),
-         (a.wm_bottom - 120, a.wm_bottom + 3, xc - 90, xc + 90),            # wordmark end
-         (a.old_band_top - 45, a.old_band_top + 160, xc - 130, xc + 130),   # tagline + band
-         (a.old_band_bottom - 14, a.old_band_bottom + 86, xc - 130, xc + 130),   # band base
-         (a.wm_top - 20, a.wm_bottom + 10, xc - r - 20, xc - r + 25),       # left edge (x only)
-         (a.wm_top - 20, a.wm_bottom + 10, xc + r - 25, xc + r + 20)]       # right edge (x only)
+ps = a.part_scale
+parts = [(a.wm_top + 5 * ps, a.wm_top + 140 * ps, xc - 90 * ps, xc + 90 * ps),        # wordmark start
+         ((a.wm_top + a.wm_bottom) / 2 - 100 * ps, (a.wm_top + a.wm_bottom) / 2 + 100 * ps, xc - 90 * ps, xc + 90 * ps),
+         (a.wm_bottom - 120 * ps, a.wm_bottom + 3 * ps, xc - 90 * ps, xc + 90 * ps),  # wordmark end
+         (a.old_band_top - 45 * ps, a.old_band_top + 160 * ps, xc - 130 * ps, xc + 130 * ps),   # tagline + band
+         (a.old_band_bottom - 14 * ps, a.old_band_bottom + 86 * ps, xc - 130 * ps, xc + 130 * ps),   # band base
+         (a.wm_top - 20 * ps, a.wm_bottom + 10 * ps, xc - r - 20 * ps, xc - r + 25 * ps),   # left edge (x only)
+         (a.wm_top - 20 * ps, a.wm_bottom + 10 * ps, xc + r - 25 * ps, xc + r + 20 * ps)]   # right edge (x only)
 X_ONLY = [False, False, False, False, False, True, True]   # a long vertical edge can't tell up from down
 if a.no_base:
     del parts[4], X_ONLY[4]
@@ -244,14 +272,43 @@ centres = np.array([((l0 + l1) / 2.0, (t0 + t1) / 2.0) for t0, t1, l0, l1 in par
 params = np.full((N, 4), np.nan)          # similarity p' = [a -b; b a] p + [tx, ty]
 fit_err = np.zeros(N)
 prev = None
-for i in (idx[::-1] if a.chain else idx):
+if a.track_flow:                          # chain frame-to-frame similarities back from the last frame
+    params[N - 1] = [1.0, 0.0, 0.0, 0.0]
+    fy1_ = (a.band_end_y if a.band_end_y is not None else a.old_band_bottom) - 4
+    region = np.array([[xc - r + 4, a.wm_top - 12], [xc + r - 4, a.wm_top - 12],
+                       [xc + r - 4, fy1_], [xc - r + 4, fy1_]], np.float64)
+    lk = dict(winSize=(15, 15), maxLevel=3, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
+    for i in range(N - 2, a.start - 1, -1):
+        Wn = np.vstack([np.array([[params[i + 1][0], -params[i + 1][1], params[i + 1][2]],
+                                  [params[i + 1][1], params[i + 1][0], params[i + 1][3]]]), [0, 0, 1]])
+        msk = np.zeros((H, W), np.uint8)
+        cv2.fillPoly(msk, [np.round(np.c_[region, np.ones(4)] @ Wn[:2].T).astype(np.int32)], 255)
+        fp1 = cv2.goodFeaturesToTrack(gray[i + 1], 300, 0.005, 3, mask=msk)
+        M_ = None
+        if fp1 is not None and len(fp1) >= 8:
+            fp0, st0, _ = cv2.calcOpticalFlowPyrLK(gray[i + 1], gray[i], fp1, None, **lk)
+            fpb, st1, _ = cv2.calcOpticalFlowPyrLK(gray[i], gray[i + 1], fp0, None, **lk)
+            fb = np.linalg.norm((fp1 - fpb).reshape(-1, 2), axis=1)
+            ok = (st0.ravel() == 1) & (st1.ravel() == 1) & (fb < 0.5)
+            if ok.sum() >= 8:
+                M_, inl = cv2.estimateAffinePartial2D(fp1.reshape(-1, 2)[ok], fp0.reshape(-1, 2)[ok],
+                                                      method=cv2.RANSAC, ransacReprojThreshold=1.0)
+        if M_ is None:
+            params[i] = params[i + 1]
+            continue
+        Wi = np.vstack([M_, [0, 0, 1]]) @ Wn
+        params[i] = [Wi[0, 0], Wi[1, 0], Wi[0, 2], Wi[1, 2]]
+        q1 = fp1.reshape(-1, 2)[ok][inl.ravel() == 1]
+        q0 = fp0.reshape(-1, 2)[ok][inl.ravel() == 1]
+        fit_err[i] = float(np.abs(q1 @ M_[:, :2].T + M_[:, 2] - q0).max()) if len(q1) else 0.0
+for i in ([] if a.track_flow else (idx[::-1] if a.chain else idx)):
     if a.chain and prev is not None:          # predict each part from the frame after this one
         pa, pb, ptx, pty = prev
         offs = [(pa * cx - pb * cy + ptx - cx, pb * cx + pa * cy + pty - cy) for cx, cy in centres]
     else:
         offs = [(0, 0)] * len(parts)
     tr = np.array([track(i, p, o) for p, o in zip(parts, offs)])
-    good = tr[:, 2] > 0.8
+    good = tr[:, 2] > a.min_match
     if (good.sum() < 1) if a.track_rects else (good[:5].sum() < 2 or good.sum() < 3):
         continue
     rows, rhs = [], []
@@ -335,22 +392,26 @@ for i in idx:
     col = np.full((BW, 3), np.nan, np.float32)
     for j in range(BW):
         c = box[:, j][pw[:, j]]
-        if len(c) > 20:
+        if len(c) > a.min_paper:
             col[j] = np.median(c, axis=0)
     for ch in range(3):
         cc = col[:, ch]
         ok = ~np.isnan(cc)
-        cc[~ok] = np.interp(np.flatnonzero(~ok), np.flatnonzero(ok), cc[ok])
-        col[:, ch] = cv2.GaussianBlur(cc.reshape(1, -1), (0, 0), 3).ravel()
+        if ok.any():                           # none at all: left NaN, filled from neighbouring frames
+            cc[~ok] = np.interp(np.flatnonzero(~ok), np.flatnonzero(ok), cc[ok])
+            col[:, ch] = cv2.GaussianBlur(cc.reshape(1, -1), (0, 0), 3).ravel()
     rowg = np.full(BH, np.nan, np.float32)
     ref_lum = col.mean(axis=1)
     for r_ in range(paper_rows):
         m = pw[r_]
-        if m.sum() > 20:
+        if m.sum() > a.min_paper:
             rowg[r_] = np.median(L[r_][m] / ref_lum[m])
     ok = ~np.isnan(rowg)
-    rowg[~ok] = np.interp(np.flatnonzero(~ok), np.flatnonzero(ok), rowg[ok])
-    rowg = cv2.GaussianBlur(rowg.reshape(-1, 1), (0, 0), 25).ravel()
+    if ok.any():
+        rowg[~ok] = np.interp(np.flatnonzero(~ok), np.flatnonzero(ok), rowg[ok])
+        rowg = cv2.GaussianBlur(rowg.reshape(-1, 1), (0, 0), 25).ravel()
+    else:
+        print(f"frame {i}: no clean paper to read the light from (filled from neighbouring frames)")
     cols[i], rowgs[i] = col, rowg
     S = col[None, :, :] * rowg[:, None, None]
     # how the scene lit the AI's own wordmark (the new ink is matched to it)
@@ -418,6 +479,21 @@ for i in idx:
         glove = cv2.dilate(glove | moving, np.ones((a.glove_pad, a.glove_pad), np.uint8))
         if a.static_below is not None:
             glove[gy >= a.static_below] = 0           # nothing passes over the lower label
+    if a.skin:                                 # bare fingers / loose hair over the label: keep the footage
+        lab_b = cv2.cvtColor(np.clip(box, 0, 255).astype(np.uint8), cv2.COLOR_BGR2LAB).astype(np.float32)
+        a0, b0 = ((np.median(lab_b[..., 1][pw]), np.median(lab_b[..., 2][pw])) if pw.sum() > 50
+                  else (np.median(lab_b[..., 1]), np.median(lab_b[..., 2])))
+        # fingers: clearly redder than this frame's paper (shaded paper near the edge only gets a little warmer)
+        skin = ((lab_b[..., 1] > a0 + 10) & (lab_b[..., 2] > b0 - 2)
+                & ((L < S.mean(axis=2) - 12) | (sat > 70))).astype(np.uint8)
+        skin = cv2.morphologyEx(skin, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        # hair: thin dark strands (black-hat), brownish, never the AI's own lettering
+        bh = cv2.morphologyEx(L.astype(np.float32), cv2.MORPH_BLACKHAT, np.ones((7, 7), np.uint8))
+        hair = (bh > 25) & ((Rc - Bc) > 8)
+        if i in ainks:
+            hair &= ~ainks[i]
+        sk = cv2.morphologyEx(skin | hair.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+        glove |= cv2.dilate(sk, np.ones((3, 3), np.uint8))
     gloves[i] = glove
 
 # ---- smooth over time (all in the bottle's own coordinates, so frames line up) -----------
@@ -496,10 +572,14 @@ for i in idx:
         paper = (carry & ~(transient[i])).astype(np.float32)
         low = cv2.GaussianBlur(np.where(paper[..., None] > 0, np.clip(box - S, -25, 25), 0.0), (0, 0), 8)
         low /= cv2.GaussianBlur(paper, (0, 0), 8)[..., None] + 1e-3
+        if a.low_conf:
+            low *= np.clip(cv2.GaussianBlur(paper, (0, 0), 8) / 0.25, 0, 1)[..., None]
         wc = cv2.GaussianBlur(carry.astype(np.float32), (0, 0), 5)[..., None]   # soft hand-over, no outlines
         detail = wc * np.where(carry[..., None], detail, low) + (1 - wc) * low
     detail = cv2.GaussianBlur(np.clip(detail, -25, 90 if a.specks else 80), (0, 0), 0.6)
     new = np.clip(srgb(alb * lin(S)) + detail, 0, 255)
+    if a.unsharp:
+        new = np.clip(new + a.unsharp * (new - cv2.GaussianBlur(new, (0, 0), 1.0)), 0, 255)
     new[PRINT] = np.clip(new[PRINT] * facs[i], 0, 255)
     if a.band_match:
         new = np.where(BAND_ROWS[..., None], np.clip(new * bfac[i][None, :, :], 0, 255), new)
