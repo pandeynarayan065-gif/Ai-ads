@@ -32,3 +32,20 @@ has a strip of bare plastic below the sticker, ~11% of the wordmark length). The
 mockup (and the brand's own render bottle-ref-clean.jpg has the same squat proportions). A real sticker can't be
 drawn on this bottle without cutting the wordmark, and the bottle can't be stretched under the 2 s water crown.
 Fix: a new first frame with the real proportions, then the same shot again.
+
+==== v2 (real bottle proportions) ====
+hero-v2-8s.mp4 = Veo 3.1 Fast, first frame images/hero-first-v2.jpg (real proportions, label as a sticker, clear
+cap), prompt motion-hero-v2.md (65 credits, old account, 232 -> 167).
+What Veo did: splash crown round the base (0-1.5 s), a real camera push-in and rise (x1.9 on the label), water
+pouring over the shoulder (~4 s) and the bottle ending wet with real water beads in a close-up on the cap and
+wordmark; warm mist behind. Kept from the first frame: the sticker's top edge under the shoulder, the bare plastic
+below it, the white side margins with back-label text, the clear cap with the pump inside, the wordmark, the wave
+panel, FOR ALL HAIR TYPES. Garbled: "Instant Hair Volume & Texture" (came out "Instont Hoir ... Testure") and the
+volume line. No people.
+hero-v2-final.mp4 = hero-v2-8s.mp4 through fix_text_v2.py (+ the original audio): both lines drawn from the real
+label art, wrapped round the bottle, following the label (optical flow chained from frame 0) at each frame's scale,
+position refined on Veo's own line, focus matched to Veo's, ink in Veo's own print colour; left to Veo while the
+water crown covers them (match below 0.30, eased over 5 frames).
+  small line printed in 127 frames, faded 19, left 46 (water/out of frame); volume line 85 / 18 / 89.
+  python3 ads/spraymax/studio-hero/fix_text_v2.py ads/spraymax/studio-hero/clips/hero-v2-8s.mp4 out.mp4
+No digital push-in needed: Veo's own camera moves.
