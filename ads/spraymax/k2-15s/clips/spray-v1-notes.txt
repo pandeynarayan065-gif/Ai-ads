@@ -1,0 +1,9 @@
+spray-v1-rejected.mp4 = Veo 3.1 Fast REFERENCE_2_VIDEO (65 credits, old account), prompt motion-spray.md.
+Rejected by Narayan ("this shot is so bad"). Why:
+- he holds the bottle up in front of his chest like showing it to camera, nozzle pointing at the sky - nobody sprays hair like that
+- no visible pump press or spray jet; the 'mist' is a glowing cloud in the sky that reads as sun glare / AI smoke
+- Veo's label reads "Spraymas" with a cartoon wave band (real band is a photo of dark ocean waves)
+- fingerless gloves: bare fingertips wrap over the label edges
+Faceless check passed (ear/jaw only). Kept only as a record; do not use in the edit.
+Redo plan: still first frame (Nano Banana Pro edit of climber-ref.png, real bottle refs) -> label lock -> Veo Fast FLF.
+Real pump nozzle faces the back label (pump-front-real.jpg), so filming from behind while he sprays his hair shows the front wordmark.
