@@ -49,3 +49,16 @@ water crown covers them (match below 0.30, eased over 5 frames).
   small line printed in 127 frames, faded 19, left 46 (water/out of frame); volume line 85 / 18 / 89.
   python3 ads/spraymax/studio-hero/fix_text_v2.py ads/spraymax/studio-hero/clips/hero-v2-8s.mp4 out.mp4
 No digital push-in needed: Veo's own camera moves.
+
+==== two more shots from the v2 first frame (Narayan: "2 more insane shots") ====
+zero-g-8s.mp4 = Veo 3.1 Fast, first frame images/hero-first-v2.jpg, prompt motion-zero-g.md (65 credits, 167 -> 102).
+  The splash hangs, then water spheres and glowing pink salt chunks lift off the slate and drift up past the bottle
+  (best ~1.5-4.5 s), ending as a floating halo of salt and drops round the shoulder. Camera stayed still.
+  zero-g-final.mp4 = text lines fixed (fix_text_v2.py; small line 182 frames, volume 169) + push_in.py x1.18
+  onto the halo/wordmark, original audio.
+tethys-8s.mp4 = same first frame, prompt motion-tethys.md (65 credits, 102 -> 37). Sea water wells up over the slate,
+  a wave crests round the bottle and freezes into rock and snow: a miniature Himalayan range around the bottle
+  (~1.5-4.5 s). From ~5.3 s cloud streaks drift through; after ~6 s they turn into puffy cotton clouds with
+  hair-like strands (AI tell).
+  tethys-final.mp4 = full 8 s with the text lines fixed (printed while visible, left to the water/peaks after).
+  tethys-cut-6s.mp4 = frames 0-145 (before the cotton clouds), push_in.py x1.12, audio faded out at the end.
