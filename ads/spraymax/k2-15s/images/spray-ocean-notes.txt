@@ -17,3 +17,16 @@ What the AI got wrong, and the fixes (spray-ocean-first.png is the result, used 
       --xc-bottom 791.5 --r-bottom 76.5 --y-top 852 --ky 0.42 --pad-to 1292 --wm-x 789 --margin 2
 
 Face check (YuNet, threshold 0.5): no faces. Only the back of his head, ear and a sliver of jaw.
+
+RESIZE (Narayan: "the bottle height is not realistic"). spray-ocean-first.png had the bottle ~1.5x the length
+of his hand (about 23-27 cm next to his fingers), the body ~17% too long, and held nearer the camera than
+his head. spray-ocean-small-raw.png = Nano Banana Pro edit of spray-ocean-first.png, prompt
+prompt-spray-ocean-resize.md, refs bottle-real-wide-crop.jpg, bottle-real-front-crop.jpg, pump-side-real.jpg
+(18 credits, old account, 380 -> 362).
+Checked: bottle width / finger width ~2.5 and total height / width ~4.0, both as in the real photos. The edit
+also gave a real-style pump (compact head, side orifice, ribbed collar), no tube, no mist; flare stays gone.
+Label locked (bottle body ~7% shorter than the real one, so the label is 6% shorter than its width scale):
+  python3 scripts/label_lock_still.py spray-ocean-small-raw.png spray-ocean-small-first.png --xc 792 --r 67.5 \
+      --xc-bottom 792 --r-bottom 67.5 --y-top 843 --ky 0.333 --pad-to 1160 --wm-x 800 --margin 2 \
+      --ai-band 1071,1152 --paper-rows 845,1058
+Face check (YuNet 0.5): no faces.
