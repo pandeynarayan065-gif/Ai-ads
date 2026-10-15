@@ -9,7 +9,13 @@ Label: Veo kept the real label from the first frame (wordmark, "Instant Hair Vol
 FOR ALL HAIR TYPES) and garbled only the tiny volume line ("100ml/3.38fl.oz." came out mirrored and garbled).
 No people in the shot.
 
-hero-final.mp4 = hero-8s.mp4 through finish_hero.py (+ the original audio):
+hero-final.mp4 = hero-8s.mp4 through clear_cap.py (clarity 0.7), then finish_hero.py (+ the original audio):
+- overcap made clear like the real one (Narayan: "make bottle cap transparent"). Veo drew it milky; the real cap
+  is clear, lightly frosted polypropylene: the white actuator and nozzle disc show through crisply, the empty
+  parts let the dark backdrop through with a faint glow and bright wall edges. Outline measured on frame 0 (arched
+  tops, ARCH 0.0026), cap followed by scale+shift template matching, backdrop behind it rebuilt per row from both
+  sides; splash in front of the cap keeps Veo's pixels.
+    python3 ads/spraymax/studio-hero/clear_cap.py ads/spraymax/studio-hero/clips/hero-8s.mp4 cap.mp4 0.7
 - the real volume line printed back in every clear frame (140 of 192, faded in/out over 24), followed on the band
   by template matching, in Veo's own white-print colour for that frame; while the water crown runs over the band
   (28 frames) Veo's own pixels are left, refracted like everything under the water;
@@ -17,3 +23,12 @@ hero-final.mp4 = hero-8s.mp4 through finish_hero.py (+ the original audio):
   python3 ads/spraymax/studio-hero/finish_hero.py ads/spraymax/studio-hero/clips/hero-8s.mp4 \
       ads/spraymax/studio-hero/images/hero-first.jpg out.mp4
 Frame-to-frame change: the only big jump (frame 42) is Veo's own splash (same size in hero-8s.mp4).
+
+Sticker label: NOT fixable in this clip. Laid against the real bottle at the same label size
+(images/real-vs-video-proportions.jpg, real = bottle-real-hand-close.jpg), this bottle's straight body is ~14% too
+short: its shoulder comes down past the top of the wordmark (the real sticker's top edge sits just under the
+shoulder, ~5% of the wordmark length above the "S") and its base sits where the real sticker ends (the real bottle
+has a strip of bare plastic below the sticker, ~11% of the wordmark length). The bottle inherited this from the
+mockup (and the brand's own render bottle-ref-clean.jpg has the same squat proportions). A real sticker can't be
+drawn on this bottle without cutting the wordmark, and the bottle can't be stretched under the 2 s water crown.
+Fix: a new first frame with the real proportions, then the same shot again.
