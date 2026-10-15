@@ -1,0 +1,20 @@
+mockup-gemini.png = Narayan's Gemini mockup (768x1376): bottle on a wet slate slab on a glowing Himalayan pink salt
+block, dark studio backdrop, water splashing round the base.
+
+Checked against the real bottle (brand/spraymax/assets/bottle-ref-clean.jpg, scaled to the same body width):
+overcap, ribbed collar, shoulder and body proportions match within a few percent; wordmark size/position match.
+Not 1:1: the volume line read "100ml/8.38fl.oz." (real: 3.38), the label art differed in detail, and a Gemini
+watermark star sat on the salt block.
+
+hero-first-768.png = the mockup with
+- the watermark removed: segmented by its low saturation against the orange salt, its white overlay inverted per
+  pixel (opacity ~0.31), the thin outline inpainted;
+- the real label locked on with scripts/label_lock_handheld.py (2-frame still clip), lit by the bottle's own light:
+    --xc 386 --r 129 --wm-top 480 --wm-bottom 877 --wm-x 386 --band-top 929 --band-end-y 1095 --pump-bottom 398
+    --chroma-keep 1.0 --bottle "314,282 459,282 460,395 476,410 507,450 515,490 515,1094 257,1094 257,490 264,450
+    294,410 313,395"
+  At the measured wordmark the real art lands its band at y 928 and its bottom at 1096: the mockup's own band
+  (929) and the slate line (1095), so the real label fits at true proportions with no stretch.
+  The water drops that sat on the band in the mockup are gone (the splash around the base stays).
+hero-first.jpg = that, centre-cropped to exact 9:16 (5 px top / 6 px bottom) and resized to 1080x1920 (Lanczos),
+JPEG q95: the first frame for Veo (kie.ai failed on a large non-9:16 PNG before; the JPEG went through).
