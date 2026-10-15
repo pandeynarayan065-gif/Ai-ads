@@ -1,0 +1,12 @@
+spray-ocean-v1-rejected.mp4 = Veo 3.1 Fast first frame (images/spray-ocean-first.png), prompt motion-spray-ocean.md
+(65 credits, old account, 445 -> 380). Not for the edit.
+
+Why:
+- the bottle is oversized (from the first frame): ~23-27 cm tall next to his hand, the body ~17% too long
+  for its width, and held nearer the camera than his head, which magnifies it. Narayan: "the bottle
+  height is not realistic". Fix: resize the first frame (prompt-spray-ocean-resize.md).
+- the camera drifts back over the clip; he lowers the bottle from ~1.7 s and it is gone by ~6 s
+- the mist goes up into the sky from the pump, not sideways into his hair; it barely reads
+Good: the wave burst on the rocks (~1.5-4 s) looks real; hair and sweater stay consistent.
+Face check (YuNet 0.5): hits on the back of his head/jaw only, checked by eye; no face visible.
+Next take: motion-spray-ocean-v2.md (camera holds its distance, bottle stays up, mist sideways into hair).
