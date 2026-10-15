@@ -30,3 +30,8 @@ Label locked (bottle body ~7% shorter than the real one, so the label is 6% shor
       --xc-bottom 792 --r-bottom 67.5 --y-top 843 --ky 0.333 --pad-to 1160 --wm-x 800 --margin 2 \
       --ai-band 1071,1152 --paper-rows 845,1058
 Face check (YuNet 0.5): no faces.
+
+VIDEO FROM THE RESIZED FRAME: three tries with spray-ocean-small-first.png + motion-spray-ocean-v2.md failed at
+kie.ai within ~40 s with "500 Internal Error, Please try again later" (0 credits charged each time; the image
+kie.ai received was byte-identical to ours). Fourth try uses spray-ocean-small-first.jpg: the same picture as an
+exact 9:16 1080x1920 JPEG (centre crop of 10 px top / 11 px bottom, then resize), to rule out the large PNG.
