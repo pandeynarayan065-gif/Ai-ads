@@ -1,0 +1,9 @@
+Real handheld phone footage on a wild coast of black volcanic rock, filmed just behind and slightly below the man's right shoulder. It continues exactly from the first frame: the same man, hair, black sweater, bottle, light and sea. We only see the back of his head, his ear and his hair; his face stays turned away toward the sea the whole time.
+
+He is spraying his own hair. His raised right hand holds the Spraymax bottle upright beside the back of his head, about a hand's width from his hair, with the front label toward the camera. The bottle stays the same size and shape, and its printed label stays exactly as in the first frame.
+
+At about one second he presses the pump once with his index finger. The white pump head dips a few millimetres and springs back up. One short, sharp burst of fine mist shoots out of the nozzle and lasts less than half a second: a narrow white cone, dense at the nozzle tip, that widens as it travels and hits his hair a hand's width away. Backlit by the sun, the mist glows white, with tiny sparkling droplets at its edges, and where it lands, tiny droplets glint on the strands. The sea wind tears the rest of the mist away within a second.
+
+At about three seconds, a big swell slams into the rocks below him and explodes into a tall wall of white water behind him. The spray rises, hangs in the air and falls back as the foam pours off the rocks. As it hangs there, he lifts the bottle a little higher and presses again: a second, identical burst into the hair at his crown. Then he holds the bottle still, label to the camera, while the wind moves his thick, textured hair.
+
+Natural cold daylight through a break in the storm clouds, true colour, no golden tint. Real-time speed, slight handheld shake, no slow motion, no cinematic effects. Sound: the deep boom of the wave on the rocks, rushing water, wind, and two short, crisp hisses from the pump spray; no music, no voices. No faces, no text except the bottle's own label.
