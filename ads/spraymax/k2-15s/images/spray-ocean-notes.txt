@@ -1,0 +1,19 @@
+spray-ocean-raw.png = Nano Banana Pro 2K, prompt prompt-spray-ocean-still.md, refs bottle-real-hand-close.jpg,
+pump-side-real.jpg, label-front-panel.jpg (18 credits, old account). spray-ocean-raw.json has the request.
+
+What the AI got wrong, and the fixes (spray-ocean-first.png is the result, used as the video's first frame):
+- pump: a nasal-spray head with a long tube, and mist already coming out of it. The real pump head has a
+  flush orifice on its side. Tube and mist removed, head's edge rebuilt (spray-ocean-fix.py).
+- closure: smooth; the real one is finely ribbed. Ribs added (spray-ocean-fix.py).
+- green lens-flare streak over the rocks, bottom right: removed (spray-ocean-fix.py).
+- label: wordmark reading bottom-to-top, "FOR ALL HAIR TTFES", a different band photo. The real label
+  is locked on with scripts/label_lock_still.py (light read off the AI's own paper; hair strand, thumb
+  and the shaded hand at top right stay on top; water droplets carried over).
+  The AI bottle is ~13% longer than the real one: label scaled 0.42 px/art row (5% taller than its width
+  scale), bare plastic below the band down to y 1292.
+
+  python3 ads/spraymax/k2-15s/images/spray-ocean-fix.py spray-ocean-raw.png fixed.png
+  python3 scripts/label_lock_still.py fixed.png spray-ocean-first.png --xc 796.5 --r 74.5 \
+      --xc-bottom 791.5 --r-bottom 76.5 --y-top 852 --ky 0.42 --pad-to 1292 --wm-x 789 --margin 2
+
+Face check (YuNet, threshold 0.5): no faces. Only the back of his head, ear and a sliver of jaw.
