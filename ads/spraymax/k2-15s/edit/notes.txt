@@ -48,3 +48,5 @@ narayan-cut-v2-enhanced.mp4 = enhance_export.py: back to 30 fps (every other fra
 only by how soft its edges measure (wave crash 1.30, wet close-up 0.71, wave curl 0.66, others 0-0.57; crisp
 shots and the end screen untouched, change clamped to avoid halos), x264 CRF 14, audio untouched.
   python3 ads/spraymax/k2-15s/enhance_export.py narayan-cut-v2.mp4 narayan-cut-v2-enhanced.mp4
+narayan-cut-v1-9s-enhanced.mp4 = the same pass on the other file in that folder (lv_0_20261015212641.mp4, 9 s ->
+narayan-cut-v1-9s.mp4): 60 -> 30 fps, wave crash sharpened 1.30, wet close-up 0.71, others 0-0.52.
