@@ -21,15 +21,16 @@ HERO = "ads/spraymax/studio-hero/clips/hero-v2-final.mp4"
 FONTS = "video/fonts/"
 
 # (cut in, cut out on the music) <- (clip, source start s)
+OCEAN = K + "spray-ocean-v2-locked.mp4"
 SHOTS = [
     (0.00, 1.46, K + "ridge-8s-clean.mp4", 2.25),        # spindrift tearing off the ridge, climber
     (1.46, 2.73, K + "hair-helmet-8s.mp4", 0.00),        # helmet comes off, the wind takes his hair
-    (2.73, 4.00, K + "reveal-v3-final.mp4", 0.25),       # mitt wipes the snow off the bottle
-    (4.00, 5.27, K + "salt-cut-3s.mp4", 0.40),           # pink salt, snow melting off it
+    (2.73, 4.00, K + "salt-cut-3s.mp4", 0.40),           # pink salt, snow melting off it
+    (4.00, 5.27, OCEAN, 0.75),                           # the sea: he sprays his hair as a wave explodes
     (5.27, 6.53, K + "drop-8s-locked.mp4", 1.50),        # the bottle plunges into water
     (6.53, 7.65, HERO, 0.55),                            # studio: the water crown
-    (7.65, 8.28, K + "hair-helmet-8s.mp4", 6.25),        # double time: hair whipping
-    (8.28, 8.92, K + "reveal-v3-final.mp4", 5.00),       # bottle in the snow
+    (7.65, 8.28, K + "hair-helmet-8s.mp4", 6.25),        # double time: mountain wind in his hair
+    (8.28, 8.92, OCEAN, 4.17),                           # sea wind in his hair
     (8.92, 9.55, K + "drop-8s-locked.mp4", 3.25),        # bubbles round the bottle
     (9.55, 10.18, HERO, 4.00),                           # water pours over the shoulder
     (10.18, 11.21, HERO, 6.20),                          # wet close-up, wordmark
@@ -130,13 +131,15 @@ enc.stdin.close()
 if enc.wait() != 0:
     raise SystemExit("ffmpeg failed")
 
-# ---- sound: the track, plus the studio splash under its shot, mastered for Reels ----
+# ---- sound: the track, plus the studio splash and the sea spray's own hiss and waves under their shots ----
 subprocess.run([
-    "ffmpeg", "-v", "error", "-y", "-i", tmp, "-i", music, "-i", HERO,
+    "ffmpeg", "-v", "error", "-y", "-i", tmp, "-i", music, "-i", HERO, "-i", OCEAN,
     "-filter_complex",
     f"[1:a]atrim=0:{TOTAL},asetpts=N/SR/TB,afade=t=out:st={TOTAL - 0.45}:d=0.45[m];"
     f"[2:a]atrim=0.55:1.67,asetpts=N/SR/TB,volume=0.35,adelay=6530|6530,apad,atrim=0:{TOTAL}[s];"
-    f"[m][s]amix=inputs=2:normalize=0,loudnorm=I=-9:TP=-1.0:LRA=7[a]",
+    f"[3:a]atrim=0.75:2.02,asetpts=N/SR/TB,volume=0.4,afade=t=in:d=0.05,afade=t=out:st=1.17:d=0.1,"
+    f"adelay=4000|4000,apad,atrim=0:{TOTAL}[o];"
+    f"[m][s][o]amix=inputs=3:normalize=0,loudnorm=I=-9:TP=-1.0:LRA=7[a]",
     "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-ar", "48000",
     "-shortest", out_path], check=True)
 subprocess.run(["rm", "-f", tmp])

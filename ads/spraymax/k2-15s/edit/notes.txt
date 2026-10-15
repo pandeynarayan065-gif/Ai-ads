@@ -22,3 +22,11 @@ Sound: music only + one splash, -9 LUFS integrated, -1.3 dBFS peak, 0.45 s fade 
 Not used: tethys / zero-g (Narayan: "both lowk ass"), spray-ocean (off the mountain story).
 
   python3 ads/spraymax/k2-15s/edit_k2_15s.py ads/spraymax/k2-15s/edit/music-k2-reel.wav out.mp4
+
+v2 (k2-15s-v2.mp4), Narayan: "add the ocean spray shot back in, also the hand wiping clip looks bad":
+- the reveal (mitt wiping snow off the bottle) is out, in both places it was used;
+- the ocean spray shot is in: 4.00-5.27 (spray-ocean-v2-locked 0.75 s: he sprays his hair as the wave wall
+  explodes behind him, with its own hiss and surf under the music) and 8.28-8.92 (4.17 s: sea wind in his hair,
+  rhyming with the mountain wind in the shot before);
+- new order: ridge, helmet hair, pink salt, ocean spray, bottle drop, studio crown, then the double-time run
+  (mountain hair, sea hair, bubbles, water over the shoulder, wet close-up), end card on the drop.
