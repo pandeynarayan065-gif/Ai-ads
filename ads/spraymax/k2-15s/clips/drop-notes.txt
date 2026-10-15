@@ -3,13 +3,17 @@ prompt motion-drop.md (physics in ../drop-physics.md). Starts just after entry: 
 the cap, pinches off into a bubble burst (~2-3 s), drag stops the bottle, it drifts back up ~110 px.
 Bottle stays upright, no spin.
 
-Label locked (real wrap-around label) with:
+Label locked (real wrap-around label), v2 after the "looks like a sticker / badly cropped" review:
   python3 scripts/label_lock_upright.py drop-8s.mp4 out.mp4 --art brand/spraymax/assets/label-flat.jpg
-    --art-u-c 702 --art-radius 192.3 --xc 568 --r 148 --edge-margin 3 --wm-top 820 --wm-bottom 1267
-    --wm-x 570 --old-band-top 1319 --old-band-bottom 1515 --chain --no-base --pad-bottom 20
-    --keep-moving --specks --label-clear --keep-frost --grain --art-blur 1.0 --from 0
-Track residual <= 2.0 px; label flicker mean 0.98 (Veo's own 1.59); AI band text gone.
-Note: frames ~72-120 Veo's bottle base sits ~2% higher (slight tilt or redraw) - reads naturally.
+    --art-u-c 702 --art-radius 192.3 --xc 568 --r 148 --edge-margin 1 --wm-top 820 --wm-bottom 1267
+    --wm-x 570 --band-end-y 1470 --old-band-top 1319 --old-band-bottom 1470 --chain --no-base --no-glove
+    --keep-moving --specks --label-clear --keep-frost --grain --art-blur 0.5 --sharp --relight --band-match --from 0
+Fixed: label pasted only inside a window around the FINAL bottle position (top/bottom cut off while
+the bottle travelled) -> window now follows the bottle each frame; label length fitted to Veo's
+bottle (its band is 17% shorter than the real proportions) so it ends above the rounded base;
+print as sharp as the footage; band wraps to the outline with Veo's per-column shading; scene light
+changes carried onto the label; air-cavity frames keep Veo's own distorted wordmark.
+Checks: label flicker mean 1.29 (Veo's own 1.59); Veo's wrong band text never shows (<=3.8 levels).
 
 drop-cut-3s.mp4 = frames 30-101 (plunge, cavity collapse, bubble burst, bottoming out).
 Frames 120-191 (bottle hanging, bubbles rising) suit the end card background.

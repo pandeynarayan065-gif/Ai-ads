@@ -50,6 +50,8 @@ ap.add_argument("--old-band-top", type=float, required=True, help="y where the A
 ap.add_argument("--old-band-bottom", type=float, required=True, help="y where the AI's band ends")
 ap.add_argument("--band-y", type=float, default=None,
                 help="y where the AI's wave band starts; with it the label follows perspective along the bottle")
+ap.add_argument("--band-end-y", type=float, default=None,
+                help="y where the AI's band ends (bottom of the label); fits the label's length to the AI bottle")
 ap.add_argument("--r-far", type=float, default=None, help="bottle radius at --band-y (default: --r)")
 ap.add_argument("--xc-far", type=float, default=None, help="bottle centre x at --band-y (default: --xc)")
 ap.add_argument("--art-radius", type=float, default=None,
@@ -87,6 +89,13 @@ ap.add_argument("--no-base", action="store_true",
                 help="don't track the band's base (when it shows moving background, e.g. water around a falling bottle)")
 ap.add_argument("--pad-bottom", type=int, default=0,
                 help="art rows of plain bottle below the label, to cover AI print that runs past the real label")
+ap.add_argument("--sharp", action="store_true", help="cubic resampling onto the frame (for crisp footage)")
+ap.add_argument("--relight", action="store_true",
+                help="carry the footage's changing light (caustics, bubble shading, passing highlights) onto the "
+                     "new label: per-frame light relative to the clip's average, read on the AI's plain paper only")
+ap.add_argument("--band-match", action="store_true",
+                help="match the wave band's brightness/colour to how the scene lit the AI's band")
+ap.add_argument("--no-glove", action="store_true", help="no hand in this shot: skip the dark-mitt detector")
 ap.add_argument("--glove-pad", type=int, default=9, help="px of margin kept around the moving glove")
 ap.add_argument("--static-below", type=float, default=None, help="ignore motion below this y (nothing crosses it)")
 ap.add_argument("--from", dest="start", type=int, default=0, help="first frame to fix")
@@ -99,18 +108,32 @@ a = ap.parse_args()
 # centre column 247
 ART_WM_TOP, ART_WM_BOTTOM, ART_BAND = 48.0, 628.0, 703.0
 ART_U_C = a.art_u_c
+ART_BAND_ROWS = (703, 948)
 art = cv2.imread(a.art, cv2.IMREAD_COLOR).astype(np.float32)
 art[:9] = 255.0                                   # print border line at the top edge
+if a.band_match:                                  # the band wraps to the outline (as on the real bottle)
+    b0, b1 = int(ART_BAND_ROWS[0]), int(ART_BAND_ROWS[1])
+    blue = (art[b0:b1, :, 0] - art[b0:b1, :, 2]) > 25                  # the wave photo is blue; side text is black
+    cols_b = np.flatnonzero(blue.mean(axis=0) > 0.5)
+    if len(cols_b):
+        c0, c1 = cols_b.min(), cols_b.max()
+        band = art[b0:b1, c0:c1 + 1]
+        w = c1 - c0 + 1
+        left = band[:, ::-1][:, :min(c0, w)][:, ::-1]
+        right = band[:, ::-1][:, :min(art.shape[1] - 1 - c1, w)]
+        art[b0:b1, c0 - left.shape[1]:c0] = left
+        art[b0:b1, c1 + 1:c1 + 1 + right.shape[1]] = right
 if a.pad_bottom:
     art = np.vstack([art, np.full((a.pad_bottom, art.shape[1], 3), 247.0, np.float32)])   # bare plastic
 NV, NU = art.shape[:2]
 k = (a.wm_bottom - a.wm_top) / (ART_WM_BOTTOM - ART_WM_TOP)     # frame px per art px (mean, along)
 # along the bottle: frame y = (p0 + p1 v) / (1 + p2 v) for art row v. Uniform (p2 = 0) for a
 # bottle seen square-on; with --band-y it is fitted to three marks so it follows perspective.
-if a.band_y is None:
+if a.band_y is None and a.band_end_y is None:
     p0, p1, p2 = a.wm_top - ART_WM_TOP * k, k, 0.0
 else:
-    vs, ys_ = (ART_WM_TOP, ART_WM_BOTTOM, ART_BAND), (a.wm_top, a.wm_bottom, a.band_y)
+    third = (ART_BAND, a.band_y) if a.band_y is not None else (948.0, a.band_end_y)
+    vs, ys_ = (ART_WM_TOP, ART_WM_BOTTOM, third[0]), (a.wm_top, a.wm_bottom, third[1])
     p0, p1, p2 = np.linalg.solve([[1, v_, -v_ * y_] for v_, y_ in zip(vs, ys_)], ys_)
 
 
@@ -144,7 +167,7 @@ x0, x1 = int(min(a.xc - a.r, xc_far - r_far)) + 1, int(max(a.xc + a.r, xc_far + 
 ya, yb = int(y0), min(H, int(y_of_v(NV)))
 BH, BW = yb - ya, x1 - x0
 gx, gy = np.meshgrid(np.arange(x0, x1, dtype=np.float32), np.arange(ya, yb, dtype=np.float32))
-tt = 0.0 if a.band_y is None else (gy - a.wm_top) / (a.band_y - a.wm_top)
+tt = 0.0 if a.band_y is None else (gy - a.wm_top) / (a.band_y - a.wm_top)   # radius/axis along (band_y only)
 r_y = a.r + (r_far - a.r) * tt                                   # radius and axis along the bottle
 xc_y = a.xc + (xc_far - a.xc) * tt
 k_u = r_y / art_radius                                           # frame px per art px, around
@@ -283,6 +306,13 @@ VIS_CORE = cv2.erode(VIS.astype(np.uint8), np.ones((2 * a.rim + 1, 2 * a.rim + 1
 VIS_RIM = VIS & ~VIS_CORE                 # where the drift's own edge may still cover the label
 
 cols, rowgs, facs, snows, gloves, brights, ainks, excess = {}, {}, {}, {}, {}, {}, {}, {}
+bfac, lums = {}, {}
+_cen = np.abs(gx - a.xc) < 0.6 * a.r
+BAND_AI = _cen & (gy > a.old_band_top + 12) & (gy < a.old_band_bottom - 12)
+BAND_NEW = _cen & (gy > y_of_v(ART_BAND + 12)) & (gy < y_of_v(940.0))
+BAND_AI_R = slice(max(0, int(a.old_band_top + 12 - ya)), max(1, int(a.old_band_bottom - 12 - ya)))
+BAND_NEW_R = slice(max(0, int(y_of_v(ART_BAND + 12) - ya)), max(1, int(y_of_v(940.0) - ya)))
+BAND_ROWS = (v >= ART_BAND - 2) & (v <= 950)
 SEED = cv2.dilate(BURIED.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
 
 
@@ -328,6 +358,13 @@ for i in idx:
     new0 = srgb(alb * lin(S))
     facs[i] = (box[old_ink].mean(axis=0) / (new0[PRINT].mean(axis=0) + 1e-3)
                if old_ink.sum() > 500 else np.full(3, np.nan))
+    if a.band_match:                           # the AI's band vs ours, column by column (keeps its wrap-around shading)
+        ai_c = np.array([box[BAND_AI_R][:, j].mean(axis=0) for j in range(BW)])
+        nw_c = np.array([new0[BAND_NEW_R][:, j].mean(axis=0) for j in range(BW)])
+        fc = cv2.GaussianBlur((ai_c / (nw_c + 1e-3)).astype(np.float32).reshape(1, BW, 3), (0, 0), 6).reshape(BW, 3)
+        bfac[i] = fc
+    if a.relight:
+        lums[i] = L.astype(np.float16)
 
     # snow piled on the bottle. On bare paper it shows up as texture that departs from the smooth
     # paper shading; over the AI's dark band it shows up as large bright blobs. The AI's own print
@@ -349,16 +386,29 @@ for i in idx:
         excess[i] = (L - S.mean(axis=2)).astype(np.float16)
     if a.keep_frost or a.label_clear:          # the AI's own print in this frame (to tell text-flecks apart)
         aink = (((Bc - Rc) - (S[..., 0] - S[..., 2])) > 15) & (L < S.mean(axis=2) - 25)
+        if a.label_clear:                      # black/grey AI print too (taglines, small text)
+            aink |= L < S.mean(axis=2) - 40
         ainks[i] = cv2.dilate(aink.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
     snows[i] = cv2.morphologyEx(snow, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     # the mitt: big red or black blobs (the opening removes thin letter strokes)
     glove = (((Rc - Gc) > 60) | ((L < 75) & ((Bc - Rc) < 15))).astype(np.uint8)
     glove = cv2.morphologyEx(glove, cv2.MORPH_OPEN, np.ones((17, 17), np.uint8))
+    if a.no_glove:
+        glove[:] = 0
     if a.keep_moving:                          # turbulent water over the label: keep the AI's refraction
-        gain = box.mean() / max(ref_box.mean(), 1.0)
-        mv = (np.abs(box - ref_box * gain).sum(axis=2) > 70).astype(np.uint8)
+        hp_b = box - cv2.GaussianBlur(box, (0, 0), 4)              # fine detail only: bubbles and the air
+        hp_r = ref_box - cv2.GaussianBlur(ref_box, (0, 0), 4)      # tube, not smooth changes of light
+        mv = (np.abs(hp_b - hp_r).sum(axis=2) > 60).astype(np.uint8)
+        gain = box.mean() / max(ref_box.mean(), 1.0)              # smooth air films too, but only up top,
+        upper = gy < (a.wm_top + a.wm_bottom) / 2                  # where air reaches (the band below just
+        mv |= ((np.abs(box - ref_box * gain).sum(axis=2) > 60) & upper).astype(np.uint8)   # changes light)
         mv = cv2.morphologyEx(mv, cv2.MORPH_OPEN, np.ones((13, 13), np.uint8))
-        glove |= cv2.dilate(mv, np.ones((9, 9), np.uint8))
+        mv = cv2.morphologyEx(mv, cv2.MORPH_CLOSE, np.ones((41, 41), np.uint8))   # one solid turbulent zone,
+        n_, lab_, st_, _ = cv2.connectedComponentsWithStats((1 - mv).astype(np.uint8))   # holes filled
+        for c_ in range(1, n_):
+            if st_[c_, cv2.CC_STAT_AREA] < 4000:
+                mv[lab_ == c_] = 1
+        glove |= cv2.dilate(mv, np.ones((15, 15), np.uint8))
     if glove.any() and not a.keep_moving:
         # snow the mitt is pushing around: changed vs the clean last frame, near the mitt only
         gain = box.mean() / max(ref_box.mean(), 1.0)
@@ -386,6 +436,10 @@ def tsmooth(d, sigma):
 cols = tsmooth(cols, 2.0)
 rowgs = tsmooth(rowgs, 2.0)
 facs = {i: np.clip(f, 0.7, 1.8) for i, f in tsmooth(facs, 3.0).items()}
+if a.band_match:
+    bfac = {i: np.clip(f, 0.4, 2.0) for i, f in tsmooth(bfac, 3.0).items()}
+if a.relight:
+    LMED = np.median(np.stack([lums[i] for i in idx[::2]]).astype(np.float32), axis=0)
 snow_stack = np.stack([snows[i] for i in idx])
 pad = np.pad(snow_stack, ((2, 2), (0, 0), (0, 0)), mode="edge")
 vote = sum(pad[d:d + len(idx)].astype(np.uint8) for d in range(5))
@@ -428,9 +482,10 @@ for i in idx:
     white &= ~cv2.dilate((~white).astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
     carry = white & VIS
     if a.label_clear:                          # nothing still from right around the AI's old letters (their halo)
-        carry &= ~cv2.dilate(ainks[i].astype(np.uint8), np.ones((17, 17), np.uint8)).astype(bool)
-    if a.specks and a.label_clear:             # blowing snow crossing the label stays on top of it
-        carry |= transient[i]
+        near_ai = cv2.dilate(ainks[i].astype(np.uint8), np.ones((17, 17), np.uint8)).astype(bool)
+        carry &= ~near_ai
+    if a.specks and a.label_clear:             # blowing snow / bubbles crossing the label stay on top of it;
+        carry |= transient[i] & (~near_ai | ((L - S.mean(axis=2)) > 20))   # near old print: only truly bright
     elif a.specks:
         carry |= (L - S.mean(axis=2)) > 22
     carry &= ~flecks[i] | (transient[i] if a.label_clear else False)
@@ -441,10 +496,23 @@ for i in idx:
         paper = (carry & ~(transient[i])).astype(np.float32)
         low = cv2.GaussianBlur(np.where(paper[..., None] > 0, np.clip(box - S, -25, 25), 0.0), (0, 0), 8)
         low /= cv2.GaussianBlur(paper, (0, 0), 8)[..., None] + 1e-3
-        detail = np.where(carry[..., None], detail, low)
+        wc = cv2.GaussianBlur(carry.astype(np.float32), (0, 0), 5)[..., None]   # soft hand-over, no outlines
+        detail = wc * np.where(carry[..., None], detail, low) + (1 - wc) * low
     detail = cv2.GaussianBlur(np.clip(detail, -25, 90 if a.specks else 80), (0, 0), 0.6)
     new = np.clip(srgb(alb * lin(S)) + detail, 0, 255)
     new[PRINT] = np.clip(new[PRINT] * facs[i], 0, 255)
+    if a.band_match:
+        new = np.where(BAND_ROWS[..., None], np.clip(new * bfac[i][None, :, :], 0, 255), new)
+    if a.relight:                              # light that moves over the bottle, read on plain paper only
+        ok_px = (white & VIS & ~cv2.dilate(ainks[i].astype(np.uint8), np.ones((17, 17), np.uint8)).astype(bool)
+                 & ~(transient[i] if a.label_clear else False)).astype(np.float32)
+        rr = np.clip(cv2.GaussianBlur(L, (0, 0), 1.5) / (cv2.GaussianBlur(LMED, (0, 0), 1.5) + 1.0), 0.5, 2.0)
+        num = cv2.GaussianBlur(rr * ok_px, (0, 0), 5)
+        den = cv2.GaussianBlur(ok_px, (0, 0), 5)
+        ratio = np.where(den > 0.05, num / (den + 1e-6), 1.0)
+        ratio /= np.median(ratio[den > 0.05]) if (den > 0.05).any() else 1.0   # S already has the overall level
+        ratio = np.clip(ratio, 0.8, 1.25)
+        new = np.clip(srgb(lin(new) * ratio[..., None] ** 2.2), 0, 255)
     if a.grain:                                # the footage's own noise level, measured on clean paper
         hp = L - cv2.GaussianBlur(L, (0, 0), 1.2)
         ref_px = hp[white & VIS_CORE & ~((L - S.mean(axis=2)) > 22)]
@@ -456,7 +524,7 @@ for i in idx:
         new = np.clip(new + (g * bare)[..., None], 0, 255)
     keep = cv2.dilate((snows[i] | gloves[i].astype(bool)).astype(np.uint8), np.ones((5, 5), np.uint8))
     keep |= BURIED.astype(np.uint8)
-    m = edge * (1 - cv2.GaussianBlur(keep.astype(np.float32), (0, 0), 2.5))
+    m = edge * (1 - cv2.GaussianBlur(keep.astype(np.float32), (0, 0), 6.0 if a.keep_moving else 2.5))
     if a.debug and a.debug_frame == i:
         base = a.debug.rsplit(".", 1)[0]
         cv2.imwrite(base + f"-f{i}-box.png", np.clip(box, 0, 255).astype(np.uint8))
@@ -467,12 +535,14 @@ for i in idx:
     # warp the label + its mask from bottle coordinates onto frame i (sub-pixel)
     Wm = warp_of(i)
     Winv = cv2.invertAffineTransform(Wm)
-    fx0, fx1 = max(0, x0 - 40), min(W, x1 + 40)
-    fy0, fy1 = max(0, ya - 40), min(H, yb + 40)
+    corners = np.array([[x0, ya, 1], [x1, ya, 1], [x0, yb, 1], [x1, yb, 1]], np.float64) @ Wm.T
+    fx0, fx1 = max(0, int(corners[:, 0].min()) - 40), min(W, int(corners[:, 0].max()) + 40)   # where the label
+    fy0, fy1 = max(0, int(corners[:, 1].min()) - 40), min(H, int(corners[:, 1].max()) + 40)   # is in THIS frame
     Mi = Winv.copy()
     Mi[:, 2] = Winv[:, :2] @ np.array([fx0, fy0]) + Winv[:, 2] - np.array([x0, ya])
     sz = (fx1 - fx0, fy1 - fy0)
-    new_f = cv2.warpAffine(new.astype(np.float32), Mi, sz, flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
+    new_f = cv2.warpAffine(new.astype(np.float32), Mi, sz,
+                           flags=(cv2.INTER_CUBIC if a.sharp else cv2.INTER_LINEAR) | cv2.WARP_INVERSE_MAP,
                            borderMode=cv2.BORDER_REPLICATE)
     m_f = cv2.warpAffine(m.astype(np.float32), Mi, sz, flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
                          borderMode=cv2.BORDER_CONSTANT, borderValue=0)
