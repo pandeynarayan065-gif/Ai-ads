@@ -38,3 +38,13 @@ end-screen.mp4 (46 frames, 1.53 s, 30 fps) = the white Spraymax wordmark, BORN I
 the cut, the line and the URL on the next hit, slow drift in. No "8,000 metres up..." line.
 narayan-cut-with-end.mp4 = his cut with the end screen in the black tail, his audio untouched.
   python3 ads/spraymax/k2-15s/end_screen.py - end-screen.mp4 46 30 --into narayan-cut.mp4 narayan-cut-with-end.mp4
+
+Quality pass on Narayan's newest CapCut cut (Drive folder 1joloOBdPUfubDUI5VDasrhXi5PwjC91I, lv_0_20261015213702.mp4
+-> narayan-cut-v2.mp4; the other file there, lv_0_20261015212641.mp4, is the earlier 9 s version):
+- CapCut exported 60 fps from 24/30 fps clips: 340 of 619 frames were exact duplicates (judder, wasted bitrate).
+- the ocean-wave crash (1.87-2.67 s) is the softest shot by far (lower-res source); wave curl, hair and the wet
+  close-up a little soft; the ridge is zoomed in inside CapCut, which costs it detail.
+narayan-cut-v2-enhanced.mp4 = enhance_export.py: back to 30 fps (every other frame), each shot sharpened on luma
+only by how soft its edges measure (wave crash 1.30, wet close-up 0.71, wave curl 0.66, others 0-0.57; crisp
+shots and the end screen untouched, change clamped to avoid halos), x264 CRF 14, audio untouched.
+  python3 ads/spraymax/k2-15s/enhance_export.py narayan-cut-v2.mp4 narayan-cut-v2-enhanced.mp4
