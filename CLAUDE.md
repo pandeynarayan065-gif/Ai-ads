@@ -37,6 +37,7 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
 - `/generate-ads <brief-file>` — write ads for every platform in the brief, then run the checker
 - `/variations <ads-file> [angle]` — add more variations to an existing ads file
 - `/critique <ads-file>` — score and improve existing ads
+- `/shot <brand> <campaign> <shot idea>` — plan, prompt, QA and generate one AI video shot (playbook below)
 
 ## Image generation (kie.ai)
 
@@ -47,3 +48,14 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
 - Save prompts to `ads/<brand>/<campaign>/prompt-<n>.md` and images to `ads/<brand>/<campaign>/images/`.
 - Ad text in images: keep it short (headline + CTA, ideally under ~8 words) and spell it out in
   quotes in the prompt. Use real product/logo photos as `--ref` images whenever available.
+
+## AI video shots
+
+- Follow `reference/ai-video-playbook.md` for every AI video shot and its keyframe: still first, then animate;
+  one camera move and one action per shot; only things a real crew could film; image-to-video prompts describe
+  motion only; never ask a video model for words (labels, supers and end cards are done in post). Static image
+  ads can still carry a short headline + CTA as above.
+- One shot card per shot (`ads/_shot-template.md` → `ads/<brand>/<campaign>/shots/`). Use the brand's
+  `brand/<brand>/product-lock.md` word for word for the product.
+- Run `python3 scripts/prompt_lint.py <prompt-file>` before every dry run; no FAILs before spending credits.
+- Score every still and clip with `reference/ai-video-qa.md` and log the verdict in `ads/<brand>/prompt-log.md`.
