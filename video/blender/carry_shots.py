@@ -432,7 +432,7 @@ def shot_C5(sc):
     void(OCEAN, glow_z=0.30, radius=0.14, strength=0.9)
     rng = np.random.default_rng(5)
     cs, rad, vup, ph = [], [], [], []
-    for sx in (-0.035, 0.012, 0.045):                     # three streams near the focus plane
+    for sx in (-0.022, 0.004, 0.024):                     # three streams near the focus plane (frame is ~70 mm wide)
         for k in range(26):
             cs.append((sx + rng.normal(0, 0.002), rng.uniform(0.27, 0.31), -0.08 + k * 0.009 + rng.uniform(0, 0.004)))
             rr = rng.uniform(0.0012, 0.0035)
