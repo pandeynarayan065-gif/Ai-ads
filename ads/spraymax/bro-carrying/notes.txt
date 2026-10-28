@@ -1,0 +1,33 @@
+Spraymax "What's bro carrying": the reference reel's format (real phone hook -> 3D product montage on the
+beat), rebuilt for Spraymax at $0: Blender for the product, ffmpeg/Python for the edit, a phone for the hook.
+
+Files
+  plan.md                      breakdown of the reference, the Spraymax script, the phone shoot list
+  hook-end-frame-guide.jpg     how the phone hook should end so the cut into 3D shot C1 lands
+  assemble.py                  the edit (beat grid, caption bar, end card, SFX); hook = animatic until shot
+  draft-v1.mp4                 hook animatic + the 3D half, SFX only (the format for posting)
+  draft-v1-temp.mp4            same with the reference reel's music as a TEMP track: for timing only, never post
+  product-half.mp4             just the 3D half (4.43 s on), for dropping into a CapCut edit after the hook
+
+3D shots: video/blender/carry_shots.py (Cycles CPU, 16 samples + OpenImageDenoise, rendered at 75% = 810x1440
+and upscaled to 1080x1920 in the edit). Real label: video/blender/label_hires.py (4x rebuild, wordmark redrawn
+from logo-wide.png). Render times on this 4-core box: 5-23 min per shot, ~1.5 h for all nine.
+
+  python3 video/blender/label_hires.py
+  <venv with bpy>/python video/blender/carry_shots.py --shot C1 --out FRAMES --samples 16 --res-scale 75
+  (repeat for C2..C9)
+  python3 ads/spraymax/bro-carrying/assemble.py --renders FRAMES --out draft.mp4 [--music temp.wav]
+  # with the real hook (bottle held to the lens at 12.3 s in the clip):
+  python3 ads/spraymax/bro-carrying/assemble.py --renders FRAMES --out final.mp4 --hook phone.mp4 --hook-end 12.3
+
+Fixes made during the render (each found by checking frames, re-rendered):
+  - backdrops: a bright emissive wall lit the bottle flat and filled the frame -> near-black void with one
+    tight glow, invisible to diffuse light (the reference's look)
+  - C4: the salt's backlight showed as a white panel (lights are camera-visible in Blender 5) -> all lights
+    hidden from the camera; the chunk hovered over its reflection -> rests on the floor
+  - C2/C6: 100 mm at 20 cm gives ~1 mm depth of field; focus was 1.6 mm off -> focus solved on the wordmark /
+    the collar
+  - C5: one bubble stream was off-frame -> streams moved inside the 70 mm-wide frame
+
+Music: the reference's track is a trending Instagram sound. Post draft-v1.mp4 (SFX only) and pick the sound
+in Instagram so it's licensed; draft-v1-temp.mp4 exists only to judge the cut timing.
