@@ -861,11 +861,11 @@ def shot_C9(sc):
         piv.location = (x, 0.02, MID)
         roots.append(piv)
     glossy_bottle()
-    top = area_light("Top", (0, 0.0, 0.28), (0, 0, 0), 0.3, 6, LILAC)
+    top = area_light("Top", (0, 0.0, 0.28), (0, 0, 0), 0.3, 2.0, LILAC)
     k2.aim(top, (0, 0.02, 0.0))
     strip("RimL", (-0.3, 0.25, 0.1), (0, 0.02, 0.08), 0.5, 0.04, 10, VIOLET)
     strip("RimR", (0.3, 0.25, 0.1), (0, 0.02, 0.08), 0.5, 0.04, 10, VIOLET)
-    key = area_light("Key", (-0.2, -0.6, 0.15), (0, 0, 0), 0.3, 1.5, LILAC)
+    key = area_light("Key", (-0.2, -0.6, 0.15), (0, 0, 0), 0.3, 0.6, LILAC)
     k2.aim(key, (0, 0, 0.08))
     cam = cam_make(50, 5.6)
     n = LENGTHS["C9"]
