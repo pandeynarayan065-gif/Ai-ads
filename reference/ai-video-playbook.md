@@ -215,6 +215,19 @@ Risk = how often the shot comes back unusable.
 | **Transition / match cut** | Medium | First + last frame, same framing and light | One change between the two frames | Different crop or light between the frames (it morphs). Often cheaper as an edit cut |
 | **End card / text** | n/a | Never AI | n/a | Made in post (`end_screen.py`) |
 
+### Formats that don't read as slop
+
+"Slop" is AI imitating reality and missing: a fake person, a fake street, a pasted-in bottle. Two things never
+read that way:
+- **Real footage for anything real.** People, hands, streets and the product in use, shot on a phone. A creator
+  look is the point.
+- **Honest, stylised 3D for the product.** A dark void, one brand colour, macro, liquids, cut on the beat.
+  It doesn't pretend to be real, and the label is exact because it's the real artwork.
+
+The "What's bro carrying" format does both: a real phone hook (about 4.4 s) that drops into a 3D product
+montage on the beat. See `ads/spraymax/bro-carrying/plan.md` and `video/blender/carry_shots.py`. It costs no
+credits. The real-crew test (rule 1) is for photoreal AI shots; stylised 3D is allowed to float.
+
 ## 7. Vocabulary
 
 **Camera moves** (pick one): push-in, pull back, truck left/right, pan, tilt up/down, crane up, orbit/arc

@@ -30,7 +30,7 @@ accents (the brand story: sea salt, Himalaya).
 | H1 | 0.00–1.10 | Wide, phone at chest height: a guy in a plain black tee walks toward camera across a busy Indian street (market road, college gate, metro exit), gym duffel in hand | Caption bar on from frame 1. Faceless option: frame him from the shoulders down |
 | H2 | 1.10–2.30 | POV: the camera person's hand comes into frame, palm out, and stops him | Keep walking toward him; a slight shake is fine |
 | H3 | 2.30–3.90 | Close, looking down into the bag: he unzips the duffel and it's packed with Spraymax bottles | 12–15 bottles, labels up and facing the camera |
-| H4 | 3.90–4.43 | The POV hand pulls out one bottle and holds it toward the lens, **tilted top-right about 28°**, label to camera | This frame match-cuts into 3D shot C1. Hold it still for the last 5 frames |
+| H4 | 3.90–4.43 | The POV hand pulls out one bottle and holds it toward the lens, label to camera; ideally **tilted top-right about 28°** like 3D shot C1 | The cut to C1 lands on the drop. Hold still for the last 5 frames. See `hook-end-frame-guide.jpg` |
 
 Caption: **"What's bro carrying"**, white on a translucent black bar across the frame at ~44% height, as in
 the reference. Hinglish option: **"Bhai bag mein kya hai 😭"**.
