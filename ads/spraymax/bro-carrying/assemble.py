@@ -147,9 +147,8 @@ def hook_frames():
     return frames
 
 
-# ---- finishing pass on the 3D frames (the "editing tools"): bloom, anamorphic streaks, chromatic fringing,
-# a soft filmic shoulder and S-curve, vignette, film grain; a zoom punch on every beat cut; a flash and a
-# small shake on the drop
+# ---- finishing pass on the 3D frames (the "editing tools"): bloom, streaks on specular points, chromatic
+# fringing, a soft filmic shoulder and S-curve, vignette, film grain, and the reference's camera moves (below)
 _yy, _xx = np.mgrid[0:H, 0:W].astype(np.float32)
 VIG = (1 - 0.30 * (((_xx - W / 2) / (W / 2)) ** 2 * 0.55 + ((_yy - H / 2) / (H / 2)) ** 2 * 0.45))[..., None]
 _g = np.random.default_rng(7)
@@ -162,15 +161,32 @@ def scale_about_centre(img, s, dx=0.0, dy=0.0):
     return cv2.warpAffine(img, A, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
 
 
-def finish(f, k_in_shot, frame_no, punch=0.05):
+# Digital camera, copied from the reference's measured motion (optical flow, frame by frame): every shot keeps
+# creeping (push-in, drift up, slide), the first shot after the drop does a quick pull-back on frames 3-7 that
+# settles (their speed ramp), and inside three shots the zoom jumps on the half-beat, exactly where theirs does
+# (6.45, 8.13, 11.15 s). Cuts themselves are hard, as theirs are.
+DRIFT = {"C1": (0.0004, 0.0, 0.0), "C2": (0.0, 0.0, 0.0), "C3": (0.0004, 0.0, 0.0), "C4": (0.0006, 0.0, 0.0),
+         "C5": (-0.0010, 0.0, -1.6), "C6": (0.0003, 0.0, 0.0), "C7": (0.0004, 0.0, 0.0), "C8": (0.0, 0.0, -1.2),
+         "C9": (0.0004, 0.0, 0.0)}                          # (zoom per frame, dx px/frame, dy px/frame)
+JUMPS = {"C3": 6.45, "C5": 8.13, "C9": 11.15}
+
+
+def cam(shot, k, t_abs):
+    zr, vx, vy = DRIFT[shot]
+    s = 1.035 + zr * k
+    if shot == "C1":                                        # their speed ramp: a quick pull-back on frames 3-7
+        x = min(max((k - 3) / 4, 0), 1)
+        s += 0.014 * (1 - x * x * (3 - 2 * x))
+    if shot in JUMPS and t_abs >= JUMPS[shot]:
+        s *= 1.04 if shot != "C3" else 1 / 1.04              # the zoom jumps on the half-beat (C3 jumps out)
+    return s, vx * k, vy * k
+
+
+def finish(f, k_in_shot, frame_no, shot):
     x = f / 255.0
-    if k_in_shot < 6:                                      # zoom punch on the cut, easing out
-        e = 1 - (1 - k_in_shot / 6) ** 3
-        dx = dy = 0.0
-        if frame_no < CUT_HOOK + 6:                        # the drop: a short decaying shake
-            amp = 9 * (1 - k_in_shot / 6)
-            dx, dy = amp * np.sin(k_in_shot * 2.3), amp * np.cos(k_in_shot * 3.1)
-        x = scale_about_centre(x, 1 + punch * (1 - e), dx, dy)
+    t_abs = frame_no / FPS
+    s, dx, dy = cam(shot, k_in_shot, t_abs)
+    x = scale_about_centre(x, s, dx, dy)
     lum = x.max(2)
     hi = np.clip((lum - 0.78) / 0.22, 0, 1)[..., None] * x
     small = cv2.resize(hi, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
@@ -188,8 +204,6 @@ def finish(f, k_in_shot, frame_no, punch=0.05):
     x = np.clip(x * 1.06, 0, 1)
     x = x * 0.78 + (3 * x * x - 2 * x * x * x) * 0.22      # gentle S-curve
     x = x * VIG + GRAIN[frame_no % len(GRAIN)] * 0.014
-    if CUT_HOOK <= frame_no < CUT_HOOK + 3:                # flash on the drop
-        x = x + [0.55, 0.28, 0.1][frame_no - CUT_HOOK] * np.array([1.0, 0.9, 1.0], np.float32)
     return np.clip(x * 255, 0, 255)
 
 
@@ -218,7 +232,7 @@ for f in hook_frames():
     count += 1
 for shot, a, b in zip(SHOTS, CUTS[:-1], CUTS[1:]):
     for k, f in enumerate(render_frames(shot, b - a)):
-        f = finish(f, k, a + k, punch=0.10 if shot == "C1" else 0.05)
+        f = finish(f, k, a + k, shot)
         if shot == "C9":
             end_card(f, (a + k) / FPS)
         enc.stdin.write(np.clip(f, 0, 255).astype(np.uint8).tobytes())

@@ -380,41 +380,67 @@ def nozzle_world(root, piv):
     return np.array(pos), np.array(d)
 
 
-def mist_emitter(origin, direction, press, n=40000, cone=13.0, spd=(0.18, 0.42), dur=0.45, seed=3):
-    """A burst of fine mist from origin along direction, starting at frame press. Returns update(f)."""
+def mist_emitter(origin, direction, press, n=40000, cone=13.0, spd=(0.18, 0.42), dur=0.45, seed=3, bloom=4.0):
+    """A burst of fine mist from origin along direction, starting at frame press. Returns update(f).
+    Built to look like real atomised spray, not a solid cone: each droplet is faint (they only add up to a
+    haze where they crowd), the burst is front-loaded and breaks into a few uneven sub-jets, speeds and sizes
+    are spread out (a few heavier droplets fly straighter and further), a slow swirl grows with distance,
+    and every droplet shrinks away at the end of its life so the edges thin out."""
     mm = bpy.data.materials.new("Mist")
     mm.use_nodes = True
     mb = mm.node_tree.nodes["Principled BSDF"]
-    mb.inputs["Base Color"].default_value = (1, 1, 1, 1)
-    mb.inputs["Roughness"].default_value = 0.25
-    mb.inputs["Alpha"].default_value = 0.45
+    mb.inputs["Base Color"].default_value = (0.95, 0.96, 1.0, 1)
+    mb.inputs["Roughness"].default_value = 0.3
+    mb.inputs["Alpha"].default_value = 0.16
     ob = k2.points_mesh("Mist", mm)
     rng = np.random.default_rng(seed)
-    te = rng.uniform(0, dur, n)
-    sp = rng.uniform(*spd, n)
+    te = dur * rng.beta(1.3, 3.0, n)                       # front-loaded burst with a tail
     half = math.radians(cone)
-    th, ph = np.sqrt(rng.uniform(0, 1, n)) * half, rng.uniform(0, 2 * math.pi, n)
+    k = 7                                                  # uneven sub-jets
+    jw = rng.dirichlet(np.ones(k) * 0.8)
+    jth = np.sqrt(rng.uniform(0, 1, k)) * half * 0.75
+    jph = rng.uniform(0, 2 * math.pi, k)
+    which = rng.choice(k, n, p=jw)
+    th = np.abs(jth[which] + rng.normal(0, half * 0.45, n))
+    ph = jph[which] + rng.normal(0, 0.7, n)
     d = direction / np.linalg.norm(direction)
-    a = np.array([0, 0, 1.0]) if abs(d[2]) < 0.9 else np.array([1.0, 0, 0])
-    u = np.cross(d, a)
+    a_ = np.array([0, 0, 1.0]) if abs(d[2]) < 0.9 else np.array([1.0, 0, 0])
+    u = np.cross(d, a_)
     u /= np.linalg.norm(u)
     v = np.cross(d, u)
     dirs = (np.cos(th)[:, None] * d + (np.sin(th) * np.cos(ph))[:, None] * u + (np.sin(th) * np.sin(ph))[:, None] * v)
-    size = rng.uniform(0.00003, 0.00008, n)
-    drift = rng.normal(0, 0.004, (n, 3))
-    tau = 0.3
+    mid = 0.5 * (spd[0] + spd[1])
+    sp = np.clip(mid * np.exp(rng.normal(0, 0.45, n)), 0.04, 0.8)
+    size = 0.000045 * np.exp(rng.normal(0, 0.45, n))
+    big = rng.random(n) < 0.03                             # heavier droplets: bigger, less drag
+    size[big] *= 2.6
+    tau = np.where(big, 0.7, rng.uniform(0.18, 0.32, n))
+    life = rng.uniform(0.6, 1.6, n)
+    # the plume blooms: each droplet drifts sideways (a random direction across the jet) more and more the
+    # further it has flown, so the spray is tight at the nozzle and opens into a big soft cloud at the end
+    qa = rng.uniform(0, 2 * math.pi, n)
+    qdir = np.cos(qa)[:, None] * u + np.sin(qa)[:, None] * v
+    qmag = np.abs(rng.normal(0, 1, n))
+    drift = rng.normal(0, 0.003, (n, 3))
+    # slow swirl: a few random sinusoidal modes, strength growing with distance from the nozzle
+    kv = rng.normal(0, 90, (3, 3))
+    om = rng.uniform(2, 6, 3)
+    phs = rng.uniform(0, 6.28, 3)
 
     def update(f):
         tt_all = (f - press) / FPS - te
-        live = (tt_all > 0) & (tt_all < 3.0)
+        live = (tt_all > 0) & (tt_all < life)
         tt = tt_all[live]
-        dist = sp[live] * tau * (1 - np.exp(-tt / tau))
-        vel = (sp[live] * np.exp(-tt / tau))[:, None] * dirs[live]
-        pos = origin + dirs[live] * dist[:, None] + drift[live] * tt[:, None] + np.array([0, 0, -0.03]) * tt[:, None] ** 2
-        k2.set_points(ob, pos.astype(np.float32), (size[live] * (1 + 0.8 * tt)).astype(np.float32), vel, stretch=0.012)
+        dist = sp[live] * tau[live] * (1 - np.exp(-tt / tau[live]))
+        vel = (sp[live] * np.exp(-tt / tau[live]))[:, None] * dirs[live]
+        pos = origin + dirs[live] * dist[:, None] + drift[live] * tt[:, None] + np.array([0, 0, -0.025]) * tt[:, None] ** 2
+        pos = pos + qdir[live] * (bloom * qmag[live] * dist ** 2 + 0.02 * qmag[live] * tt ** 1.5)[:, None]
+        sw = np.stack([np.sin(pos @ kv[i] + om[i] * (f / FPS) + phs[i]) for i in range(3)], 1)
+        pos = pos + sw * (0.012 * np.clip(dist / 0.06, 0, 1.5))[:, None]
+        fade = np.clip(1 - tt / life[live], 0, 1) ** 0.6
+        rad = size[live] * (1 + 1.4 * tt) * fade
+        k2.set_points(ob, pos.astype(np.float32), rad.astype(np.float32), vel, stretch=0.010)
     return update
-
-
 def beads_on(objs, n, rmin, rmax, seed, from_dir=(0, -1, 0.6), spread=0.05, centre=(0, 0, 0)):
     """Water beads sitting on the surfaces of objs (ray-cast from the camera side), flattened on the surface."""
     rnd = random.Random(seed)
@@ -581,7 +607,7 @@ def shot_C3(sc):
     strip("RimR", (0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 0.7, VIOLET)
     top = area_light("Top", (0, -0.06, 0.32), (0, 0, 0), 0.15, 0.5, LILAC)
     k2.aim(top, (0, -0.05, 0.15))
-    back = area_light("MistBack", (-0.10, 0.20, 0.17), (0, 0, 0), 0.08, 25, (1.0, 0.95, 1.0))   # backlights the plume
+    back = area_light("MistBack", (-0.10, 0.20, 0.17), (0, 0, 0), 0.08, 7, (1.0, 0.95, 1.0))   # backlights the plume
     k2.aim(back, (-0.05, -0.03, 0.15))
     back.visible_glossy = False
     key = area_light("Key", (0, -0.3, 0.2), (0, 0, 0), 0.12, 0.1, LILAC)
@@ -589,7 +615,7 @@ def shot_C3(sc):
     bpy.context.view_layer.update()
     o, dvec = nozzle_world(root, piv)
     press = 10
-    mist = mist_emitter(o, dvec, press=press + 1, n=45000, cone=14, spd=(0.2, 0.45), dur=0.4, seed=9)
+    mist = mist_emitter(o, dvec, press=press + 1, n=55000, cone=19, spd=(0.2, 0.45), dur=0.4, seed=9)
     cam = cam_make(100, 4.0)
     n = LENGTHS["C3"]
 
@@ -646,7 +672,7 @@ def misting_shot(sc, kind):
     piv, root, R = tilted_pump(-35, -90, tuple(top - axis * (TOP - MID)), cap=False)
     glossy_bottle()
     o, dvec = nozzle_world(root, piv)
-    mist = mist_emitter(o, dvec, press=3, n=30000, cone=12, spd=(0.14, 0.32), seed=5)
+    mist = mist_emitter(o, dvec, press=3, n=45000, cone=19, spd=(0.14, 0.32), seed=5)
     key = area_light("Key", (-0.15, -0.3, 0.15), (0, 0, 0), 0.25, key_e, key_rgb)
     k2.aim(key, centre)
     back = area_light("Back", (0.0, 0.25, 0.05), (0, 0, 0), 0.2, back_e, back_rgb)
