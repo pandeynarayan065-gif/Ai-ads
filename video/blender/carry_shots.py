@@ -385,12 +385,18 @@ def shot_C4(sc):
     hero.location = (0, 0, 0.017)
     hero.rotation_euler = (0.3, 0.5, 0.2)
     rnd = random.Random(3)
+    small = []
     for i in range(9):
         o = crystal_mesh(f"S{i}", rnd.uniform(0.003, 0.007), m, seed=20 + i)
         a = rnd.uniform(0, 2 * math.pi)
         rr = rnd.uniform(0.035, 0.09)                    # around and behind the chunk, never in front
         o.location = (rr * math.cos(a), abs(rr * math.sin(a)) * 0.8 + 0.01, 0.003)
         o.rotation_euler = (rnd.uniform(0, 6), rnd.uniform(0, 6), rnd.uniform(0, 6))
+        small.append(o)
+    bpy.context.view_layer.update()
+    for o in [hero] + small:                             # rest every chunk on the floor, sunk 0.5 mm
+        low = min((o.matrix_world @ v.co).z for v in o.data.vertices)
+        o.location.z -= low + 0.0005
     bpy.context.view_layer.update()
     # water beads: ray-cast onto the chunk's upper faces, flattened along the surface normal
     water = water_mat()
@@ -429,7 +435,9 @@ def shot_C4(sc):
         look(cam, (d * math.sin(a), -d * math.cos(a), 0.05), (0, 0, 0.022), focus=d - 0.012)
         tz = max((f - 3) / FPS, 0)
         zz = 0.105 - 0.6 * tz ** 2 - 0.12 * tz                 # slow-motion fall, in front of the chunk
-        set_spheres(drop, [(-0.016, -0.014, zz)], [0.0022], 3,
+        if zz < 0.0022:                                     # landed: gone into the wet floor
+            zz = -1.0
+        set_spheres(drop, [(-0.03, -0.02, zz)], [0.0022], 3,
                     (np.array([[0, 0, 1]], np.float32), np.array([1.3], np.float32)))
     return at, n
 
