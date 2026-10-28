@@ -408,6 +408,7 @@ def shot_C4(sc):
     drop = spheres("Drop", water, [(0, 0, 1)], [0.0022])
     back = area_light("Back", (0.04, 0.22, 0.09), (0, 0, 0), 0.06, 7, (1.0, 0.55, 0.35))
     k2.aim(back, (0, 0, 0.02))
+    back.visible_glossy = False                          # glow through the salt, no panel in the wet floor
     key = area_light("Key", (-0.2, -0.18, 0.16), (0, 0, 0), 0.12, 0.6, (0.9, 0.92, 1.0))
     k2.aim(key, (0, 0, 0.02))
     strip("Rim", (0.18, 0.02, 0.10), (0, 0, 0.02), 0.25, 0.02, 4, (1.0, 0.7, 0.6))
@@ -572,6 +573,9 @@ def main():
     res = int(a[a.index("--res-scale") + 1]) if "--res-scale" in a else 100
     sc = setup(samples, res)
     at, n = SHOTS[shot](sc)
+    for ob in bpy.data.objects:                         # lights light the scene but never show as panels
+        if ob.type == "LIGHT":
+            ob.visible_camera = False
     frames = [int(x) for x in a[a.index("--frames") + 1].split(",")] if "--frames" in a else range(1, n + 1)
     out.mkdir(parents=True, exist_ok=True)
     for f in frames:
