@@ -16,7 +16,7 @@ and upscaled to 1080x1920 in the edit; Standard view transform so the measured r
 from logo-wide.png). Render times on this 4-core box: 5-23 min per shot, ~1.5 h for all nine.
 
   python3 video/blender/label_hires.py
-  <venv with bpy>/python video/blender/carry_shots.py --shot C1 --out FRAMES --samples 16 --res-scale 75
+  <venv with bpy>/python video/blender/carry_shots.py --shot C1 --out FRAMES --samples 12 --res-scale 75
   (repeat for C2..C9)
   python3 ads/spraymax/bro-carrying/assemble.py --renders FRAMES --out draft.mp4 [--music temp.wav]
   # with the real hook (bottle held to the lens at 12.3 s in the clip):
@@ -31,8 +31,8 @@ Fixes made during the render (each found by checking frames, re-rendered):
     the collar
   - C5: one bubble stream was off-frame -> streams moved inside the 70 mm-wide frame
 
-Music: the reference's track is a trending Instagram sound. Post draft-v1.mp4 (SFX only) and pick the sound
-in Instagram so it's licensed; draft-v1-temp.mp4 exists only to judge the cut timing.
+Music: the reference's track is a trending Instagram sound. Post draft-v2.mp4 (SFX only) and pick the sound
+in Instagram so it's licensed; draft-v2-temp.mp4 exists only to judge the cut timing.
 
 v2 (shot-for-shot copy of the reference), changes after review:
   - fine-mist pump never drips: C3 fires a mist burst, C6 is a clean profile (theirs drip: a serum pump)
