@@ -109,8 +109,9 @@ def aim(ob, target):
 
 
 # ---------------------------------------------------------------- bottle
-def make_bottle(with_cap=True):
+def make_bottle(with_cap=True, label_art=None):
     """The Spraymax bottle: lathed body, wrapped real label, ribbed collar, pump, nozzle insert, clear cap.
+    label_art: label artwork (default label-flat.jpg; video/assets/label-hires.jpg for macro shots).
     Returns (root empty, body radius). Front label panel and nozzle face -Y."""
     # --- bottle body (shoulder -> body -> rounded base), measured from the cut-out
     R = r(436)
@@ -123,7 +124,7 @@ def make_bottle(with_cap=True):
     # --- label: thin open cylinder just outside the body, UV = full wrap, front panel faces -Y
     lab_prof = [(R + 0.00025, z(2400) + k * (z(1470) - z(2400)) / 40) for k in range(41)]
     label = lathe("Label", lab_prof, segs=256, uv=True)
-    img = bpy.data.images.load(str(ASSETS / "label-flat.jpg"))
+    img = bpy.data.images.load(str(label_art or ASSETS / "label-flat.jpg"))
     m = bpy.data.materials.new("LabelMat")
     m.use_nodes = True
     nt = m.node_tree
@@ -135,11 +136,13 @@ def make_bottle(with_cap=True):
     tex.extension = "REPEAT"
     uvn = nt.nodes.new("ShaderNodeUVMap")
     mapping = nt.nodes.new("ShaderNodeMapping")
-    # crop the 6 px border of the artwork, and rotate so the front panel (u=0.505) sits at theta=-90deg
+    # crop the border of the artwork (6 px at the original 1403 px width), and rotate so the front panel
+    # (u=0.505) sits at theta=-90deg
     W_, H_ = img.size
-    sx, sy = (W_ - 12) / W_, (H_ - 12) / H_
+    bd = 6 * W_ / 1403
+    sx, sy = (W_ - 2 * bd) / W_, (H_ - 2 * bd) / H_
     mapping.inputs["Scale"].default_value = (sx, sy, 1)
-    mapping.inputs["Location"].default_value = (6 / W_ + (0.505 - 0.75) * sx, 6 / H_, 0)
+    mapping.inputs["Location"].default_value = (bd / W_ + (0.505 - 0.75) * sx, bd / H_, 0)
     nt.links.new(uvn.outputs["UV"], mapping.inputs["Vector"])
     nt.links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
