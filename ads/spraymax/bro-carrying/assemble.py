@@ -31,6 +31,7 @@ CUT_HOOK = 133                                             # 4.43 s: the drop
 CUTS = [round(t * FPS) for t in (4.43, 5.13, 5.80, 7.07, 7.80, 8.47, 9.13, 9.80, 10.50)] + [N]
 SHOTS = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"]
 END_IN = 10.90
+END_Y = 680                                               # wordmark row: between C9's top shelf and the bottles
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--renders", required=True)
@@ -99,9 +100,9 @@ def ramp(t, t0, d):
 
 
 def end_card(c, t):
-    over(c, WORD, W / 2, 380 + 10 * (1 - ramp(t, END_IN, 0.3)), ramp(t, END_IN, 0.3))
-    over(c, LINE, W / 2, 495, ramp(t, END_IN + 0.25, 0.3))
-    over(c, URL, W / 2, 575, ramp(t, END_IN + 0.4, 0.3))
+    over(c, WORD, W / 2, END_Y + 10 * (1 - ramp(t, END_IN, 0.3)), ramp(t, END_IN, 0.3))
+    over(c, LINE, W / 2, END_Y + 115, ramp(t, END_IN + 0.25, 0.3))
+    over(c, URL, W / 2, END_Y + 195, ramp(t, END_IN + 0.4, 0.3))
 
 
 # ---- hook: phone footage, or an animatic until it's shot
@@ -146,6 +147,52 @@ def hook_frames():
     return frames
 
 
+# ---- finishing pass on the 3D frames (the "editing tools"): bloom, anamorphic streaks, chromatic fringing,
+# a soft filmic shoulder and S-curve, vignette, film grain; a zoom punch on every beat cut; a flash and a
+# small shake on the drop
+_yy, _xx = np.mgrid[0:H, 0:W].astype(np.float32)
+VIG = (1 - 0.30 * (((_xx - W / 2) / (W / 2)) ** 2 * 0.55 + ((_yy - H / 2) / (H / 2)) ** 2 * 0.45))[..., None]
+_g = np.random.default_rng(7)
+GRAIN = [cv2.GaussianBlur(_g.normal(0, 1, (H, W)).astype(np.float32), (0, 0), 0.7)[..., None] for _ in range(8)]
+STREAK_TINT = np.array([1.0, 0.72, 0.9], np.float32)      # BGR: lilac
+
+
+def scale_about_centre(img, s, dx=0.0, dy=0.0):
+    A = np.float32([[s, 0, W / 2 - s * W / 2 + dx], [0, s, H / 2 - s * H / 2 + dy]])
+    return cv2.warpAffine(img, A, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
+
+
+def finish(f, k_in_shot, frame_no, punch=0.05):
+    x = f / 255.0
+    if k_in_shot < 6:                                      # zoom punch on the cut, easing out
+        e = 1 - (1 - k_in_shot / 6) ** 3
+        dx = dy = 0.0
+        if frame_no < CUT_HOOK + 6:                        # the drop: a short decaying shake
+            amp = 9 * (1 - k_in_shot / 6)
+            dx, dy = amp * np.sin(k_in_shot * 2.3), amp * np.cos(k_in_shot * 3.1)
+        x = scale_about_centre(x, 1 + punch * (1 - e), dx, dy)
+    lum = x.max(2)
+    hi = np.clip((lum - 0.78) / 0.22, 0, 1)[..., None] * x
+    small = cv2.resize(hi, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
+    wide = cv2.resize(cv2.GaussianBlur(small, (0, 0), 9), (W, H), interpolation=cv2.INTER_LINEAR)
+    x = x + 0.12 * cv2.GaussianBlur(hi, (0, 0), 6) + 0.16 * wide
+    # streaks only from small specular points: brighter than their own surroundings, not whole white surfaces
+    pt = np.clip((lum - cv2.GaussianBlur(lum, (0, 0), 10) - 0.10) / 0.2, 0, 1) * (lum > 0.85)
+    hot = cv2.resize((pt[..., None] * x), (W // 2, H // 2), interpolation=cv2.INTER_AREA)
+    x = x + 1.4 * cv2.resize(cv2.blur(hot, (81, 1)), (W, H), interpolation=cv2.INTER_LINEAR) * STREAK_TINT
+    b_, g_, r_ = cv2.split(x)                              # chromatic fringing toward the edges
+    r_ = scale_about_centre(r_, 1.0011)
+    b_ = scale_about_centre(b_, 0.9989)
+    x = cv2.merge([b_, g_, r_])
+    x = x / (1 + 0.06 * x)                                 # soft highlight shoulder
+    x = np.clip(x * 1.06, 0, 1)
+    x = x * 0.78 + (3 * x * x - 2 * x * x * x) * 0.22      # gentle S-curve
+    x = x * VIG + GRAIN[frame_no % len(GRAIN)] * 0.014
+    if CUT_HOOK <= frame_no < CUT_HOOK + 3:                # flash on the drop
+        x = x + [0.55, 0.28, 0.1][frame_no - CUT_HOOK] * np.array([1.0, 0.9, 1.0], np.float32)
+    return np.clip(x * 255, 0, 255)
+
+
 def render_frames(shot, n):
     files = sorted(renders.glob(f"{shot}_*.png"))
     if not files:
@@ -171,6 +218,7 @@ for f in hook_frames():
     count += 1
 for shot, a, b in zip(SHOTS, CUTS[:-1], CUTS[1:]):
     for k, f in enumerate(render_frames(shot, b - a)):
+        f = finish(f, k, a + k, punch=0.10 if shot == "C1" else 0.05)
         if shot == "C9":
             end_card(f, (a + k) / FPS)
         enc.stdin.write(np.clip(f, 0, 255).astype(np.uint8).tobytes())
@@ -201,9 +249,13 @@ def add(t, x, gain):
 
 w = band_noise(0.6, 300, 6000)                               # whoosh: rising then cut on the drop
 add(4.43 - 0.6, w * np.linspace(0, 1, len(w)) ** 2, 0.35)
-p_t = CUTS[2] / FPS + 8 / FPS                                 # pump press in C3 (frame 6 + 2 to the burst)
-h = band_noise(0.45, 2500, 12000)
-add(p_t, h * np.exp(-np.linspace(0, 4, len(h))) * np.minimum(1, np.linspace(0, 30, len(h))), 0.5)
+for c_i in (3, 6):                                            # pump sprays in C4 and C7 (press at frame 3)
+    h = band_noise(0.4, 2500, 12000)
+    add(CUTS[c_i] / FPS + 3 / FPS, h * np.exp(-np.linspace(0, 4, len(h))) * np.minimum(1, np.linspace(0, 30, len(h))), 0.45)
+tt = np.arange(int(0.5 * SR)) / SR                            # low hit on the drop
+add(4.43, (np.sin(2 * np.pi * (55 * tt - 20 * tt ** 2)) * np.exp(-tt * 7)).astype(np.float32), 0.6)
+tt = np.arange(int(0.08 * SR)) / SR                           # the drip in C3 lets go
+add(CUTS[2] / FPS + 0.75, (np.sin(2 * np.pi * (900 * tt + 4000 * tt ** 2)) * np.exp(-tt * 70)).astype(np.float32), 0.15)
 for k in range(9):                                            # bubble blips under C5
     d = int(0.05 * SR)
     tt = np.arange(d) / SR
