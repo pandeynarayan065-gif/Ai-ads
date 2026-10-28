@@ -51,7 +51,8 @@ SALT = ((0.003, 0.0004, 0.0008), (0.95, 0.24, 0.10))
 def setup(samples, res):
     sc = k2.setup(samples, res)
     sc.render.fps = FPS
-    sc.view_settings.look = "AgX - Medium High Contrast"
+    sc.view_settings.view_transform = "Standard"
+    sc.view_settings.look = "None"
     sc.cycles.transmission_bounces = 8
     sc.cycles.max_bounces = 10
     sc.render.use_persistent_data = True               # keep the BVH/textures between frames
@@ -272,309 +273,575 @@ def crystal_mesh(name, size, mat, seed):
     return o
 
 
-# ---------------------------------------------------------------- shots
+# ---------------------------------------------------------------- shots (v2: the reference, shot for shot)
+# Colours are the reference's own, measured from its frames (sRGB 0-255), rendered with the Standard view
+# transform so a backdrop shows exactly the colour asked for. Our white bottle stays white; it is lit low
+# so it takes the purple and keeps its shape instead of blowing out.
 VIOLET = (0.5, 0.36, 1.0)
+LILAC = (0.78, 0.66, 1.0)
+
+
+def srgb(c):
+    """sRGB 0-255 -> linear."""
+    def f(v):
+        v = v / 255.0
+        return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+    return tuple(f(x) for x in c)
+
+
+def cyc(stops, z0, z1, glow=None, y=1.0, strength=1.0):
+    """Graded emissive backdrop: a colour ramp from world height z0 (pos 0) to z1 (pos 1), plus an optional
+    radial glow (rgb, x, z, radius). Seen by the camera and in reflections, never as diffuse light."""
+    bpy.ops.mesh.primitive_plane_add(size=6.0, location=(0, y, 0.6), rotation=(math.pi / 2, 0, 0))
+    bd = bpy.context.object
+    m = bpy.data.materials.new("Cyc")
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sep.inputs[0])
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.inputs["From Min"].default_value = z0 - 0.6
+    mr.inputs["From Max"].default_value = z1 - 0.6
+    mr.clamp = True
+    nt.links.new(sep.outputs[1], mr.inputs["Value"])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    els = ramp.color_ramp.elements
+    els[0].position, els[0].color = stops[0][0], (*srgb(stops[0][1]), 1)
+    els[1].position, els[1].color = stops[-1][0], (*srgb(stops[-1][1]), 1)
+    for pos, col in stops[1:-1]:
+        e = els.new(pos)
+        e.color = (*srgb(col), 1)
+    nt.links.new(mr.outputs["Result"], ramp.inputs["Fac"])
+    col = ramp.outputs["Color"]
+    if glow:
+        gcol, gx, gz, grad = glow
+
+        def op(kind, a_, b_):
+            n_ = nt.nodes.new("ShaderNodeMath")
+            n_.operation = kind
+            for i, v in enumerate((a_, b_)):
+                if isinstance(v, (int, float)):
+                    n_.inputs[i].default_value = v
+                else:
+                    nt.links.new(v, n_.inputs[i])
+            return n_.outputs[0]
+        dx = op("SUBTRACT", sep.outputs[0], gx)
+        dy = op("SUBTRACT", sep.outputs[1], gz - 0.6)
+        d2 = op("ADD", op("MULTIPLY", dx, dx), op("MULTIPLY", dy, dy))
+        g = op("EXPONENT", op("MULTIPLY", d2, -1.0 / grad ** 2), 0)
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "ADD"
+        nt.links.new(g, mix.inputs[0])
+        nt.links.new(col, mix.inputs[6])
+        mix.inputs[7].default_value = (*srgb(gcol), 1)
+        col = mix.outputs[2]
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Strength"].default_value = strength
+    nt.links.new(col, em.inputs["Color"])
+    nt.links.new(em.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    bd.data.materials.append(m)
+    bd.visible_diffuse = False
+    return bd
+
+
+def glossy_bottle():
+    """Crisper plastic: a clear coat so strip lights draw sharp lines along the bottle."""
+    for name, rough, coat in (("BottleWhite", 0.2, 1.0), ("LabelMat", 0.3, 0.8), ("PumpWhite", 0.3, 0.6)):
+        m = bpy.data.materials.get(name)
+        if m:
+            b = m.node_tree.nodes["Principled BSDF"]
+            if name != "LabelMat":                         # white plastic reads light grey in a dark studio
+                b.inputs["Base Color"].default_value = (0.62, 0.62, 0.66, 1)
+            b.inputs["Roughness"].default_value = rough
+            b.inputs["Coat Weight"].default_value = coat
+            b.inputs["Coat Roughness"].default_value = 0.04
+
+
+def emissive(name, rgb, strength):
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*rgb, 1)
+    em.inputs["Strength"].default_value = strength
+    nt.links.new(em.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    return m
+
+
+def nozzle_world(root, piv):
+    """World position of the nozzle hole and the direction the spray leaves it."""
+    bpy.context.view_layer.update()
+    mw = root.matrix_world
+    pos = mw @ Vector((0, -r(160), z(870)))
+    d = (mw.to_3x3() @ Vector((0, -1, 0))).normalized()
+    return np.array(pos), np.array(d)
+
+
+def mist_emitter(origin, direction, press, n=40000, cone=13.0, spd=(0.18, 0.42), dur=0.45, seed=3):
+    """A burst of fine mist from origin along direction, starting at frame press. Returns update(f)."""
+    mm = bpy.data.materials.new("Mist")
+    mm.use_nodes = True
+    mb = mm.node_tree.nodes["Principled BSDF"]
+    mb.inputs["Base Color"].default_value = (1, 1, 1, 1)
+    mb.inputs["Roughness"].default_value = 0.25
+    mb.inputs["Alpha"].default_value = 0.45
+    ob = k2.points_mesh("Mist", mm)
+    rng = np.random.default_rng(seed)
+    te = rng.uniform(0, dur, n)
+    sp = rng.uniform(*spd, n)
+    half = math.radians(cone)
+    th, ph = np.sqrt(rng.uniform(0, 1, n)) * half, rng.uniform(0, 2 * math.pi, n)
+    d = direction / np.linalg.norm(direction)
+    a = np.array([0, 0, 1.0]) if abs(d[2]) < 0.9 else np.array([1.0, 0, 0])
+    u = np.cross(d, a)
+    u /= np.linalg.norm(u)
+    v = np.cross(d, u)
+    dirs = (np.cos(th)[:, None] * d + (np.sin(th) * np.cos(ph))[:, None] * u + (np.sin(th) * np.sin(ph))[:, None] * v)
+    size = rng.uniform(0.00003, 0.00008, n)
+    drift = rng.normal(0, 0.004, (n, 3))
+    tau = 0.3
+
+    def update(f):
+        tt_all = (f - press) / FPS - te
+        live = (tt_all > 0) & (tt_all < 3.0)
+        tt = tt_all[live]
+        dist = sp[live] * tau * (1 - np.exp(-tt / tau))
+        vel = (sp[live] * np.exp(-tt / tau))[:, None] * dirs[live]
+        pos = origin + dirs[live] * dist[:, None] + drift[live] * tt[:, None] + np.array([0, 0, -0.03]) * tt[:, None] ** 2
+        k2.set_points(ob, pos.astype(np.float32), (size[live] * (1 + 0.8 * tt)).astype(np.float32), vel, stretch=0.012)
+    return update
+
+
+def beads_on(objs, n, rmin, rmax, seed, from_dir=(0, -1, 0.6), spread=0.05, centre=(0, 0, 0)):
+    """Water beads sitting on the surfaces of objs (ray-cast from the camera side), flattened on the surface."""
+    rnd = random.Random(seed)
+    dg = bpy.context.evaluated_depsgraph_get()
+    sc = bpy.context.scene
+    fd = Vector(from_dir).normalized()
+    cs, rs, ax = [], [], []
+    names = {o.name for o in objs}
+    for _ in range(n * 8):
+        o = Vector(centre) + Vector((rnd.uniform(-spread, spread), rnd.uniform(-spread, spread) * 0.3,
+                                     rnd.uniform(-spread, spread))) + fd * 0.3
+        ok, loc, nrm, _, ob, _ = sc.ray_cast(dg, o, -fd)
+        if not ok or ob.name not in names:
+            continue
+        rad = rnd.uniform(rmin, rmax) if rnd.random() < 0.85 else rnd.uniform(rmax, rmax * 1.8)
+        cs.append(tuple(loc + nrm * rad * 0.3))
+        rs.append(rad)
+        ax.append(tuple(nrm))
+        if len(cs) >= n:
+            break
+    if cs:
+        spheres("Beads", water_mat(), cs, rs, sub=3, squash=(np.array(ax, np.float32), np.full(len(cs), 0.55, np.float32)))
+    return len(cs)
+
+
+def petal(name, L, W, cup, curl, mat, seed):
+    """An orchid-like petal: a broad, cupped, curling blade with a little thickness."""
+    rnd = random.Random(seed)
+    nu, nv = 30, 20
+    verts, faces = [], []
+    for i in range(nu + 1):
+        u = i / nu
+        w = W * (math.sin(math.pi * u) ** 0.5) * (0.45 + 0.55 * u ** 0.6)
+        for j in range(nv + 1):
+            vv = -1 + 2 * j / nv
+            wav = 0.0015 * math.sin(vv * 7 + seed) * u                 # soft ruffle at the rim
+            verts.append((vv * w, u * L, cup * vv * vv * w + curl * u * u * L + wav * abs(vv) ** 2))
+    for i in range(nu):
+        for j in range(nv):
+            a_ = i * (nv + 1) + j
+            faces.append((a_, a_ + 1, a_ + nv + 2, a_ + nv + 1))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.collection.objects.link(ob)
+    so = ob.modifiers.new("Solid", "SOLIDIFY")
+    so.thickness = 0.0006
+    sub = ob.modifiers.new("Sub", "SUBSURF")
+    sub.levels = sub.render_levels = 1
+    me.materials.append(mat)
+    return ob
+
+
+def petal_mat():
+    m = principled("Petal", (0.42, 0.05, 0.58), rough=0.45, sss=0.6)
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    b.inputs["Subsurface Radius"].default_value = (1.0, 0.25, 0.9)
+    b.inputs["Subsurface Scale"].default_value = 0.003
+    b.inputs["Sheen Weight"].default_value = 0.5
+    b.inputs["Sheen Tint"].default_value = (0.9, 0.6, 1.0, 1)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    wave = nt.nodes.new("ShaderNodeTexNoise")
+    wave.inputs["Scale"].default_value = 140.0
+    wave.inputs["Detail"].default_value = 4.0
+    nt.links.new(tc.outputs["Object"], wave.inputs["Vector"])
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.025
+    nt.links.new(wave.outputs["Fac"], bump.inputs["Height"])
+    nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")          # deeper violet veins, lighter magenta between
+    ramp.color_ramp.elements[0].color = (0.40, 0.05, 0.58, 1)
+    ramp.color_ramp.elements[1].color = (0.55, 0.09, 0.66, 1)
+    nt.links.new(wave.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], b.inputs["Base Color"])
+    return m
+
+
+def tilted_pump(rot_y_deg, yaw_deg, pos, cap=False):
+    """Bottle on its pivot, yawed about its own axis first, then tilted in the picture plane."""
+    piv, root, R = bottle(cap=cap)
+    piv.rotation_mode = "ZYX"
+    piv.rotation_euler = (0, math.radians(rot_y_deg), math.radians(yaw_deg))
+    piv.location = pos
+    return piv, root, R
 
 
 def shot_C1(sc):
-    """Tilt: bottle tipped ~28 deg in an indigo void; a strip light sweeps across the label; slow push."""
+    """R1: the bottle tipped ~38 deg in purple haze, a flare on its shoulder, pink specks, rack focus."""
     zc = 0.6 + MID
-    void(INDIGO, glow_z=zc + 0.10, glow_x=0.08, radius=0.10, strength=0.8)
+    cyc([(0, (3, 0, 20)), (0.3, (28, 14, 53)), (0.55, (36, 19, 75)), (0.78, (50, 21, 100)), (1, (32, 7, 79))],
+        zc - 0.29, zc + 0.29, glow=((40, 18, 90), 0.10, zc + 0.10, 0.12))
     piv, root, R = bottle(cap=True)
-    piv.location = (0, 0, zc)
-    sweep = strip("Sweep", (-0.3, -0.32, zc + 0.05), (0, 0, zc), 0.7, 0.03, 14, (1.0, 1.0, 1.0))
-    key = area_light("Key", (-0.35, -0.35, zc + 0.2), (0, 0, 0), 0.25, 1.2, (0.92, 0.93, 1.0))
+    glossy_bottle()
+    piv.location = (0.006, 0, zc + 0.008)
+    strip("RimTop", (0.20, 0.12, zc + 0.14), (0.02, 0, zc + 0.05), 0.4, 0.02, 9, VIOLET)
+    strip("RimL", (-0.22, 0.15, zc), (0, 0, zc), 0.5, 0.03, 5, VIOLET)
+    base = area_light("Base", (-0.10, 0.02, zc - 0.20), (0, 0, 0), 0.06, 3.5, LILAC)
+    k2.aim(base, (-0.03, 0, zc - 0.06))
+    key = area_light("Key", (-0.25, -0.30, zc + 0.05), (0, 0, 0), 0.2, 0.35, LILAC)
     k2.aim(key, (0, 0, zc))
-    strip("RimR", (0.22, 0.20, zc + 0.05), (0, 0, zc), 0.6, 0.03, 18, VIOLET)
-    strip("RimL", (-0.22, 0.20, zc), (0, 0, zc), 0.6, 0.03, 10, (0.4, 0.35, 1.0))
-    cam = cam_make(85, 4.0)
+    glint = spheres("Glint", emissive("GlintM", (1.0, 0.85, 1.0), 900), [(0, 0, 0)], [0.0008], sub=2)
+    glint.parent = root
+    glint.location = (R * 0.62, -R * 0.75, z(1330))
+    pink = emissive("Speck", (1.0, 0.25, 0.45), 14)
+    rnd = random.Random(4)
+    specks = [((rnd.uniform(-0.09, 0.09), rnd.uniform(-0.2, 0.25), zc + rnd.uniform(-0.15, 0.17))) for _ in range(14)]
+    spheres("Specks", pink, specks, [rnd.uniform(0.0006, 0.0014) for _ in specks], sub=2)
+    cam = cam_make(85, 2.8)
     n = LENGTHS["C1"]
 
     def at(f):
         t = (f - 1) / (n - 1)
-        piv.rotation_euler = (0, math.radians(28), math.radians(lerp(-24, -12, ease(t))))
-        d = lerp(0.42, 0.36, ease(t))
-        look(cam, (0.0, -d, zc + 0.01), (0.004, 0, zc + 0.012), focus=d - R)
-        sweep.location = (lerp(-0.34, 0.30, ease(t)), -0.30, zc + 0.05)
-        k2.aim(sweep, (0, 0, zc))
+        piv.rotation_euler = (0, math.radians(38), math.radians(lerp(-26, -14, ease(t))))
+        d = lerp(0.36, 0.33, ease(t))
+        pos = Vector((0.0, -d, zc + 0.01))
+        tgt = (0.01, 0, zc + 0.012)
+        sharp = focus_on(pos, tgt, Vector((0, -R, zc)))
+        look(cam, pos, tgt, focus=lerp(sharp - 0.06, sharp, ease_out((f - 1) / 11)))   # rack focus in
     return at, n
 
 
 def shot_C2(sc):
-    """Macro: extreme close-up sliding down the wordmark, f/2.2, dutch angle; the curve falls into dark."""
-    void(INDIGO, glow_z=0.11, glow_x=0.10, radius=0.08, strength=0.8)
+    """R2: extreme macro of the wordmark running across the frame; purple glass blobs out of focus in front."""
+    cyc([(0, (12, 4, 30)), (0.5, (27, 10, 61)), (1, (29, 8, 68))], -0.25, 0.4)
     piv, root, R = bottle(cap=True)
-    strip("Key", (-0.16, -0.14, 0.11), (0, 0, 0.07), 0.25, 0.03, 1.2, (1.0, 0.98, 0.96))
-    strip("RimR", (0.14, 0.06, 0.10), (0, 0, 0.07), 0.3, 0.02, 10, VIOLET)
+    glossy_bottle()
+    strip("Key", (-0.12, -0.16, 0.14), (0, 0, 0.065), 0.3, 0.04, 0.18, LILAC)
+    strip("RimT", (0.0, 0.08, 0.16), (0, 0, 0.07), 0.3, 0.02, 4, VIOLET)
+    strip("RimB", (0.0, 0.08, -0.02), (0, 0, 0.06), 0.3, 0.02, 3, VIOLET)
+    glass = principled("Blob", (0.75, 0.55, 1.0), rough=0.02, transmission=1.0, ior=1.45)
+    blobs = [(-0.010, -0.12, 0.074), (0.009, -0.125, 0.062), (-0.006, -0.13, 0.064), (0.011, -0.118, 0.077)]
+    spheres("Blobs", glass, blobs, [0.005, 0.004, 0.0035, 0.003], sub=3)       # out-of-focus glass in front
     cam = cam_make(100, 2.8)
     n = LENGTHS["C2"]
-    d = 0.20                                              # ~72 mm of label visible top to bottom
+    d = 0.19
 
     def at(f):
         t = (f - 1) / (n - 1)
-        zc = lerp(0.080, 0.056, ease(t))
-        a = math.radians(lerp(18, 12, ease(t)))
-        pos = Vector((d * math.sin(a), -d * math.cos(a), zc + 0.006))
-        mark = Vector((0.0, -R, zc))                       # the wordmark, on the front of the label
-        look(cam, pos, (0.0, -R * 0.4, zc), roll=-22, focus=focus_on(pos, (0.0, -R * 0.4, zc), mark))
+        zc = lerp(0.074, 0.062, ease(t))
+        pos = Vector((0.004, -d, zc))
+        tgt = (0.0, 0, zc)
+        look(cam, pos, tgt, roll=-90, focus=focus_on(pos, tgt, Vector((0, -R, zc))))
     return at, n
 
 
 def shot_C3(sc):
-    """Pump: cap off, the actuator dips, a slow-motion burst of mist crosses the frame, backlit."""
-    void(INDIGO, glow_z=0.17, glow_x=0.14, radius=0.09, strength=0.8)
+    """R3: the pump front-on and symmetric, a drop of product oozes from the nozzle and slides down."""
+    cyc([(0, (31, 30, 31)), (0.25, (33, 20, 51)), (0.5, (31, 17, 55)), (0.78, (26, 9, 60)), (1, (17, 3, 43))],
+        -0.1, 0.45, glow=((30, 20, 60), 0.0, 0.08, 0.15))
     piv, root, R = bottle(cap=False)
-    yaw = math.radians(90)                                # nozzle points to camera right
-    piv.rotation_euler = (0, 0, yaw)
-    act = [o for o in root.children if o.name.startswith(("Actuator", "Cylinder"))]
-    act0 = {o.name: o.location.copy() for o in act}
-    key = area_light("Key", (-0.30, -0.30, 0.25), (0, 0, 0), 0.25, 0.8, (0.88, 0.9, 1.0))
+    glossy_bottle()
+    strip("RimL", (-0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 2, VIOLET)
+    strip("RimR", (0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 2, VIOLET)
+    top = area_light("Top", (0, -0.05, 0.35), (0, 0, 0), 0.15, 0.4, LILAC)
+    k2.aim(top, (0, 0, 0.15))
+    key = area_light("Key", (0, -0.3, 0.2), (0, 0, 0), 0.12, 0.1, LILAC)
     k2.aim(key, (0, 0, 0.14))
-    back = area_light("Back", (0.14, 0.30, 0.17), (0, 0, 0), 0.10, 45, (1.0, 1.0, 1.0))
-    k2.aim(back, (0.07, 0, 0.15))
-    strip("RimL", (-0.16, 0.18, 0.16), (0, 0, 0.14), 0.3, 0.02, 10, VIOLET)
+    drop = spheres("Drip", principled("DripM", (0.85, 0.78, 1.0), rough=0.05, transmission=0.35, ior=1.33, sss=0.3), [(0, 0, -1)], [0.001], sub=3)
     cam = cam_make(100, 4.0)
-    mist_m = bpy.data.materials.new("Mist")
-    mist_m.use_nodes = True
-    mb = mist_m.node_tree.nodes["Principled BSDF"]
-    mb.inputs["Base Color"].default_value = (1, 1, 1, 1)
-    mb.inputs["Roughness"].default_value = 0.25
-    mb.inputs["Alpha"].default_value = 0.45
-    mist = k2.points_mesh("Mist", mist_m)
-    rng = np.random.default_rng(3)
-    N = 50000
-    te = rng.uniform(0, 0.55, N)                           # emission times after the press (s)
-    spd = rng.uniform(0.20, 0.50, N)
-    half = math.radians(14)
-    th, ph = np.sqrt(rng.uniform(0, 1, N)) * half, rng.uniform(0, 2 * math.pi, N)
-    local = np.stack([np.sin(th) * np.cos(ph), -np.cos(th), np.sin(th) * np.sin(ph)], 1)
-    c, s_ = math.cos(yaw), math.sin(yaw)
-    R3 = np.array([[c, -s_, 0], [s_, c, 0], [0, 0, 1]])
-    dirs = local @ R3.T
-    nz = R3 @ np.array([0, -r(160), 0])
-    nozzle = np.array([nz[0], nz[1], z(870)])
-    size = rng.uniform(0.00003, 0.00008, N)
-    tau = 0.30
-    drift = rng.normal(0, 0.004, (N, 3))
-    press = 6
     n = LENGTHS["C3"]
+    nz, nzz = -r(160) - 0.0003, z(870)
 
     def at(f):
-        dz = -0.0025 * (ease((f - press) / 3) - ease((f - press - 10) / 5))
-        for o in act:
-            o.location = act0[o.name] + Vector((0, 0, dz))
-        tt_all = (f - press - 2) / FPS - te
-        live = (tt_all > 0) & (tt_all < 3.0)
-        tt = tt_all[live]
-        dist = spd[live] * tau * (1 - np.exp(-tt / tau))
-        vel = (spd[live] * np.exp(-tt / tau))[:, None] * dirs[live]
-        pos = nozzle + dirs[live] * dist[:, None] + drift[live] * tt[:, None] + np.array([0, 0, -0.02]) * tt[:, None] ** 2
-        k2.set_points(mist, pos.astype(np.float32), (size[live] * (1 + 0.8 * tt)).astype(np.float32), vel, stretch=0.012)
         t = (f - 1) / (n - 1)
-        dcam = lerp(0.215, 0.20, ease(t))
-        look(cam, (0.0, -dcam, 0.145), (0.022, 0, 0.138), focus=dcam - r(160))
+        grow = ease(min(1, t * 2.2))                         # the bead swells at the hole, then runs down
+        run = ease(max(0, (t - 0.35) / 0.65))
+        rad = 0.0006 + 0.0007 * grow
+        zz = nzz - 0.0105 * run
+        stretch = 1.0 + 1.6 * run
+        set_spheres(drop, [(0, nz - rad * 0.4, zz)], [rad], 3,
+                    (np.array([[0, 0, 1]], np.float32), np.array([stretch], np.float32)))
+        d = lerp(0.20, 0.19, ease(t))
+        pos = Vector((0, -d, 0.165))
+        tgt = (0, 0, 0.133)
+        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((0, -r(160), 0.15))))
+    return at, n
+
+
+def misting_shot(sc, kind):
+    """R4/R7: an organic subject lower left (orchid petals / a salt chunk) with water beads; our pump comes in
+    from the right, leaning as someone sprays, and its mist falls on the subject (their dropper, our spray)."""
+    if kind == "petals":
+        cyc([(0, (98, 36, 139)), (0.35, (90, 44, 131)), (0.6, (106, 71, 148)), (0.82, (120, 95, 149)), (1, (142, 115, 171))],
+            -0.35, 0.40)
+        pm = petal_mat()
+        subj = []
+        for x, y, zz, L, W, cup, curl, rz, rx, sd in [(-0.020, 0.00, -0.042, 0.075, 0.046, 0.35, -0.25, 15, 10, 1),
+                                                      (-0.040, 0.01, -0.017, 0.070, 0.042, 0.30, -0.20, 60, -5, 2),
+                                                      (-0.005, 0.01, -0.052, 0.065, 0.040, 0.40, -0.30, -15, 25, 3),
+                                                      (-0.050, 0.02, -0.042, 0.060, 0.038, 0.35, -0.20, 110, 0, 4),
+                                                      (-0.025, -0.02, -0.032, 0.050, 0.032, 0.45, -0.35, 40, 35, 5)]:
+            p_ = petal(f"Petal{sd}", L, W, cup, curl, pm, sd)
+            p_.location = (x, y, zz)
+            p_.rotation_euler = (math.radians(rx - 60), 0, math.radians(rz))
+            subj.append(p_)
+        centre = (-0.03, 0, -0.01)
+        key_rgb, back_rgb, rim_rgb = (1.0, 0.9, 1.0), (0.9, 0.7, 1.0), LILAC
+        key_e, back_e = 2.0, 5.0
+    else:
+        cyc([(0, (17, 0, 1)), (0.3, (24, 1, 1)), (0.55, (64, 3, 5)), (0.8, (32, 4, 4)), (1, (38, 6, 6))], -0.35, 0.40)
+        m = salt_mat(0.05)
+        m.node_tree.nodes["Principled BSDF"].inputs["Coat Weight"].default_value = 0.6
+        hero = crystal_mesh("Hero", 0.036, m, seed=7)
+        hero.location = (-0.03, 0.0, -0.035)
+        hero.rotation_euler = (0.3, 0.5, 0.2)
+        subj = [hero]
+        centre = (-0.03, 0, -0.03)
+        key_rgb, back_rgb, rim_rgb = (1.0, 0.5, 0.45), (1.0, 0.15, 0.1), (1.0, 0.35, 0.3)
+        key_e, back_e = 0.6, 8.0
+    bpy.context.view_layer.update()
+    beads_on(subj, 60, 0.0005, 0.0015, seed=11, from_dir=(0.3, -1, 0.6), spread=0.045, centre=centre)
+    # upright bottle leaning left 35 deg, nozzle turned to face left: the mist leaves down-left
+    tilt = math.radians(-35)
+    top = Vector((0.028, 0.0, 0.03))                       # pump head just right of and above centre
+    axis = Vector((math.sin(tilt), 0, math.cos(tilt)))
+    piv, root, R = tilted_pump(-35, -90, tuple(top - axis * (TOP - MID)), cap=False)
+    glossy_bottle()
+    o, dvec = nozzle_world(root, piv)
+    mist = mist_emitter(o, dvec, press=3, n=30000, cone=12, spd=(0.14, 0.32), seed=5)
+    key = area_light("Key", (-0.15, -0.3, 0.15), (0, 0, 0), 0.25, key_e, key_rgb)
+    k2.aim(key, centre)
+    back = area_light("Back", (0.0, 0.25, 0.05), (0, 0, 0), 0.2, back_e, back_rgb)
+    k2.aim(back, centre)
+    back.visible_glossy = False
+    strip("Rim", (0.18, 0.05, 0.12), (0.02, 0, 0.0), 0.4, 0.02, 4, rim_rgb)
+    cam = cam_make(85, 4.0)
+    n = LENGTHS["C4"] if kind == "petals" else LENGTHS["C7"]
+
+    def at(f):
+        t = (f - 1) / (n - 1)
+        mist(f)
+        pos = Vector((lerp(-0.004, 0.004, ease(t)), -0.36, 0.0))
+        tgt = (0.0, 0, -0.008)
+        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((centre[0] + 0.01, -0.02, centre[2] + 0.01))))
     return at, n
 
 
 def shot_C4(sc):
-    """Salt: a raw pink Himalayan salt chunk with water beads on a wet black floor; a drop falls past."""
-    void(SALT, glow_z=0.07, radius=0.07, strength=0.7)
-    wet_floor()
-    m = salt_mat(0.12)
-    hero = crystal_mesh("Hero", 0.021, m, seed=7)
-    hero.location = (0, 0, 0.017)
-    hero.rotation_euler = (0.3, 0.5, 0.2)
-    rnd = random.Random(3)
-    small = []
-    for i in range(9):
-        o = crystal_mesh(f"S{i}", rnd.uniform(0.003, 0.007), m, seed=20 + i)
-        a = rnd.uniform(0, 2 * math.pi)
-        rr = rnd.uniform(0.035, 0.09)                    # around and behind the chunk, never in front
-        o.location = (rr * math.cos(a), abs(rr * math.sin(a)) * 0.8 + 0.01, 0.003)
-        o.rotation_euler = (rnd.uniform(0, 6), rnd.uniform(0, 6), rnd.uniform(0, 6))
-        small.append(o)
-    bpy.context.view_layer.update()
-    for o in [hero] + small:                             # rest every chunk on the floor, sunk 0.5 mm
-        low = min((o.matrix_world @ v.co).z for v in o.data.vertices)
-        o.location.z -= low + 0.0005
-    bpy.context.view_layer.update()
-    # water beads: ray-cast onto the chunk's upper faces, flattened along the surface normal
-    water = water_mat()
-    inv = hero.matrix_world.inverted()
-    nmat = hero.matrix_world.to_3x3().inverted().transposed()
-    cs, rs, ax = [], [], []
-    for _ in range(600):
-        th = rnd.uniform(0, 2 * math.pi)
-        el = rnd.uniform(0.1, 1.3)
-        dirw = Vector((math.cos(th) * math.cos(el), math.sin(th) * math.cos(el), math.sin(el)))
-        ok, loc, nrm, _ = hero.ray_cast(inv @ (hero.location + dirw * 0.1), (inv.to_3x3() @ -dirw).normalized())
-        if not ok:
-            continue
-        nw = (nmat @ nrm).normalized()
-        rad = rnd.uniform(0.0005, 0.0016) if rnd.random() < 0.85 else rnd.uniform(0.0018, 0.003)
-        cs.append(tuple(hero.matrix_world @ loc + nw * rad * 0.3))
-        rs.append(rad)
-        ax.append(tuple(nw))
-        if len(cs) >= 60:
-            break
-    spheres("Beads", water, cs, rs, sub=3, squash=(np.array(ax, np.float32), np.full(len(cs), 0.55, np.float32)))
-    drop = spheres("Drop", water, [(0, 0, 1)], [0.0022])
-    back = area_light("Back", (0.04, 0.22, 0.09), (0, 0, 0), 0.06, 7, (1.0, 0.55, 0.35))
-    k2.aim(back, (0, 0, 0.02))
-    back.visible_glossy = False                          # glow through the salt, no panel in the wet floor
-    key = area_light("Key", (-0.2, -0.18, 0.16), (0, 0, 0), 0.12, 0.6, (0.9, 0.92, 1.0))
-    k2.aim(key, (0, 0, 0.02))
-    strip("Rim", (0.18, 0.02, 0.10), (0, 0, 0.02), 0.25, 0.02, 4, (1.0, 0.7, 0.6))
-    cam = cam_make(100, 3.2)
-    n = LENGTHS["C4"]
-
-    def at(f):
-        t = (f - 1) / (n - 1)
-        a = math.radians(lerp(-10, 6, ease(t)))
-        d = 0.24
-        look(cam, (d * math.sin(a), -d * math.cos(a), 0.05), (0, 0, 0.022), focus=d - 0.012)
-        tz = max((f - 3) / FPS, 0)
-        zz = 0.105 - 0.6 * tz ** 2 - 0.12 * tz                 # slow-motion fall, in front of the chunk
-        if zz < 0.0022:                                     # landed: gone into the wet floor
-            zz = -1.0
-        set_spheres(drop, [(-0.03, -0.02, zz)], [0.0022], 3,
-                    (np.array([[0, 0, 1]], np.float32), np.array([1.3], np.float32)))
-    return at, n
+    """R4: lilac; violet orchid petals lower left, our pump misting them."""
+    return misting_shot(sc, "petals")
 
 
 def shot_C5(sc):
-    """Bubbles: streams of air bubbles rising through ocean-blue water, surface glow above, f/2.8."""
-    void(OCEAN, glow_z=0.30, radius=0.14, strength=0.9)
+    """R5: dark red, inside a glass tube of salt water: big bubbles and small ones rising past its walls."""
+    cyc([(0, (26, 2, 2)), (0.5, (24, 4, 4)), (1, (15, 2, 2))], -0.4, 0.5, glow=((95, 9, 8), 0.0, 0.05, 0.07))
+    # salt water: a plain cylinder (clean normals); the glass wall: a thin shell that only reflects
+    bpy.ops.mesh.primitive_cylinder_add(vertices=128, radius=0.0244, depth=1.0, location=(0, 0, 0.05))
+    liq = bpy.context.object
+    for pl in liq.data.polygons:
+        pl.use_smooth = True
+    liq.data.materials.append(principled("SaltWater", (0.9, 0.12, 0.1), rough=0.0, transmission=1.0, ior=1.33))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=128, radius=0.0256, depth=1.0, location=(0, 0, 0.05), end_fill_type="NOTHING")
+    wall = bpy.context.object
+    for pl in wall.data.polygons:
+        pl.use_smooth = True
+    wm = bpy.data.materials.new("TubeWall")
+    wm.use_nodes = True
+    wn = wm.node_tree
+    wn.nodes.remove(wn.nodes["Principled BSDF"])
+    tr, gl, lw, mx = (wn.nodes.new(t) for t in ("ShaderNodeBsdfTransparent", "ShaderNodeBsdfGlossy", "ShaderNodeLayerWeight", "ShaderNodeMixShader"))
+    gl.inputs["Roughness"].default_value = 0.02
+    lw.inputs["Blend"].default_value = 0.25
+    wn.links.new(lw.outputs["Fresnel"], mx.inputs["Fac"])
+    wn.links.new(tr.outputs["BSDF"], mx.inputs[1])
+    wn.links.new(gl.outputs["BSDF"], mx.inputs[2])
+    wn.links.new(mx.outputs["Shader"], wn.nodes["Material Output"].inputs["Surface"])
+    wall.data.materials.append(wm)
     rng = np.random.default_rng(5)
-    cs, rad, vup, ph = [], [], [], []
-    for sx in (-0.022, 0.004, 0.024):                     # three streams near the focus plane (frame is ~70 mm wide)
-        for k in range(26):
-            cs.append((sx + rng.normal(0, 0.002), rng.uniform(0.27, 0.31), -0.08 + k * 0.009 + rng.uniform(0, 0.004)))
-            rr = rng.uniform(0.0012, 0.0035)
-            rad.append(rr)
-    for _ in range(70):                                    # loose bubbles in front and behind (bokeh)
-        cs.append((rng.uniform(-0.12, 0.12), rng.uniform(0.4, 0.75),
-                   rng.uniform(-0.25, 0.25)))
-        rad.append(rng.uniform(0.001, 0.0035))
+    cs, rad = [], []
+    for rr, cnt in ((0.010, 1), (0.006, 2), (0.003, 7), (0.0015, 14), (0.0008, 22)):
+        for _ in range(cnt):
+            rlim = 0.0244 - rr * 1.1
+            a_ = rng.uniform(math.pi, 2 * math.pi)            # front half of the tube
+            rho = rng.uniform(0, rlim)
+            cs.append((rho * math.cos(a_), rho * math.sin(a_), rng.uniform(-0.07, 0.11)))
+            rad.append(rr * rng.uniform(0.8, 1.2))
+    cs[0] = (-0.008, -0.006, 0.035)
     cs, rad = np.array(cs, np.float32), np.array(rad, np.float32)
-    vup = 0.06 + 6.0 * rad + rng.uniform(0, 0.01, len(rad))    # bigger bubbles rise faster (slow motion)
+    vup = 0.008 + 1.5 * rad
     ph = rng.uniform(0, 6.28, len(rad))
     bub = spheres("Bubbles", water_mat("Air", ior=0.75), cs, rad, sub=3)
-    top = area_light("Surface", (0, 0.3, 0.5), (0, 0, 0), 0.6, 20, (0.6, 0.85, 1.0))
-    k2.aim(top, (0, 0.3, 0))
-    strip("RimL", (-0.25, 0.32, 0.02), (0, 0.3, 0.02), 0.6, 0.04, 25, (0.4, 0.75, 1.0))
-    strip("RimR", (0.25, 0.32, 0.02), (0, 0.3, 0.02), 0.6, 0.04, 25, (0.4, 0.75, 1.0))
-    cam = cam_make(85, 2.8)
-    look(cam, (0, -0.02, 0.02), (0, 0.4, 0.02), focus=0.31)
+    back = area_light("Back", (0, 0.3, 0.03), (0, 0, 0), 0.12, 6, (1.0, 0.18, 0.12))
+    k2.aim(back, (0, 0, 0.03))
+    back.visible_transmission = False                      # light the bubbles, don't show the panel through the tube
+    back.visible_glossy = False
+    glint = area_light("BubbleKey", (-0.06, -0.22, 0.14), (0, 0, 0), 0.04, 1.2, (1.0, 0.75, 0.7))
+    k2.aim(glint, (0, 0, 0.03))
+    strip("WallR", (0.12, -0.2, 0.05), (0.02, 0, 0.03), 0.6, 0.01, 8, (1.0, 0.8, 0.8))
+    strip("WallL", (-0.15, 0.1, 0.05), (-0.02, 0, 0.03), 0.6, 0.01, 4, (1.0, 0.4, 0.4))
+    cam = cam_make(85, 4.0)
+    look(cam, (0.004, -0.27, 0.025), (0.004, 0, 0.025), focus=0.27 - 0.006)
     n = LENGTHS["C5"]
 
     def at(f):
         t = (f - 1) / FPS
         pos = cs.copy()
         pos[:, 2] = cs[:, 2] + vup * t
-        pos[:, 0] += 0.0015 * np.sin(t * 14 + ph)
-        wob = 1 + 0.12 * np.sin(t * 20 + ph)
-        set_spheres(bub, pos, rad, 3, (np.tile(np.array([[0, 0, 1]], np.float32), (len(rad), 1)), (0.85 * wob).astype(np.float32)))
+        pos[:, 0] += 0.0008 * np.sin(t * 8 + ph)
+        wob = 1 + 0.06 * np.sin(t * 12 + ph)
+        set_spheres(bub, pos, rad, 3, (np.tile(np.array([[0, 0, 1]], np.float32), (len(rad), 1)), (0.92 * wob).astype(np.float32)))
     return at, n
 
 
 def shot_C6(sc):
-    """Collar: low-angle silhouette of the pump and ribbed collar against a violet glow, slowly turning."""
-    void(INDIGO, glow_z=0.36, radius=0.09, strength=1.1)
+    """R6: the pump in side profile, nozzle to the right with a drop hanging at it, against a purple gradient
+    that brightens toward the bottom."""
+    cyc([(0, (129, 79, 154)), (0.25, (91, 41, 151)), (0.5, (41, 14, 84)), (0.75, (14, 0, 55)), (1, (2, 0, 22))],
+        -0.25, 0.55)
     piv, root, R = bottle(cap=False)
-    strip("RimL", (-0.10, 0.14, 0.14), (0, 0, 0.13), 0.3, 0.02, 12, VIOLET)
-    strip("RimR", (0.10, 0.14, 0.14), (0, 0, 0.13), 0.3, 0.02, 12, VIOLET)
-    key = area_light("Key", (-0.2, -0.2, 0.05), (0, 0, 0), 0.1, 0.2, (0.8, 0.82, 1.0))
+    glossy_bottle()
+    piv.rotation_euler = (0, 0, math.radians(90))          # nozzle points to camera right
+    strip("RimL", (-0.12, 0.12, 0.14), (0, 0, 0.13), 0.3, 0.02, 4, VIOLET)
+    strip("RimTop", (0.02, 0.10, 0.30), (0, 0, 0.15), 0.2, 0.03, 1.5, LILAC)
+    key = area_light("Key", (-0.2, -0.25, 0.12), (0, 0, 0), 0.1, 0.25, LILAC)
     k2.aim(key, (0, 0, 0.13))
-    cam = cam_make(100, 5.6)
+    drop = spheres("Drop", principled("DropM", (0.85, 0.78, 1.0), rough=0.05, transmission=0.35, ior=1.33, sss=0.3), [(0, 0, -1)], [0.001], sub=3)
+    cam = cam_make(100, 4.0)
     n = LENGTHS["C6"]
+    nx = r(160) + 0.0004
 
     def at(f):
         t = (f - 1) / (n - 1)
-        piv.rotation_euler = (0, 0, math.radians(lerp(-10, 14, t)))
-        d = lerp(0.215, 0.20, ease(t))
-        pos, tgt = Vector((0.01, -d, 0.095)), (0.0, 0, 0.142)
-        look(cam, pos, tgt, roll=14, focus=focus_on(pos, tgt, Vector((0.0, -r(244), 0.124))))
+        rad = 0.0006 + 0.0006 * ease(t)
+        set_spheres(drop, [(nx + rad * 0.5, 0, z(870) - rad * 0.6)], [rad], 3,
+                    (np.array([[0, 0, 1]], np.float32), np.array([1.0 + 0.4 * ease(t)], np.float32)))
+        d = lerp(0.215, 0.205, ease(t))
+        pos = Vector((0.009, -d, 0.112))
+        tgt = (0.009, 0, 0.128)
+        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((0, -r(160), 0.145))))
     return at, n
 
 
 def shot_C7(sc):
-    """Falling salt: pink rock-salt chunks tumbling through warm backlight in slow motion."""
-    void(SALT, glow_z=0.06, radius=0.10, strength=0.8)
-    m = salt_mat(0.1)
-    rnd = random.Random(11)
-    objs = []
-    for i in range(40):
-        near = rnd.random() < 0.8
-        o = crystal_mesh(f"F{i}", rnd.uniform(0.003, 0.009), m, seed=100 + i)
-        y = rnd.uniform(0.27, 0.33) if near else rnd.uniform(0.42, 0.7)
-        p = Vector((rnd.uniform(-0.055, 0.055), y, rnd.uniform(-0.02, 0.16)))
-        objs.append((o, p, rnd.uniform(0.04, 0.09), Vector((rnd.uniform(-3, 3), rnd.uniform(-3, 3), rnd.uniform(-3, 3)))))
-    back = area_light("Back", (0, 0.8, 0.08), (0, 0, 0), 0.4, 25, (1.0, 0.55, 0.32))
-    k2.aim(back, (0, 0.3, 0.05))
-    key = area_light("Key", (-0.3, -0.05, 0.25), (0, 0, 0), 0.2, 1.2, (0.9, 0.9, 1.0))
-    k2.aim(key, (0, 0.3, 0.05))
-    cam = cam_make(85, 2.4)
-    look(cam, (0, -0.02, 0.06), (0, 0.35, 0.06), focus=0.32)
-    n = LENGTHS["C7"]
-
-    def at(f):
-        t = (f - 1) / FPS
-        for o, p, v, w in objs:
-            o.location = (p.x, p.y, p.z - v * t)
-            o.rotation_euler = (w.x * t * 0.4, w.y * t * 0.4, w.z * t * 0.4)
-    return at, n
+    """R7: dark red; a raw salt chunk covered in water beads lower left, our pump misting it."""
+    return misting_shot(sc, "salt")
 
 
 def shot_C8(sc):
-    """Drops: bottle with its clear cap among floating water drops, slow push-in."""
-    void(INDIGO, glow_z=0.14, radius=0.12, strength=0.8)
+    """R8: the bottle front-on, buried in big purple-lit water spheres; one sits over the label and magnifies it."""
+    cyc([(0, (48, 21, 94)), (0.3, (52, 31, 87)), (0.5, (24, 14, 45)), (0.75, (55, 25, 89)), (1, (44, 14, 102))],
+        -0.05, 0.22, strength=2.2)
     piv, root, R = bottle(cap=True)
+    glossy_bottle()
     rng = np.random.default_rng(8)
-    M = 160
-    ang = rng.uniform(0, 2 * math.pi, M)
-    rr = rng.uniform(R + 0.012, 0.13, M)
-    p0 = np.stack([rr * np.cos(ang), rr * np.sin(ang) * 1.2, rng.uniform(-0.02, 0.19, M)], 1)
-    p0 = p0[np.hypot(p0[:, 0], p0[:, 1]) > R + 0.01].astype(np.float32)
-    M = len(p0)
-    rad = np.where(rng.random(M) < 0.75, rng.uniform(0.0012, 0.0035, M), rng.uniform(0.004, 0.008, M)).astype(np.float32)
-    vel = rng.normal(0, 0.004, (M, 3)).astype(np.float32)
-    drops = spheres("Drops", water_mat(), p0, rad, sub=3)
-    key = area_light("Key", (-0.55, -0.25, 0.2), (0, 0, 0), 0.15, 2.0, (0.95, 0.95, 1.0))
+    cs, rs = [(0.0, -R - 0.016, 0.062)], [0.016]
+    tries = 0
+    while len(cs) < 95 and tries < 20000:
+        tries += 1
+        rr = rng.uniform(0.007, 0.02)
+        p_ = (rng.uniform(-0.085, 0.085), rng.uniform(-0.05, 0.14), rng.uniform(-0.03, 0.2))
+        if math.hypot(p_[0], p_[1]) < R + rr + 0.002 and -0.01 < p_[2] < 0.17:
+            continue
+        if p_[1] < -0.02 and abs(p_[0]) < 0.03 and 0.01 < p_[2] < 0.13:   # keep most of the label clear
+            continue
+        if any(math.dist(p_, c) < rr + rc for c, rc in zip(cs, rs)):
+            continue
+        cs.append(p_)
+        rs.append(rr)
+    cs, rs = np.array(cs, np.float32), np.array(rs, np.float32)
+    gel = principled("Gel", (0.72, 0.52, 1.0), rough=0.0, transmission=1.0, ior=1.33)
+    balls = spheres("Spheres", gel, cs, rs, sub=3)
+    inner = []                                              # tiny air bubbles inside some spheres
+    for c, rc in zip(cs, rs):
+        for _ in range(int(rng.integers(0, 4))):
+            v_ = rng.normal(0, 1, 3)
+            v_ = v_ / np.linalg.norm(v_) * rng.uniform(0, 0.6) * rc
+            inner.append((c + v_, rng.uniform(0.0006, 0.0018)))
+    spheres("Inner", water_mat("AirIn", ior=0.75), [i[0] for i in inner], [i[1] for i in inner], sub=2)
+    key = area_light("Key", (-0.3, -0.4, 0.25), (0, 0, 0), 0.3, 1.2, LILAC)
     k2.aim(key, (0, 0, 0.08))
-    strip("Spec", (0.12, -0.5, 0.1), (0, 0, 0.08), 0.5, 0.02, 4, (1.0, 1.0, 1.0))
-    strip("RimL", (-0.3, 0.25, 0.2), (0, 0, 0.09), 0.5, 0.04, 18, VIOLET)
-    strip("RimR", (0.3, 0.25, 0.2), (0, 0, 0.09), 0.5, 0.04, 18, VIOLET)
+    strip("RimL", (-0.3, 0.25, 0.2), (0, 0, 0.09), 0.5, 0.04, 10, VIOLET)
+    strip("RimR", (0.3, 0.25, 0.2), (0, 0, 0.09), 0.5, 0.04, 10, VIOLET)
+    top = area_light("Top", (0, 0.0, 0.45), (0, 0, 0), 0.3, 4, LILAC)
+    k2.aim(top, (0, 0, 0.1))
     cam = cam_make(85, 4.0)
     n = LENGTHS["C8"]
+    t0 = rng.normal(0, 0.003, (len(cs), 3)).astype(np.float32)
 
     def at(f):
-        t = (f - 1) / FPS
-        set_spheres(drops, p0 + vel * t, rad, 3)
-        d = lerp(0.56, 0.47, ease((f - 1) / (n - 1)))
-        look(cam, (0, -d, 0.085), (0, 0, 0.085), focus=d - R)
+        t = (f - 1) / (n - 1)
+        set_spheres(balls, cs + t0 * t, rs, 3)
+        d = lerp(0.50, 0.46, ease(t))
+        pos = Vector((0, -d, 0.088))
+        tgt = (0, 0, 0.086)
+        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((0, -R, 0.07))))
     return at, n
 
 
 def shot_C9(sc):
-    """End: bottle on a glossy black floor, indigo glow behind, slow push-in; top of frame left for type."""
-    void(INDIGO, glow_z=0.16, radius=0.13, strength=0.8)
-    wet_floor(rough=0.06)
-    piv, root, R = bottle(cap=True)
-    key = area_light("Key", (-0.6, -0.3, 0.25), (0, 0, 0), 0.18, 4, (0.95, 0.95, 1.0))
+    """R9: a glass shelf on steel rods in a purple room; the Pack of 3 on the middle shelf; end card above."""
+    cyc([(0, (131, 75, 182)), (0.2, (92, 50, 147)), (0.45, (29, 13, 55)), (0.62, (64, 42, 100)), (0.72, (20, 10, 35)), (1, (3, 2, 4))],
+        -0.30, 0.55, y=0.6)
+    metal = principled("Steel", (0.75, 0.72, 0.85), rough=0.25)
+    metal.node_tree.nodes["Principled BSDF"].inputs["Metallic"].default_value = 1.0
+    for x in (-0.2, 0.2):
+        bpy.ops.mesh.primitive_cylinder_add(vertices=32, radius=0.004, depth=1.2, location=(x, 0.05, 0.15))
+        bpy.context.object.data.materials.append(metal)
+    shelf_m = principled("ShelfGlass", (0.92, 0.88, 1.0), rough=0.05, transmission=1.0, ior=1.5)
+    for zz in (0.0, 0.30):
+        bpy.ops.mesh.primitive_cube_add(location=(0, 0.02, zz - 0.003))
+        sh = bpy.context.object
+        sh.scale = (0.21, 0.07, 0.003)
+        sh.data.materials.append(shelf_m)
+    roots = []
+    for x in (-0.07, 0.0, 0.07):
+        piv, root, R = bottle(cap=True)
+        piv.location = (x, 0.02, MID)
+        roots.append(piv)
+    glossy_bottle()
+    top = area_light("Top", (0, 0.0, 0.28), (0, 0, 0), 0.3, 6, LILAC)
+    k2.aim(top, (0, 0.02, 0.0))
+    strip("RimL", (-0.3, 0.25, 0.1), (0, 0.02, 0.08), 0.5, 0.04, 10, VIOLET)
+    strip("RimR", (0.3, 0.25, 0.1), (0, 0.02, 0.08), 0.5, 0.04, 10, VIOLET)
+    key = area_light("Key", (-0.2, -0.6, 0.15), (0, 0, 0), 0.3, 1.5, LILAC)
     k2.aim(key, (0, 0, 0.08))
-    strip("Spec", (0.15, -0.6, 0.1), (0, 0, 0.08), 0.6, 0.02, 6, (1.0, 1.0, 1.0))
-    strip("RimL", (-0.32, 0.3, 0.22), (0, 0, 0.09), 0.6, 0.05, 35, VIOLET)
-    strip("RimR", (0.32, 0.3, 0.22), (0, 0, 0.09), 0.6, 0.05, 35, VIOLET)
-    cam = cam_make(85, 4.0)
+    cam = cam_make(50, 5.6)
     n = LENGTHS["C9"]
 
     def at(f):
         t = ease((f - 1) / (n - 1))
-        d = lerp(0.80, 0.72, t)                         # bottle ~900 -> 1000 px tall
-        h = vis_h(85, d)
-        aim_z = 0.08 + (1150 - 960) / 1920 * h          # bottle centre ~190 px below frame centre
-        look(cam, (0, -d, 0.065), (0, 0, aim_z), focus=d - R)
+        d = lerp(1.16, 1.10, t)
+        pos = Vector((0, -d, 0.12))
+        tgt = (0, 0, 0.12)
+        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((0, 0.0, 0.08))))
     return at, n
 
 
