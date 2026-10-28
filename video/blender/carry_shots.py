@@ -766,8 +766,8 @@ def shot_C6(sc):
     glossy_bottle()
     piv.rotation_euler = (0, 0, math.radians(90))          # nozzle points to camera right
     strip("RimL", (-0.12, 0.12, 0.14), (0, 0, 0.13), 0.3, 0.02, 4, VIOLET)
-    strip("RimTop", (0.02, 0.10, 0.30), (0, 0, 0.15), 0.2, 0.03, 1.5, LILAC)
-    key = area_light("Key", (-0.2, -0.25, 0.12), (0, 0, 0), 0.1, 0.25, LILAC)
+    strip("RimTop", (0.02, 0.10, 0.30), (0, 0, 0.15), 0.2, 0.03, 0.5, LILAC)
+    key = area_light("Key", (-0.2, -0.25, 0.12), (0, 0, 0), 0.1, 0.08, LILAC)
     k2.aim(key, (0, 0, 0.13))
     sweep = strip("Sweep", (-0.15, -0.25, 0.14), (0, 0, 0.13), 0.4, 0.015, 0.6, (1.0, 0.95, 1.0))
     cam = cam_make(100, 4.0)
@@ -778,9 +778,9 @@ def shot_C6(sc):
         sweep.location = (lerp(-0.16, 0.16, ease(t)), -0.25, 0.14)
         k2.aim(sweep, (0, 0, 0.13))
         d = lerp(0.215, 0.205, ease(t))
-        pos = Vector((0.009, -d, 0.112))
-        tgt = (0.009, 0, 0.128)
-        look(cam, pos, tgt, focus=focus_on(pos, tgt, Vector((0, -r(160), 0.145))))
+        pos = Vector((0.017, -d, 0.112))                   # pump left of centre, dutch tilt, as theirs
+        tgt = (0.017, 0, 0.128)
+        look(cam, pos, tgt, roll=-8, focus=focus_on(pos, tgt, Vector((0, -r(160), 0.145))))
     return at, n
 
 
