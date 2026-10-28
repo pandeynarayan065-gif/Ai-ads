@@ -80,6 +80,12 @@ def look(cam, pos, target, roll=0.0, focus=None):
     cam.data.dof.focus_distance = focus if focus is not None else d.length
 
 
+def focus_on(pos, target, point):
+    """Focus distance (along the view axis) that puts a world point exactly in focus."""
+    fwd = (Vector(target) - Vector(pos)).normalized()
+    return (Vector(point) - Vector(pos)).dot(fwd)
+
+
 def vis_h(lens, dist):
     """Visible frame height (m) at a distance for a vertical 36 mm sensor."""
     return 36.0 / lens * dist
@@ -300,7 +306,7 @@ def shot_C2(sc):
     piv, root, R = bottle(cap=True)
     strip("Key", (-0.16, -0.14, 0.11), (0, 0, 0.07), 0.25, 0.03, 1.2, (1.0, 0.98, 0.96))
     strip("RimR", (0.14, 0.06, 0.10), (0, 0, 0.07), 0.3, 0.02, 10, VIOLET)
-    cam = cam_make(100, 2.2)
+    cam = cam_make(100, 2.8)
     n = LENGTHS["C2"]
     d = 0.20                                              # ~72 mm of label visible top to bottom
 
@@ -308,8 +314,9 @@ def shot_C2(sc):
         t = (f - 1) / (n - 1)
         zc = lerp(0.080, 0.056, ease(t))
         a = math.radians(lerp(18, 12, ease(t)))
-        look(cam, (d * math.sin(a), -d * math.cos(a), zc + 0.006), (0.0, -R * 0.4, zc), roll=-22,
-             focus=d - R + 0.002)
+        pos = Vector((d * math.sin(a), -d * math.cos(a), zc + 0.006))
+        mark = Vector((0.0, -R, zc))                       # the wordmark, on the front of the label
+        look(cam, pos, (0.0, -R * 0.4, zc), roll=-22, focus=focus_on(pos, (0.0, -R * 0.4, zc), mark))
     return at, n
 
 
@@ -471,14 +478,15 @@ def shot_C6(sc):
     strip("RimR", (0.10, 0.14, 0.14), (0, 0, 0.13), 0.3, 0.02, 12, VIOLET)
     key = area_light("Key", (-0.2, -0.2, 0.05), (0, 0, 0), 0.1, 0.2, (0.8, 0.82, 1.0))
     k2.aim(key, (0, 0, 0.13))
-    cam = cam_make(100, 4.0)
+    cam = cam_make(100, 5.6)
     n = LENGTHS["C6"]
 
     def at(f):
         t = (f - 1) / (n - 1)
         piv.rotation_euler = (0, 0, math.radians(lerp(-10, 14, t)))
         d = lerp(0.215, 0.20, ease(t))
-        look(cam, (0.01, -d, 0.095), (0.0, 0, 0.142), roll=14, focus=d - r(244))
+        pos, tgt = Vector((0.01, -d, 0.095)), (0.0, 0, 0.142)
+        look(cam, pos, tgt, roll=14, focus=focus_on(pos, tgt, Vector((0.0, -r(244), 0.124))))
     return at, n
 
 
