@@ -568,13 +568,13 @@ def shot_C3(sc):
         -0.1, 0.45, glow=((30, 20, 60), 0.0, 0.08, 0.15))
     piv, root, R = bottle(cap=False)
     glossy_bottle()
-    strip("RimL", (-0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 2, VIOLET)
-    strip("RimR", (0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 2, VIOLET)
+    strip("RimL", (-0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 0.7, VIOLET)
+    strip("RimR", (0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 0.7, VIOLET)
     top = area_light("Top", (0, -0.05, 0.35), (0, 0, 0), 0.15, 0.4, LILAC)
     k2.aim(top, (0, 0, 0.15))
     key = area_light("Key", (0, -0.3, 0.2), (0, 0, 0), 0.12, 0.1, LILAC)
     k2.aim(key, (0, 0, 0.14))
-    drop = spheres("Drip", principled("DripM", (0.85, 0.78, 1.0), rough=0.05, transmission=0.35, ior=1.33, sss=0.3), [(0, 0, -1)], [0.001], sub=3)
+    drop = spheres("Drip", principled("DripM", (0.78, 0.66, 1.0), rough=0.05, transmission=0.1, ior=1.33, sss=0.5), [(0, 0, -1)], [0.001], sub=3)
     cam = cam_make(100, 4.0)
     n = LENGTHS["C3"]
     nz, nzz = -r(160) - 0.0003, z(870)
@@ -585,7 +585,7 @@ def shot_C3(sc):
         run = ease(max(0, (t - 0.35) / 0.65))
         rad = 0.0006 + 0.0007 * grow
         zz = nzz - 0.0105 * run
-        stretch = 1.0 + 1.6 * run
+        stretch = 1.0 + 3.2 * run
         set_spheres(drop, [(0, nz - rad * 0.4, zz)], [rad], 3,
                     (np.array([[0, 0, 1]], np.float32), np.array([stretch], np.float32)))
         d = lerp(0.20, 0.19, ease(t))
