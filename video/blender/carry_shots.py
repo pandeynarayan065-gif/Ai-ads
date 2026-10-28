@@ -1,21 +1,20 @@
 """Spraymax "What's bro carrying": the 3D product half (Blender / Cycles, CPU, 30 fps, 1080x1920).
 
-Follows the CGI half of the reference reel beat for beat: after the street hook, nine macro product shots
-cut on a ~0.68 s beat. The reference's purple + red becomes Spraymax indigo with two accents from the
-brand story, Himalayan salt pink and ocean blue. The bottle carries the real label (4x rebuild with the
-clean wordmark, see label_hires.py), so the print is exact in every frame.
+A shot-for-shot copy of the reference reel's 3D half (same order, timing, framing and measured colours:
+purple world, dark-red accents) with the Spraymax bottle and its real label (4x rebuild with the clean
+wordmark, see label_hires.py). Where the reference uses a dropper (their product is a serum) ours sprays.
 
-  C1 tilt     bottle tilted in an indigo void, a strip light sweeps across the label (match cut from the hand)
-  C2 macro    extreme close-up sliding down the wordmark, shallow focus, dutch angle
-  C3 pump     cap off, the pump dips, a burst of mist, backlit
-  C4 salt     pink salt crystal with water beads, a drop falls past
-  C5 bubbles  air bubbles rising through ocean-blue water
-  C6 collar   low-angle silhouette of the pump and ribbed collar, turning
-  C7 falling  salt crystals tumbling through warm light
-  C8 drops    bottle among floating water drops, push-in
-  C9 end      bottle on a glossy floor, indigo glow, push-in, top kept clear for the end card
+  C1 tilt     bottle tipped ~38 deg in purple haze, a flare on its shoulder, pink specks, rack focus
+  C2 macro    the wordmark running across the frame, extreme close-up, glass blobs out of focus in front
+  C3 drip     the pump front-on and symmetric, a drop of product oozes from the nozzle and runs down
+  C4 petals   lilac; orchid petals lower left, our pump leaning in from the right and misting them
+  C5 tube     dark red, inside a glass tube of salt water: big and small bubbles rising
+  C6 profile  the pump side-on against a purple gradient, a drop hanging at the nozzle
+  C7 salt     dark red; a raw pink salt chunk with water beads, our pump misting it
+  C8 spheres  the bottle front-on, buried in big purple-lit water spheres, one magnifying the label
+  C9 shelf    the Pack of 3 on a glass shelf on steel rods in a purple room; end card above
 
-  python video/blender/carry_shots.py --shot C1 --out DIR [--frames 1,12] [--samples 32] [--res-scale 100]
+  python video/blender/carry_shots.py --shot C1 --out DIR [--frames 1,12] [--samples 12] [--res-scale 75]
 (run with the venv python that has `bpy`; label: python3 video/blender/label_hires.py first)
 """
 import math

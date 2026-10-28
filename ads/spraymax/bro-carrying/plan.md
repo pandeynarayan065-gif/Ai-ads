@@ -35,22 +35,26 @@ accents (the brand story: sea salt, Himalaya).
 Caption: **"What's bro carrying"**, white on a translucent black bar across the frame at ~44% height, as in
 the reference. Hinglish option: **"Bhai bag mein kya hai 😭"**.
 
-### Product half (4.43–12.05): Blender, real label, $0
+### Product half (4.43–12.05): Blender, real label, $0. A shot-for-shot copy of theirs
 
-| # | Time | Shot | Colour |
+Same order, timing, framing and measured colours as the reference: a purple world with dark-red accents.
+Their dropper (their product is a serum) becomes our spray; their range of three becomes our Pack of 3.
+
+| # | Time | Theirs | Ours |
 |---|---|---|---|
-| C1 | 4.43–5.13 | Bottle tilted ~28° in an indigo void; a strip light sweeps across the label; slow push-in | Indigo |
-| C2 | 5.13–5.80 | Extreme close-up sliding down the "Spraymax" wordmark, shallow focus, dutch angle | Indigo |
-| C3 | 5.80–7.07 | Cap off: the pump dips, and a burst of mist crosses the frame, backlit | Indigo |
-| C4 | 7.07–7.80 | A pink Himalayan salt crystal with water beads on a wet black floor; a drop falls past | Salt pink |
-| C5 | 7.80–8.47 | Air bubbles rising through ocean-blue water | Ocean |
-| C6 | 8.47–9.13 | Low-angle silhouette of the pump and ribbed collar, turning; rim light crawls over the ribs | Indigo |
-| C7 | 9.13–9.80 | Salt crystals tumbling through warm light | Salt pink |
-| C8 | 9.80–10.50 | The bottle among floating water drops, push-in | Indigo |
-| C9 | 10.50–12.05 | The bottle on a glossy black floor, indigo glow, push-in. End card over it: wordmark + spraymax.in | Indigo |
+| C1 | 4.43–5.13 | Tilted bottle in purple haze, flare on the shoulder, pink specks, rack focus | Same, with the Spraymax bottle |
+| C2 | 5.13–5.80 | Extreme macro of the label text across the frame, glass blobs in front | The wordmark across the frame (bottle turned sideways) |
+| C3 | 5.80–7.07 | Pump top front-on, a drop oozes down | Our pump front-on, a drop from the nozzle |
+| C4 | 7.07–7.80 | Lilac; orchid petals, dropper touching them | Orchid petals, our pump misting them |
+| C5 | 7.80–8.47 | Dark-red tube with big bubbles | The same, salt water |
+| C6 | 8.47–9.13 | Pump side profile, drop at the spout, purple gradient | Our pump side-on, drop at the nozzle |
+| C7 | 9.13–9.80 | Dark red; fruit with droplets, dropper | A pink salt chunk with droplets, our pump misting |
+| C8 | 9.80–10.50 | Bottle buried in big purple spheres | Same |
+| C9 | 10.50–11.93 | Three products on a glass shelf | Pack of 3 on a glass shelf + end card (wordmark, BORN IN HIMACHAL, spraymax.in) |
 
-Source: `video/blender/carry_shots.py`. The real label comes from a 4× rebuild with the clean wordmark
-(`video/blender/label_hires.py`).
+Finishing pass in the edit (`assemble.py`): highlight glow, streaks on specular points, chromatic fringing,
+filmic shoulder and S-curve, vignette, grain, a zoom punch on every beat cut, a flash and a small shake on the
+drop. Source: `video/blender/carry_shots.py`.
 
 ## 3. Phone shoot list for the hook (about 30 minutes)
 
