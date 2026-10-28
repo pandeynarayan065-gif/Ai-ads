@@ -6,10 +6,10 @@ wordmark, see label_hires.py). Where the reference uses a dropper (their product
 
   C1 tilt     bottle tipped ~38 deg in purple haze, a flare on its shoulder, pink specks, rack focus
   C2 macro    the wordmark running across the frame, extreme close-up, glass blobs out of focus in front
-  C3 drip     the pump front-on and symmetric, a drop of product oozes from the nozzle and runs down
+  C3 burst    the pump front-on, it fires: a fine-mist burst crosses the frame (a mist pump never drips)
   C4 petals   lilac; orchid petals lower left, our pump leaning in from the right and misting them
   C5 tube     dark red, inside a glass tube of salt water: big and small bubbles rising
-  C6 profile  the pump side-on against a purple gradient, a drop hanging at the nozzle
+  C6 profile  the pump side-on against a purple gradient, a strip of light slides across it
   C7 salt     dark red; a raw pink salt chunk with water beads, our pump misting it
   C8 spheres  the bottle front-on, buried in big purple-lit water spheres, one magnifying the label
   C9 shelf    the Pack of 3 on a glass shelf on steel rods in a purple room; end card above
@@ -563,31 +563,42 @@ def shot_C2(sc):
 
 
 def shot_C3(sc):
-    """R3: the pump front-on and symmetric, a drop of product oozes from the nozzle and slides down."""
+    """R3: the pump front-on and symmetric. Theirs drips (a serum pump); a fine-mist pump never drips, so
+    ours fires: the actuator dips and a burst of fine mist comes straight at the lens."""
     cyc([(0, (31, 30, 31)), (0.25, (33, 20, 51)), (0.5, (31, 17, 55)), (0.78, (26, 9, 60)), (1, (17, 3, 43))],
         -0.1, 0.45, glow=((30, 20, 60), 0.0, 0.08, 0.15))
     piv, root, R = bottle(cap=False)
     glossy_bottle()
+    pw = bpy.data.materials["PumpWhite"].node_tree.nodes["Principled BSDF"]
+    pw.inputs["Coat Weight"].default_value = 0.15             # no neon outline from the backdrop
+    pw.inputs["Roughness"].default_value = 0.45
+    bw = bpy.data.materials["BottleWhite"].node_tree.nodes["Principled BSDF"]
+    bw.inputs["Coat Weight"].default_value = 0.4
+    piv.rotation_euler = (0, 0, math.radians(-40))            # nozzle turned 40 deg: the burst crosses the frame
+    act = [o for o in root.children if o.name.startswith(("Actuator", "Cylinder"))]
+    act0 = {o.name: o.location.copy() for o in act}
     strip("RimL", (-0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 0.7, VIOLET)
     strip("RimR", (0.12, 0.10, 0.18), (0, 0, 0.14), 0.3, 0.02, 0.7, VIOLET)
-    top = area_light("Top", (0, -0.05, 0.35), (0, 0, 0), 0.15, 0.4, LILAC)
-    k2.aim(top, (0, 0, 0.15))
+    top = area_light("Top", (0, -0.06, 0.32), (0, 0, 0), 0.15, 0.5, LILAC)
+    k2.aim(top, (0, -0.05, 0.15))
+    back = area_light("MistBack", (-0.10, 0.20, 0.17), (0, 0, 0), 0.08, 25, (1.0, 0.95, 1.0))   # backlights the plume
+    k2.aim(back, (-0.05, -0.03, 0.15))
+    back.visible_glossy = False
     key = area_light("Key", (0, -0.3, 0.2), (0, 0, 0), 0.12, 0.1, LILAC)
     k2.aim(key, (0, 0, 0.14))
-    drop = spheres("Drip", principled("DripM", (0.78, 0.66, 1.0), rough=0.05, transmission=0.1, ior=1.33, sss=0.5), [(0, 0, -1)], [0.001], sub=3)
+    bpy.context.view_layer.update()
+    o, dvec = nozzle_world(root, piv)
+    press = 10
+    mist = mist_emitter(o, dvec, press=press + 1, n=45000, cone=14, spd=(0.2, 0.45), dur=0.4, seed=9)
     cam = cam_make(100, 4.0)
     n = LENGTHS["C3"]
-    nz, nzz = -r(160) - 0.0003, z(870)
 
     def at(f):
         t = (f - 1) / (n - 1)
-        grow = ease(min(1, t * 2.2))                         # the bead swells at the hole, then runs down
-        run = ease(max(0, (t - 0.35) / 0.65))
-        rad = 0.0006 + 0.0007 * grow
-        zz = nzz - 0.0105 * run
-        stretch = 1.0 + 3.2 * run
-        set_spheres(drop, [(0, nz - rad * 0.4, zz)], [rad], 3,
-                    (np.array([[0, 0, 1]], np.float32), np.array([stretch], np.float32)))
+        dz = -0.0025 * (ease((f - press) / 3) - ease((f - press - 9) / 5))
+        for ob in act:
+            ob.location = act0[ob.name] + Vector((0, 0, dz))
+        mist(f)
         d = lerp(0.20, 0.19, ease(t))
         pos = Vector((0, -d, 0.165))
         tgt = (0, 0, 0.133)
@@ -721,8 +732,8 @@ def shot_C5(sc):
 
 
 def shot_C6(sc):
-    """R6: the pump in side profile, nozzle to the right with a drop hanging at it, against a purple gradient
-    that brightens toward the bottom."""
+    """R6: the pump side-on against a purple gradient that brightens toward the bottom. Theirs has a drop
+    at the spout; ours stays clean (a fine-mist pump doesn't drip): a strip of light slides across it."""
     cyc([(0, (129, 79, 154)), (0.25, (91, 41, 151)), (0.5, (41, 14, 84)), (0.75, (14, 0, 55)), (1, (2, 0, 22))],
         -0.25, 0.55)
     piv, root, R = bottle(cap=False)
@@ -732,16 +743,14 @@ def shot_C6(sc):
     strip("RimTop", (0.02, 0.10, 0.30), (0, 0, 0.15), 0.2, 0.03, 1.5, LILAC)
     key = area_light("Key", (-0.2, -0.25, 0.12), (0, 0, 0), 0.1, 0.25, LILAC)
     k2.aim(key, (0, 0, 0.13))
-    drop = spheres("Drop", principled("DropM", (0.85, 0.78, 1.0), rough=0.05, transmission=0.35, ior=1.33, sss=0.3), [(0, 0, -1)], [0.001], sub=3)
+    sweep = strip("Sweep", (-0.15, -0.25, 0.14), (0, 0, 0.13), 0.4, 0.015, 0.6, (1.0, 0.95, 1.0))
     cam = cam_make(100, 4.0)
     n = LENGTHS["C6"]
-    nx = r(160) + 0.0004
 
     def at(f):
         t = (f - 1) / (n - 1)
-        rad = 0.0006 + 0.0006 * ease(t)
-        set_spheres(drop, [(nx + rad * 0.5, 0, z(870) - rad * 0.6)], [rad], 3,
-                    (np.array([[0, 0, 1]], np.float32), np.array([1.0 + 0.4 * ease(t)], np.float32)))
+        sweep.location = (lerp(-0.16, 0.16, ease(t)), -0.25, 0.14)
+        k2.aim(sweep, (0, 0, 0.13))
         d = lerp(0.215, 0.205, ease(t))
         pos = Vector((0.009, -d, 0.112))
         tgt = (0.009, 0, 0.128)

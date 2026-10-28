@@ -44,10 +44,10 @@ Their dropper (their product is a serum) becomes our spray; their range of three
 |---|---|---|---|
 | C1 | 4.43–5.13 | Tilted bottle in purple haze, flare on the shoulder, pink specks, rack focus | Same, with the Spraymax bottle |
 | C2 | 5.13–5.80 | Extreme macro of the label text across the frame, glass blobs in front | The wordmark across the frame (bottle turned sideways) |
-| C3 | 5.80–7.07 | Pump top front-on, a drop oozes down | Our pump front-on, a drop from the nozzle |
+| C3 | 5.80–7.07 | Pump top front-on, a drop oozes down | Our pump front-on firing a fine-mist burst (a mist pump never drips) |
 | C4 | 7.07–7.80 | Lilac; orchid petals, dropper touching them | Orchid petals, our pump misting them |
 | C5 | 7.80–8.47 | Dark-red tube with big bubbles | The same, salt water |
-| C6 | 8.47–9.13 | Pump side profile, drop at the spout, purple gradient | Our pump side-on, drop at the nozzle |
+| C6 | 8.47–9.13 | Pump side profile, drop at the spout, purple gradient | Our pump side-on, clean, a light line sliding across |
 | C7 | 9.13–9.80 | Dark red; fruit with droplets, dropper | A pink salt chunk with droplets, our pump misting |
 | C8 | 9.80–10.50 | Bottle buried in big purple spheres | Same |
 | C9 | 10.50–11.93 | Three products on a glass shelf | Pack of 3 on a glass shelf + end card (wordmark, BORN IN HIMACHAL, spraymax.in) |
