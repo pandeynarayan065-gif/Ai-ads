@@ -185,11 +185,14 @@ def finish(f, k_in_shot, frame_no, shot):
     t_abs = frame_no / FPS
     s, dx, dy = cam(shot, k_in_shot, t_abs)
     x = scale_about_centre(x, s, dx, dy)
+    x = x + 0.45 * (x - cv2.GaussianBlur(x, (0, 0), 1.2))   # win back detail lost to the 75% render + upscale
     lum = x.max(2)
     hi = np.clip((lum - 0.78) / 0.22, 0, 1)[..., None] * x
     small = cv2.resize(hi, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
     wide = cv2.resize(cv2.GaussianBlur(small, (0, 0), 9), (W, H), interpolation=cv2.INTER_LINEAR)
     x = x + 0.12 * cv2.GaussianBlur(hi, (0, 0), 6) + 0.16 * wide
+    hal = cv2.resize(cv2.GaussianBlur(cv2.resize(np.clip((lum - 0.88) / 0.12, 0, 1), (W // 4, H // 4)), (0, 0), 4), (W, H))
+    x = x + 0.10 * hal[..., None] * np.array([0.35, 0.3, 1.0], np.float32)   # film halation: a warm edge on highlights
     b_, g_, r_ = cv2.split(x)                              # chromatic fringing toward the edges
     r_ = scale_about_centre(r_, 1.0011)
     b_ = scale_about_centre(b_, 0.9989)
@@ -199,6 +202,109 @@ def finish(f, k_in_shot, frame_no, shot):
     x = x * 0.78 + (3 * x * x - 2 * x * x * x) * 0.22      # gentle S-curve
     x = x * VIG + GRAIN[frame_no % len(GRAIN)] * 0.014
     return np.clip(x * 255, 0, 255)
+
+
+# ---- effects layer (on top of the copied edit): beat transitions, in-shot jump smears, floating specks,
+# kinetic text from the label's own claims, all matched by SFX below
+FX_IN = {0: ("flash", "punch15", "shake"), 1: ("punch10",), 2: ("leak",), 3: ("flash1", "punch06"), 4: ("rgb",),
+         5: ("punch10",), 6: ("rgb",), 7: ("leak", "flash1"), 8: ("punch08",)}
+WHIP_OUT = {0, 4, 7}                                     # shots whose last 2 frames whip into a punch-in cut
+SPECK_SHOTS = {"C1", "C2", "C8", "C9"}
+TEXTS = [(6.12, 7.05, "INSTANT VOLUME"), (7.12, 7.78, "& TEXTURE"), (9.18, 9.78, "HIMALAYAN SEA SALT")]
+TEXT_Y = 1430
+_rs = np.random.default_rng(21)
+SPECKS = [(_rs.uniform(0, W), _rs.uniform(0, H), _rs.uniform(1.5, 6), _rs.uniform(-0.4, 0.4), _rs.uniform(-1.2, -0.2),
+           _rs.uniform(0.15, 0.55)) for _ in range(45)]
+
+
+def zoom_blur(img, s0, s1, steps=6):
+    acc = np.zeros_like(img)
+    for s_ in np.linspace(s0, s1, steps):
+        acc += scale_about_centre(img, s_)
+    return acc / steps
+
+
+def leak(t):
+    """A soft light-leak blob sweeping across the frame (t 0..1)."""
+    cx, cy = -0.3 * W + 1.6 * W * t, H * (0.35 + 0.2 * t)
+    g = np.exp(-(((_xx - cx) / (0.45 * W)) ** 2 + ((_yy - cy) / (0.35 * H)) ** 2))
+    col = np.array([0.95, 0.55, 1.0], np.float32) * (1 - t) + np.array([0.4, 0.55, 1.0], np.float32) * t   # lilac -> peach
+    return g[..., None] * col * np.sin(np.pi * t) * 0.65
+
+
+def rgb_split(x, amt, seed):
+    b_, g_, r_ = cv2.split(x)
+    M = lambda d: np.float32([[1, 0, d], [0, 1, 0]])
+    r_ = cv2.warpAffine(r_, M(amt), (W, H), borderMode=cv2.BORDER_REFLECT)
+    b_ = cv2.warpAffine(b_, M(-amt), (W, H), borderMode=cv2.BORDER_REFLECT)
+    x = cv2.merge([b_, g_, r_])
+    r = np.random.default_rng(seed)
+    for _ in range(5):                                     # a few horizontal slices knocked sideways
+        y0 = int(r.uniform(0, H - 60))
+        h = int(r.uniform(12, 70))
+        x[y0:y0 + h] = np.roll(x[y0:y0 + h], int(r.uniform(-40, 40)), axis=1)
+    return x
+
+
+def specks(x, frame_no):
+    layer = np.zeros((H // 2, W // 2), np.float32)
+    for sx, sy, rad, vx, vy, a_ in SPECKS:
+        px = (sx + vx * frame_no) % W
+        py = (sy + vy * frame_no) % H
+        cv2.circle(layer, (int(px / 2), int(py / 2)), max(1, int(rad / 2)), a_, -1, lineType=cv2.LINE_AA)
+    layer = cv2.resize(cv2.GaussianBlur(layer, (0, 0), 1.6), (W, H))
+    return x + layer[..., None] * np.array([1.0, 0.85, 0.95], np.float32) * 0.35
+
+
+TFONT = font("Outfit-600.ttf", 64)
+
+
+def kinetic_text(c, t):
+    for t0, t1, txt in TEXTS:
+        if not (t0 <= t < t1):
+            continue
+        k_in = (t - t0) * FPS
+        k_out = (t1 - t) * FPS
+        a_ = min(1.0, k_in / 4) * min(1.0, k_out / 3)
+        trk = 0.22 + 0.35 * max(0.0, 1 - k_in / 6) ** 2      # letters close in as it lands
+        img = rgba_text(txt, TFONT, (255, 255, 255), tracking=trk)
+        if k_in < 4:                                        # blur-in
+            img = cv2.GaussianBlur(img, (0, 0), 0.1 + 3.5 * (1 - k_in / 4))
+        sh = img.copy()                                     # soft dark shadow so it reads on bright frames
+        sh[..., :3] = 0
+        sh[..., 3] = cv2.GaussianBlur(sh[..., 3], (0, 0), 10) * 0.55
+        over(c, sh, W / 2, TEXT_Y + 4, a_)
+        over(c, img, W / 2, TEXT_Y + 6 * (1 - min(1.0, k_in / 4)), a_)
+
+
+def effects(f, i, shot, k, n, frame_no):
+    x = f / 255.0
+    fx = FX_IN.get(i, ())
+    for name in fx:
+        if name.startswith("punch") and k < 4:
+            amt = int(name[5:]) / 100
+            x = zoom_blur(x, 1 + amt * (1 - k / 4), 1 + amt * (1 - (k + 1) / 4))
+    if i in WHIP_OUT and k >= n - 2:                       # outgoing whip into the next cut
+        e = (k - (n - 3)) / 2
+        x = zoom_blur(x, 1.0, 1 + 0.10 * e)
+    if shot in JUMPS and abs(frame_no / FPS - JUMPS[shot]) < 0.5 / FPS:   # smear the in-shot zoom jump
+        x = zoom_blur(x, 1.0, 1.05)
+    if "shake" in fx and k < 6:
+        amp = 14 * (1 - k / 6)
+        x = scale_about_centre(x, 1.02, amp * np.sin(k * 2.3), amp * np.cos(k * 3.1))
+    if "rgb" in fx and k < 3:
+        x = rgb_split(x, 18 * (1 - k / 3), frame_no)
+    if "leak" in fx and k < 9:
+        x = 1 - (1 - np.clip(x, 0, 1)) * (1 - leak(k / 8))   # screen blend
+    if "flash" in fx and k < 3:
+        x = x + [0.6, 0.22, 0.06][k] * np.array([1.0, 0.92, 1.0], np.float32)
+    if "flash1" in fx and k < 2:
+        x = x + [0.3, 0.08][k] * np.array([1.0, 0.92, 1.0], np.float32)
+    if shot in SPECK_SHOTS:
+        x = specks(x, frame_no)
+    c = np.clip(x * 255, 0, 255)
+    kinetic_text(c, frame_no / FPS)
+    return c
 
 
 def render_frames(shot, n):
@@ -224,9 +330,10 @@ for f in hook_frames():
     caption(f)
     enc.stdin.write(np.clip(f, 0, 255).astype(np.uint8).tobytes())
     count += 1
-for shot, a, b in zip(SHOTS, CUTS[:-1], CUTS[1:]):
+for i, (shot, a, b) in enumerate(zip(SHOTS, CUTS[:-1], CUTS[1:])):
     for k, f in enumerate(render_frames(shot, b - a)):
         f = finish(f, k, a + k, shot)
+        f = effects(f, i, shot, k, b - a, a + k)
         if shot == "C9":
             end_card(f, (a + k) / FPS)
         enc.stdin.write(np.clip(f, 0, 255).astype(np.uint8).tobytes())
@@ -262,8 +369,18 @@ for c_i in (3, 6):                                            # pump sprays in C
     add(CUTS[c_i] / FPS + 3 / FPS, h * np.exp(-np.linspace(0, 4, len(h))) * np.minimum(1, np.linspace(0, 30, len(h))), 0.45)
 tt = np.arange(int(0.5 * SR)) / SR                            # low hit on the drop
 add(4.43, (np.sin(2 * np.pi * (55 * tt - 20 * tt ** 2)) * np.exp(-tt * 7)).astype(np.float32), 0.6)
-tt = np.arange(int(0.08 * SR)) / SR                           # the drip in C3 lets go
-add(CUTS[2] / FPS + 0.75, (np.sin(2 * np.pi * (900 * tt + 4000 * tt ** 2)) * np.exp(-tt * 70)).astype(np.float32), 0.15)
+h = band_noise(0.5, 2500, 12000)                              # the mist burst in C3 (press at frame 10)
+add(CUTS[2] / FPS + 11 / FPS, h * np.exp(-np.linspace(0, 3.5, len(h))) * np.minimum(1, np.linspace(0, 30, len(h))), 0.5)
+for i_ in (1, 5, 8):                                          # whooshes into the whip/punch cuts
+    w_ = band_noise(0.28, 400, 7000)
+    add(CUTS[i_] / FPS - 0.2, w_ * np.sin(np.linspace(0, np.pi, len(w_))) ** 2, 0.28)
+for t_ in (CUTS[3] / FPS, CUTS[7] / FPS):                     # soft hits on the flash pops
+    tt = np.arange(int(0.35 * SR)) / SR
+    add(t_, (np.sin(2 * np.pi * (70 * tt - 30 * tt ** 2)) * np.exp(-tt * 10)).astype(np.float32), 0.35)
+for i_ in (4, 6):                                             # glitch ticks on the RGB splits
+    for j in range(3):
+        g_ = band_noise(0.02, 1500, 9000)
+        add(CUTS[i_] / FPS + j * 0.033, np.sign(g_) * np.abs(g_) ** 0.5 * 0.6, 0.18)
 for k in range(9):                                            # bubble blips under C5
     d = int(0.05 * SR)
     tt = np.arange(d) / SR
