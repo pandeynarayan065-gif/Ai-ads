@@ -536,12 +536,14 @@ def shot_C1(sc):
         zc - 0.29, zc + 0.29, glow=((40, 18, 90), 0.10, zc + 0.10, 0.12))
     piv, root, R = bottle(cap=True)
     glossy_bottle()
+    for name in ("BottleWhite", "PumpWhite"):                # this shot: the bottle reads clean white
+        bpy.data.materials[name].node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.86, 0.86, 0.9, 1)
     piv.location = (0.006, 0, zc + 0.008)
     strip("RimTop", (0.20, 0.12, zc + 0.14), (0.02, 0, zc + 0.05), 0.4, 0.02, 4, VIOLET)
     strip("RimL", (-0.22, 0.15, zc), (0, 0, zc), 0.5, 0.03, 2.5, VIOLET)
     base = area_light("Base", (-0.10, 0.02, zc - 0.20), (0, 0, 0), 0.06, 3.5, LILAC)
     k2.aim(base, (-0.03, 0, zc - 0.06))
-    key = area_light("Key", (-0.25, -0.30, zc + 0.05), (0, 0, 0), 0.2, 0.15, LILAC)
+    key = area_light("Key", (-0.12, -0.42, zc + 0.10), (0, 0, 0), 0.5, 1.6, (0.96, 0.94, 1.0))   # big soft front light
     k2.aim(key, (0, 0, zc))
     glint = spheres("Glint", emissive("GlintM", (1.0, 0.85, 1.0), 220), [(0, 0, 0)], [0.0005], sub=2)
     glint.parent = root
