@@ -391,7 +391,7 @@ def mist_emitter(origin, direction, press, n=40000, cone=13.0, spd=(0.18, 0.42),
     mb = mm.node_tree.nodes["Principled BSDF"]
     mb.inputs["Base Color"].default_value = (0.95, 0.96, 1.0, 1)
     mb.inputs["Roughness"].default_value = 0.3
-    mb.inputs["Alpha"].default_value = 0.16
+    mb.inputs["Alpha"].default_value = 0.22
     ob = k2.points_mesh("Mist", mm)
     rng = np.random.default_rng(seed)
     te = dur * rng.beta(1.3, 3.0, n)                       # front-loaded burst with a tail
@@ -411,7 +411,7 @@ def mist_emitter(origin, direction, press, n=40000, cone=13.0, spd=(0.18, 0.42),
     dirs = (np.cos(th)[:, None] * d + (np.sin(th) * np.cos(ph))[:, None] * u + (np.sin(th) * np.sin(ph))[:, None] * v)
     mid = 0.5 * (spd[0] + spd[1])
     sp = np.clip(mid * np.exp(rng.normal(0, 0.45, n)), 0.04, 0.8)
-    size = 0.000045 * np.exp(rng.normal(0, 0.45, n))
+    size = 0.00006 * np.exp(rng.normal(0, 0.45, n))
     big = rng.random(n) < 0.03                             # heavier droplets: bigger, less drag
     size[big] *= 2.6
     tau = np.where(big, 0.7, rng.uniform(0.18, 0.32, n))
@@ -617,7 +617,7 @@ def shot_C3(sc):
     bpy.context.view_layer.update()
     o, dvec = nozzle_world(root, piv)
     press = 10
-    mist = mist_emitter(o, dvec, press=press + 1, n=55000, cone=19, spd=(0.2, 0.45), dur=0.4, seed=9)
+    mist = mist_emitter(o, dvec, press=press + 1, n=110000, cone=19, spd=(0.35, 0.8), dur=0.55, seed=9)
     cam = cam_make(100, 4.0)
     n = LENGTHS["C3"]
 
@@ -674,13 +674,16 @@ def misting_shot(sc, kind):
     piv, root, R = tilted_pump(-35, -90, tuple(top - axis * (TOP - MID)), cap=False)
     glossy_bottle()
     o, dvec = nozzle_world(root, piv)
-    mist = mist_emitter(o, dvec, press=3, n=45000, cone=19, spd=(0.14, 0.32), seed=5)
+    mist = mist_emitter(o, dvec, press=3, n=90000, cone=19, spd=(0.25, 0.6), dur=0.6, seed=5)
     key = area_light("Key", (-0.15, -0.3, 0.15), (0, 0, 0), 0.25, key_e, key_rgb)
     k2.aim(key, centre)
     back = area_light("Back", (0.0, 0.25, 0.05), (0, 0, 0), 0.2, back_e, back_rgb)
     k2.aim(back, centre)
     back.visible_glossy = False
     strip("Rim", (0.18, 0.05, 0.12), (0.02, 0, 0.0), 0.4, 0.02, 4, rim_rgb)
+    glow = area_light("MistBack", (-0.03, 0.18, 0.05), (0, 0, 0), 0.12, 6, (1.0, 0.95, 1.0))   # makes the plume glow
+    k2.aim(glow, (-0.01, 0, 0.0))
+    glow.visible_glossy = False
     cam = cam_make(85, 4.0)
     n = LENGTHS["C4"] if kind == "petals" else LENGTHS["C7"]
 
