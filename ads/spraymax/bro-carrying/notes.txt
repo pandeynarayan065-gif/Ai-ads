@@ -8,7 +8,8 @@ Files
   draft-v4.mp4                 CURRENT: stronger spray, hard cuts, no kinetic text; jump smears, specks,
                                halation, sharpening kept; SFX only, for posting
   draft-v4-temp.mp4            same with the reference reel's music as a TEMP track: timing only, never post
-  product-half-v4.mp4          just the 3D half of v4 (4.43 s on), for a CapCut edit after the hook
+  product-half-v4.mp4          just the 3D half of v4 (4.43 s on, intro removed, 7.5 s), SFX only, for posting
+  product-half-v4-temp.mp4     same with the reference's music from the drop (timing/preview only, never post)
   draft-v3.mp4                 v4 + beat transitions and kinetic text (assemble.py --transitions --text)
   draft-v3-temp.mp4            same with the reference reel's music as a TEMP track: timing only, never post
   product-half-v3.mp4          just the 3D half of v3 (4.43 s on), for a CapCut edit after the hook
