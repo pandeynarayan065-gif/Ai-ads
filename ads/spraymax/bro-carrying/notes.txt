@@ -5,7 +5,11 @@ Files
   plan.md                      breakdown of the reference, the Spraymax script, the phone shoot list
   hook-end-frame-guide.jpg     how the phone hook should end so the cut into 3D shot C1 lands
   assemble.py                  the edit (beat grid, caption bar, end card, SFX); hook = animatic until shot
-  draft-v2.mp4                 CURRENT: hook animatic + the 3D half copied shot for shot from the reference
+  draft-v3.mp4                 CURRENT: v2 + stronger spray + effects layer (beat transitions, jump smears,
+                               specks, kinetic text, halation, sharpening, matching SFX); SFX only, for posting
+  draft-v3-temp.mp4            same with the reference reel's music as a TEMP track: timing only, never post
+  product-half-v3.mp4          just the 3D half of v3 (4.43 s on), for a CapCut edit after the hook
+  draft-v2.mp4                 hook animatic + the 3D half copied shot for shot from the reference
                                (purple world, red accents), finishing pass, SFX only (the format for posting)
   draft-v2-temp.mp4            same with the reference reel's music as a TEMP track: for timing only, never post
   product-half-v2.mp4          just the 3D half (4.43 s on), for dropping into a CapCut edit after the hook
@@ -31,8 +35,8 @@ Fixes made during the render (each found by checking frames, re-rendered):
     the collar
   - C5: one bubble stream was off-frame -> streams moved inside the 70 mm-wide frame
 
-Music: the reference's track is a trending Instagram sound. Post draft-v2.mp4 (SFX only) and pick the sound
-in Instagram so it's licensed; draft-v2-temp.mp4 exists only to judge the cut timing.
+Music: the reference's track is a trending Instagram sound. Post draft-v3.mp4 (SFX only) and pick the sound
+in Instagram so it's licensed; draft-v3-temp.mp4 exists only to judge the cut timing.
 
 v2 (shot-for-shot copy of the reference), changes after review:
   - fine-mist pump never drips: C3 fires a mist burst, C6 is a clean profile (theirs drip: a serum pump)
@@ -41,3 +45,11 @@ v2 (shot-for-shot copy of the reference), changes after review:
     frames 3-7 of C1, zoom jumps on the half-beat inside C3/C5/C9 (6.45, 8.13, 11.15 s)
   - finishing: highlight glow, chromatic fringing, filmic shoulder + S-curve, vignette, grain (no streaks:
     they ghosted the bright bottles and the reference has none)
+
+v3 (after "add more video effects", "spray kinda weak"):
+  - spray: twice the droplets, faster and longer burst, slightly denser droplets, a backlight so the plume glows
+  - effects layer in assemble.py (FX_IN per cut): flash + punch + shake on the drop; zoom-blur whips into
+    C2/C6/C9; light-leak sweeps into C3/C8; RGB-split glitches into the red shots C5/C7; flash pops on C4/C8;
+    smears on the in-shot zoom jumps; floating specks on the purple shots; kinetic text from the label's own
+    claims (INSTANT VOLUME, & TEXTURE, HIMALAYAN SEA SALT); sharpening + film halation in the finish; SFX for
+    each (whooshes, hits, glitch ticks, the mist burst)
