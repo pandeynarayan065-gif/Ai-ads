@@ -42,6 +42,8 @@ ap.add_argument("--music")
 ap.add_argument("--caption", default="What's bro carrying")
 ap.add_argument("--transitions", action="store_true", help="beat transitions (flash/punch/whip/leak/glitch) + their SFX")
 ap.add_argument("--text", action="store_true", help="kinetic text from the label's claims")
+ap.add_argument("--clips", help="export each 3D shot on its own into this folder (graded, every rendered frame, "
+                                "silent, no zoom jumps/text) plus the end shot with its end card, then stop")
 args = ap.parse_args()
 renders = Path(args.renders)
 out = Path(args.out)
@@ -322,6 +324,41 @@ def render_frames(shot, n):
         seq.append(im.astype(np.float32))
     return seq
 
+
+CLIP_NAMES = ["tilt", "wordmark", "pump-burst", "petals-mist", "tube-bubbles", "pump-profile", "salt-mist",
+              "spheres", "shelf"]
+
+
+def write_clip(path, frames):
+    enc_ = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}",
+                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "slow", "-crf", "14",
+                             "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(path)], stdin=subprocess.PIPE)
+    for f_ in frames:
+        enc_.stdin.write(np.clip(f_, 0, 255).astype(np.uint8).tobytes())
+    enc_.stdin.close()
+    if enc_.wait() != 0:
+        raise SystemExit("ffmpeg failed")
+
+
+if args.clips:
+    JUMPS.clear()                                          # zoom jumps are an edit decision; clips stay clean
+    cdir = Path(args.clips)
+    cdir.mkdir(parents=True, exist_ok=True)
+    for i, (shot, a, b) in enumerate(zip(SHOTS, CUTS[:-1], CUTS[1:])):
+        n_all = len(sorted(renders.glob(f"{shot}_*.png")))
+        graded = [effects(finish(f, k, a + k, shot), i, shot, k, n_all, a + k) for k, f in enumerate(render_frames(shot, n_all))]
+        path = cdir / f"{i + 1:02d}-{CLIP_NAMES[i]}.mp4"
+        write_clip(path, graded)
+        print(f"{path.name}: {n_all} frames ({n_all / FPS:.2f} s)")
+        if shot == "C9":
+            carded = []
+            for k, f in enumerate(graded):
+                f = f.copy()
+                end_card(f, (a + k) / FPS)
+                carded.append(f)
+            write_clip(cdir / f"{i + 1:02d}-{CLIP_NAMES[i]}-endcard.mp4", carded)
+            print(f"{i + 1:02d}-{CLIP_NAMES[i]}-endcard.mp4")
+    raise SystemExit(0)
 
 # ---- picture
 tmp = out.with_suffix(".video.mp4")
