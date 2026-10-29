@@ -5,8 +5,11 @@ Files
   plan.md                      breakdown of the reference, the Spraymax script, the phone shoot list
   hook-end-frame-guide.jpg     how the phone hook should end so the cut into 3D shot C1 lands
   assemble.py                  the edit (beat grid, caption bar, end card, SFX); hook = animatic until shot
-  draft-v3.mp4                 CURRENT: v2 + stronger spray + effects layer (beat transitions, jump smears,
-                               specks, kinetic text, halation, sharpening, matching SFX); SFX only, for posting
+  draft-v4.mp4                 CURRENT: stronger spray, hard cuts, no kinetic text; jump smears, specks,
+                               halation, sharpening kept; SFX only, for posting
+  draft-v4-temp.mp4            same with the reference reel's music as a TEMP track: timing only, never post
+  product-half-v4.mp4          just the 3D half of v4 (4.43 s on), for a CapCut edit after the hook
+  draft-v3.mp4                 v4 + beat transitions and kinetic text (assemble.py --transitions --text)
   draft-v3-temp.mp4            same with the reference reel's music as a TEMP track: timing only, never post
   product-half-v3.mp4          just the 3D half of v3 (4.43 s on), for a CapCut edit after the hook
   draft-v2.mp4                 hook animatic + the 3D half copied shot for shot from the reference
@@ -35,8 +38,8 @@ Fixes made during the render (each found by checking frames, re-rendered):
     the collar
   - C5: one bubble stream was off-frame -> streams moved inside the 70 mm-wide frame
 
-Music: the reference's track is a trending Instagram sound. Post draft-v3.mp4 (SFX only) and pick the sound
-in Instagram so it's licensed; draft-v3-temp.mp4 exists only to judge the cut timing.
+Music: the reference's track is a trending Instagram sound. Post draft-v4.mp4 (SFX only) and pick the sound
+in Instagram so it's licensed; draft-v4-temp.mp4 exists only to judge the cut timing.
 
 v2 (shot-for-shot copy of the reference), changes after review:
   - fine-mist pump never drips: C3 fires a mist burst, C6 is a clean profile (theirs drip: a serum pump)
@@ -53,3 +56,6 @@ v3 (after "add more video effects", "spray kinda weak"):
     smears on the in-shot zoom jumps; floating specks on the purple shots; kinetic text from the label's own
     claims (INSTANT VOLUME, & TEXTURE, HIMALAYAN SEA SALT); sharpening + film halation in the finish; SFX for
     each (whooshes, hits, glitch ticks, the mist burst)
+
+v4 (after "remove the kinetic text and transitions"): both are now opt-in flags in assemble.py
+(--transitions, with their SFX; --text), off by default. Everything else from v3 stays.

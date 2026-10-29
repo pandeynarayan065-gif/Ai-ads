@@ -40,6 +40,8 @@ ap.add_argument("--hook")
 ap.add_argument("--hook-end", type=float)
 ap.add_argument("--music")
 ap.add_argument("--caption", default="What's bro carrying")
+ap.add_argument("--transitions", action="store_true", help="beat transitions (flash/punch/whip/leak/glitch) + their SFX")
+ap.add_argument("--text", action="store_true", help="kinetic text from the label's claims")
 args = ap.parse_args()
 renders = Path(args.renders)
 out = Path(args.out)
@@ -204,8 +206,8 @@ def finish(f, k_in_shot, frame_no, shot):
     return np.clip(x * 255, 0, 255)
 
 
-# ---- effects layer (on top of the copied edit): beat transitions, in-shot jump smears, floating specks,
-# kinetic text from the label's own claims, all matched by SFX below
+# ---- effects layer (on top of the copied edit): in-shot jump smears and floating specks always; beat
+# transitions (--transitions, with their SFX) and kinetic text from the label's own claims (--text) on request
 FX_IN = {0: ("flash", "punch15", "shake"), 1: ("punch10",), 2: ("leak",), 3: ("flash1", "punch06"), 4: ("rgb",),
          5: ("punch10",), 6: ("rgb",), 7: ("leak", "flash1"), 8: ("punch08",)}
 WHIP_OUT = {0, 4, 7}                                     # shots whose last 2 frames whip into a punch-in cut
@@ -279,12 +281,12 @@ def kinetic_text(c, t):
 
 def effects(f, i, shot, k, n, frame_no):
     x = f / 255.0
-    fx = FX_IN.get(i, ())
+    fx = FX_IN.get(i, ()) if args.transitions else ()
     for name in fx:
         if name.startswith("punch") and k < 4:
             amt = int(name[5:]) / 100
             x = zoom_blur(x, 1 + amt * (1 - k / 4), 1 + amt * (1 - (k + 1) / 4))
-    if i in WHIP_OUT and k >= n - 2:                       # outgoing whip into the next cut
+    if args.transitions and i in WHIP_OUT and k >= n - 2:  # outgoing whip into the next cut
         e = (k - (n - 3)) / 2
         x = zoom_blur(x, 1.0, 1 + 0.10 * e)
     if shot in JUMPS and abs(frame_no / FPS - JUMPS[shot]) < 0.5 / FPS:   # smear the in-shot zoom jump
@@ -303,7 +305,8 @@ def effects(f, i, shot, k, n, frame_no):
     if shot in SPECK_SHOTS:
         x = specks(x, frame_no)
     c = np.clip(x * 255, 0, 255)
-    kinetic_text(c, frame_no / FPS)
+    if args.text:
+        kinetic_text(c, frame_no / FPS)
     return c
 
 
@@ -371,16 +374,17 @@ tt = np.arange(int(0.5 * SR)) / SR                            # low hit on the d
 add(4.43, (np.sin(2 * np.pi * (55 * tt - 20 * tt ** 2)) * np.exp(-tt * 7)).astype(np.float32), 0.6)
 h = band_noise(0.5, 2500, 12000)                              # the mist burst in C3 (press at frame 10)
 add(CUTS[2] / FPS + 11 / FPS, h * np.exp(-np.linspace(0, 3.5, len(h))) * np.minimum(1, np.linspace(0, 30, len(h))), 0.5)
-for i_ in (1, 5, 8):                                          # whooshes into the whip/punch cuts
-    w_ = band_noise(0.28, 400, 7000)
-    add(CUTS[i_] / FPS - 0.2, w_ * np.sin(np.linspace(0, np.pi, len(w_))) ** 2, 0.28)
-for t_ in (CUTS[3] / FPS, CUTS[7] / FPS):                     # soft hits on the flash pops
-    tt = np.arange(int(0.35 * SR)) / SR
-    add(t_, (np.sin(2 * np.pi * (70 * tt - 30 * tt ** 2)) * np.exp(-tt * 10)).astype(np.float32), 0.35)
-for i_ in (4, 6):                                             # glitch ticks on the RGB splits
-    for j in range(3):
-        g_ = band_noise(0.02, 1500, 9000)
-        add(CUTS[i_] / FPS + j * 0.033, np.sign(g_) * np.abs(g_) ** 0.5 * 0.6, 0.18)
+if args.transitions:
+    for i_ in (1, 5, 8):                                      # whooshes into the whip/punch cuts
+        w_ = band_noise(0.28, 400, 7000)
+        add(CUTS[i_] / FPS - 0.2, w_ * np.sin(np.linspace(0, np.pi, len(w_))) ** 2, 0.28)
+    for t_ in (CUTS[3] / FPS, CUTS[7] / FPS):                 # soft hits on the flash pops
+        tt = np.arange(int(0.35 * SR)) / SR
+        add(t_, (np.sin(2 * np.pi * (70 * tt - 30 * tt ** 2)) * np.exp(-tt * 10)).astype(np.float32), 0.35)
+    for i_ in (4, 6):                                         # glitch ticks on the RGB splits
+        for j in range(3):
+            g_ = band_noise(0.02, 1500, 9000)
+            add(CUTS[i_] / FPS + j * 0.033, np.sign(g_) * np.abs(g_) ** 0.5 * 0.6, 0.18)
 for k in range(9):                                            # bubble blips under C5
     d = int(0.05 * SR)
     tt = np.arange(d) / SR
