@@ -40,11 +40,13 @@ MOVES = {
     "pan": r"\bpan(s|ning)?\b|whip[- ]pan",
     "tilt": r"\btilt(s|ing)? (up|down)",
     "orbit": r"\borbit(s|ing)?\b|arc shot|\barcs? around|circles? (around|the)|rotates? around",
-    "truck/track": r"\btruck(s|ing)? (left|right)|tracking shot|\btracks?\b (along|with|left|right)|follows? (him|her|the)",
-    "crane/rise": r"\bcrane\b|pedestal|camera (rises|lifts|descends|drops)|rising gently|gentle rise|\brises? gently",
+    "truck/track": r"\btruck(s|ing)? (left|right)|tracking shot|\btracks?\b (along|with|left|right)|follows? (him|her|the)|"
+                   r"drifts? (slowly )?(laterally )?(to the )?(left|right)",
+    "crane/rise": r"\bcrane\b|pedestal|camera (rises|lifts|descends|drops)|rising gently|gentle rise|\brises? gently|"
+                  r"(creeps?|drifts?) (slowly )?(upward|up|downward|down)\b",
 }
-CAMERA_SAID = r"static|locked[- ]off|locked camera|tripod|holds? (still|its distance)|camera stays|does not move|" \
-              r"still camera|handheld|hand-held"
+CAMERA_SAID = r"static|locked[- ]off|locked camera|locked still|tripod|holds? (nearly )?(still|its distance)|camera stays|" \
+              r"does not move|still camera|handheld|hand-held|micro drift"
 CHAIN = r"\bthen\b|\bnext,|after that|\bfinally\b|\bsuddenly\b"
 COLOURS = r"\b(white|black|indigo|navy|pink|red|blue|grey|gray|golden|orange|salmon|charcoal|green|yellow|amber|" \
           r"silver|cream|beige)\b"
@@ -66,9 +68,9 @@ def unnegated(pattern, text):
 
 
 def split_shots(text):
-    """Shot blocks: 'Shot 1', '0-3 seconds', '[1s-4s]', '[00:00-00:02]'. One block if none."""
+    """Shot blocks: 'Shot 1', '0-3 seconds', '[1s-4s]', '[00:00-00:02]', '[00:01.6]'. One block if none."""
     marks = list(re.finditer(r"(?im)^\s*(\*\*)?(shot \d+|\[?\d+(\.\d+)?\s*s?\s*[-–]\s*\d+(\.\d+)?\s*(s|sec|seconds)\]?|"
-                             r"\[\d\d:\d\d\s*[-–]\s*\d\d:\d\d\])", text))
+                             r"\[\d\d:\d\d\s*[-–]\s*\d\d:\d\d\]|\[\d\d:\d\d(\.\d)?\])", text))
     if not marks:
         return [("whole prompt", text)]
     blocks = []
@@ -152,7 +154,7 @@ def lint(path, kind, faceless, sd):
     if kind in ("ref", "t2v") and words > 220:
         warns.append(f"{words} words: keep it under ~200, one moment per clip; extra detail gets dropped or muddled")
     if kind == "seedance":
-        if not re.search(r"image ?\d|@image|<image", text, flags=re.I):
+        if not re.search(r"image ?\d|@\w+|<image", text, flags=re.I):
             warns.append("no asset mapping: open with 'Image 1 is ..., use it for ...'")
         if not re.search(r"subtitle", text, flags=re.I):
             warns.append("add 'Keep it subtitle-free.'")
