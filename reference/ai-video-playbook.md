@@ -83,7 +83,7 @@ We only use 1–3 s of each 8 s clip. Judge a take by its best 2 seconds, not by
 | Animate a checked still | Veo 3.1 Fast (kie) | first frame | 65 cr ($0.33) / 8 s 1080p | Good physics and water; makes audio; tends to leave the camera still and "interpret" (adds water nobody asked for) |
 | Environment, no product | Veo 3.1 Fast (kie) | text-to-video | 65 cr | Ridge, salt and sea shots all came out usable |
 | Product from photos, no still | Veo 3.1 Fast (kie) | reference (1–3 refs, 8 s) | 65 cr | Drop shot. Refs on a plain background; text-only product details drift |
-| Literal control, timed beats, product held in a hand | Seedance 2.5 (Segmind or kie) | references **or** first frame (not both) | Segmind 8 s: $1.91 at 720p, $4.70 at 1080p. kie: 63 cr/s at 720p (~$2.52 / 8 s) | "More literal" than Veo; holds bottle shape, label geometry and colour in hand. Draft at 480p first. No script yet: needs `SEGMIND_API_KEY` in the environment settings |
+| Literal control, timed beats, product held in a hand, multi-shot films | Seedance 2.5 (kie: `kie_generate.py seedance`) | references **or** first frame (not both) | kie per second of output: 480p 28 cr, 720p 63 cr, 1080p 158 cr (12 s = 336 / 756 / 1,896 cr). Reference images are free; reference video is billed. Segmind 8 s: $1.91 at 720p, $4.70 at 1080p | "More literal" than Veo; holds bottle shape, label geometry and colour in hand. One prompt can carry ~9 hard-cut shots. Draft at 480p (`--draft`), then `seedance-final` renders 1080p from the same draft (kie lists no price for that step) |
 
 Use Veo 3.1 Fast for cheap single-moment shots. Use Seedance 2.5 when the product must stay exactly put in a
 hand, or the shot needs timed beats.

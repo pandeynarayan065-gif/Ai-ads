@@ -11,6 +11,10 @@ Usage:
   python3 scripts/kie_generate.py video --prompt-file <motion.md> --out <dir> \
       [--image first-frame.jpg] [--model veo3_fast] [--aspect 9:16] \
       [--resolution 1080p] [--duration 8] [--mode frames|reference] [--yes]
+  python3 scripts/kie_generate.py seedance --prompt-file <prompt.md> --out <dir> \
+      [--ref sheet.jpg --ref layout-1.jpg ...] | [--first-frame f.jpg [--last-frame l.jpg]] \
+      [--resolution 720p] [--aspect 9:16] [--duration 12] [--audio] [--draft] [--yes]
+  python3 scripts/kie_generate.py seedance-final --draft-task-id <id> --duration 12 --out <dir> [--yes]
 
 Without --yes, `image` and `video` only print what they would send and spend nothing.
 Reference images (--ref) can be local files (uploaded to kie.ai first) or URLs.
@@ -191,6 +195,77 @@ def cmd_video(args):
     print(f"Credits after: {credits()} (was {before})")
 
 
+# Seedance 2.5 on kie, credits per second of output, no video input (kie.ai/seedance-2-5, checked 2026-11-02).
+# Reference images and audio add no billable seconds. Draft mode is 480p; the final from a draft is 1080p.
+SEEDANCE_RATE = {"480p": 28, "720p": 63, "1080p": 158}
+
+
+def run_video_task(body, out, before, timeout=2400):
+    task_id = request("POST", f"{API}/api/v1/jobs/createTask", body)["taskId"]
+    print(f"Task: {task_id}", flush=True)
+    urls = wait_for(task_id, timeout=timeout)
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    for i, url in enumerate(urls, 1):
+        dest = out / f"{stamp}-{i}.mp4"
+        urllib.request.urlretrieve(url, dest)
+        print(f"Saved {dest}")
+    (out / f"{stamp}.json").write_text(json.dumps(
+        {"task_id": task_id, "request": body, "result_urls": urls}, indent=2))
+    print(f"Credits after: {credits()} (was {before})")
+
+
+def cmd_seedance(args):
+    prompt = Path(args.prompt_file).read_text(encoding="utf-8").strip()
+    refs = args.ref or []
+    if refs and args.first_frame:
+        sys.exit("Seedance can't combine --ref images with --first-frame (kie rejects the request).")
+    res = "480p" if args.draft else args.resolution
+    inp = {"prompt": prompt, "resolution": res, "aspect_ratio": args.aspect, "duration": args.duration,
+           "generate_audio": args.audio}
+    if args.draft:
+        inp["draft"] = True
+    body = {"model": "bytedance/seedance-2-5", "input": inp}
+    cost = SEEDANCE_RATE[res] * args.duration
+    print(f"Model: bytedance/seedance-2-5 | {res}{' draft' if args.draft else ''} | {args.aspect} | "
+          f"{args.duration}s | audio {'on' if args.audio else 'off'}")
+    print(f"Estimated cost: {cost} credits (${cost * 0.005:.2f})")
+    print(f"References (Image 1, 2, ... in this order): {refs or 'none'}")
+    if args.first_frame:
+        print(f"First frame: {args.first_frame}  Last frame: {args.last_frame or 'none'}")
+    print(f"Prompt ({len(prompt)} chars):\n{prompt}\n")
+    if not args.yes:
+        print("Dry run — nothing sent, no credits spent. Re-run with --yes to generate.")
+        return
+    before = credits()
+    print(f"Credits before: {before}")
+    if before < cost:
+        sys.exit(f"Not enough credits: {before} < {cost}.")
+    up = lambda x: x if x.startswith("http") else upload(Path(x))  # noqa: E731
+    if refs:
+        inp["reference_image_urls"] = [up(r) for r in refs]
+    if args.first_frame:
+        inp["first_frame_url"] = up(args.first_frame)
+        if args.last_frame:
+            inp["last_frame_url"] = up(args.last_frame)
+    run_video_task(body, args.out, before)
+
+
+def cmd_seedance_final(args):
+    body = {"model": "bytedance/seedance-2-5-draft",
+            "input": {"draft_task_id": args.draft_task_id, "resolution": "1080p"}}
+    cost = SEEDANCE_RATE["1080p"] * args.duration
+    print(f"Final 1080p from draft {args.draft_task_id} | estimated cost {cost} credits (${cost * 0.005:.2f}) "
+          "(kie doesn't publish a separate draft-final price; this assumes the 1080p rate)")
+    if not args.yes:
+        print("Dry run — nothing sent, no credits spent. Re-run with --yes to generate.")
+        return
+    before = credits()
+    print(f"Credits before: {before}")
+    run_video_task(body, args.out, before)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -216,6 +291,25 @@ def main():
     vid.add_argument("--duration", type=int, default=8, choices=[4, 6, 8])
     vid.add_argument("--yes", action="store_true", help="actually generate and spend credits")
     vid.set_defaults(func=cmd_video)
+    sd = sub.add_parser("seedance")
+    sd.add_argument("--prompt-file", required=True)
+    sd.add_argument("--out", required=True)
+    sd.add_argument("--ref", action="append", help="reference image path or URL, in Image 1, 2, ... order (max 30)")
+    sd.add_argument("--first-frame", help="first frame (not with --ref)")
+    sd.add_argument("--last-frame", help="last frame (needs --first-frame)")
+    sd.add_argument("--resolution", default="720p", choices=["480p", "720p", "1080p"])
+    sd.add_argument("--aspect", default="9:16", choices=["9:16", "16:9", "1:1", "3:4", "4:3", "21:9", "adaptive"])
+    sd.add_argument("--duration", type=int, default=12, help="4-30 s")
+    sd.add_argument("--audio", action="store_true", help="generate audio (off by default; we add sound in post)")
+    sd.add_argument("--draft", action="store_true", help="480p draft; finish it with seedance-final at 1080p")
+    sd.add_argument("--yes", action="store_true", help="actually generate and spend credits")
+    sd.set_defaults(func=cmd_seedance)
+    sf = sub.add_parser("seedance-final")
+    sf.add_argument("--draft-task-id", required=True)
+    sf.add_argument("--duration", type=int, required=True, help="the draft's duration, for the cost estimate")
+    sf.add_argument("--out", required=True)
+    sf.add_argument("--yes", action="store_true", help="actually generate and spend credits")
+    sf.set_defaults(func=cmd_seedance_final)
     args = parser.parse_args()
     args.func(args)
 

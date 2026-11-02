@@ -151,7 +151,8 @@ def make_bottle(with_cap=True, label_art=None):
     # --- ribbed collar, pump ring, actuator, nozzle insert
     plastic = principled("PumpWhite", (0.9, 0.9, 0.92), rough=0.35)
     col_prof = [(0.0, z(1290)), (r(236), z(1290)), (r(244), z(1284)), (r(244), z(1092)), (r(236), z(1085)), (r(150), z(1085)), (0.0, z(1085))]
-    collar = lathe("Collar", col_prof, segs=192, rib=(48, r(22), z(1280), z(1095)))
+    # rib range must include the collar's own profile heights (z(1284)..z(1092)), or the ribs never appear
+    collar = lathe("Collar", col_prof, segs=384, rib=(48, r(22), z(1286), z(1090)))
     collar.data.materials.append(plastic)
     ring = lathe("PumpRing", [(0.0, z(1085)), (r(182), z(1085)), (r(182), z(1010)), (r(170), z(1000)), (0.0, z(1000))], segs=96)
     ring.data.materials.append(plastic)
