@@ -4,7 +4,7 @@
 Inputs:
   frames/F1.png ... F9.png       1080x1920 Blender renders (video/blender/film_shots.py)
   prompt-seedance-12s.md         the one Seedance 2.5 prompt (lint: --kind seedance --faceless)
-  ../seedance/product-sheet.jpg  real photos of the bottle (Image 1)
+  product-sheet-v2.jpg           real photos of the bottle + the flat label (Image 1)
 Outputs:
   frames/F*.jpg                  1080x1920 JPEGs (storyboard frames)
   refs/01-product-sheet.jpg, refs/02-layout-F1.jpg ...   Seedance references, <= 720x1280, yuvj420p JPEG
@@ -23,7 +23,7 @@ from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-SHEET = ROOT / "ads/spraymax/seedance/product-sheet.jpg"
+SHEET = HERE / "product-sheet-v2.jpg"            # real photos: Narayan's low-light front, pump side, nozzle; flat label
 PROMPT = HERE / "prompt-seedance-12s.md"
 
 # Seedance 2.5 on kie, credits per second, no video input (kie.ai/seedance-2-5, checked 2026-11-02). 1 cr = $0.005.
@@ -257,8 +257,8 @@ def build_html(full, lines):
 <section class="page">
   <div class="eyebrow">How it's made</div>
   <h2>One Seedance 2.5 generation, ten reference images.</h2>
-  <p class="dim" style="max-width:240mm;margin:0">Image 1 is a sheet of real photos of the bottle (front, pump side,
-  nozzle, flat label): the product truth for every shot. Images 2–10 are the 3D frames in this PDF, one per shot,
+  <p class="dim" style="max-width:240mm;margin:0">Image 1 is a sheet of real photos of the bottle (your low-light
+  front photo, the pump from the side, the nozzle, the flat label): the product truth for every shot. Images 2–10 are the 3D frames in this PDF, one per shot,
   used only for framing, angle and light. Reference images add no cost on kie. Sound comes off; SFX and music go
   on in the edit, with the end card. Prompt: <span class="ice">prompt-seedance-12s.md</span>, linted PASS.</p>
   <div class="refs">{refs}</div>

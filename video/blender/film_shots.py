@@ -48,6 +48,15 @@ def white_bottle():
             m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.8, 0.8, 0.84, 1)
 
 
+def nozzle_to_back(root):
+    """On the real bottle the nozzle hole faces the same way as the BACK label (Narayan's photos, 2 Nov 2026);
+    make_bottle puts it on the front. Use in every shot that shows the front label."""
+    for ob in root.children:
+        if ob.data and getattr(ob.data, "materials", None) and any(m and m.name.startswith("Nozzle") for m in ob.data.materials):
+            ob.location.y = -ob.location.y
+            ob.rotation_euler.x += math.pi
+
+
 def matte_floor(rgb, rough=0.75):
     bpy.ops.mesh.primitive_plane_add(size=8, location=(0, 0, 0))
     f = bpy.context.object
@@ -94,6 +103,7 @@ def F2(sc):
     cs.cyc(BLACK, -0.3, 0.5)
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
+    nozzle_to_back(root)
     cs.strip("Blade", (0.34, 0.09, 0.09), (0, 0, 0.085), 0.7, 0.008, 6, SILVER)
     bounce = area_light("Bounce", (-0.05, -0.12, -0.02), (0, 0, 0), 0.06, 0.03, ICE)
     k2.aim(bounce, (0, 0, 0.0))
@@ -182,6 +192,7 @@ def F6(sc):
     cs.cyc([(0, (2, 2, 6)), (1, (2, 2, 7))], -0.4, 0.6, glow=((44, 30, 165), 0.06, 0.16, 0.16))
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
+    nozzle_to_back(root)
     piv.location = (-0.025, 0, cs.MID)
     side = area_light("Side", (0.30, 0.02, 0.22), (0, 0, 0), 0.12, 0.9, SILVER)
     k2.aim(side, (-0.025, 0, 0.10))
@@ -225,6 +236,7 @@ def F8(sc):
     cs.cyc(BLACK, -0.2, 0.4)
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
+    nozzle_to_back(root)
     cs.strip("Graze", (0.16, 0.03, 0.075), (0, 0, 0.065), 0.3, 0.006, 0.7, ICE)
     cs.strip("Fill", (-0.15, -0.12, 0.09), (0, 0, 0.065), 0.25, 0.04, 0.04, ICE)
     cam = cs.cam_make(100, 4.0)
@@ -240,6 +252,7 @@ def F9(sc):
     matte_floor((10, 8, 36), rough=0.8)
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
+    nozzle_to_back(root)
     piv.location = (-0.05, 0, cs.MID)
     k = spot("Key", (-0.85, -0.10, 0.24), (0.06, 0, 0.0), 260, SILVER, size_deg=22, soft=0.004)
     k.data.spot_blend = 0.9

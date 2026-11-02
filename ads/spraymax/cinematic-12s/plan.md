@@ -20,7 +20,8 @@ in Spraymax's colours:
    `refs/` (the Seedance references).
 3. **One Seedance 2.5 generation** (reference-to-video, 9:16, 12 s, audio off), using `prompt-seedance-12s.md`
    (lint PASS, `--kind seedance --faceless`):
-   - Image 1 is `refs/01-product-sheet.jpg`: real photos of the bottle, the product truth.
+   - Image 1 is `refs/01-product-sheet.jpg` (from `product-sheet-v2.jpg`): Narayan's low-light front photo, the
+     pump side, the nozzle and the flat label. This is the product truth.
    - Images 2–10 are `refs/02-layout-F1.jpg` … `10-layout-F9.jpg`: one per shot, used for framing, angle and
      light only.
 4. **QA every shot** (`reference/ai-video-qa.md`):

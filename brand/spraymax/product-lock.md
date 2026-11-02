@@ -28,6 +28,7 @@ and never reword it between shots. Image-to-video prompts don't use it: there th
 
 | File | Use it for | Notes |
 |---|---|---|
+| `bottle-real-dark-front.jpg`, `-angled.jpg`, `-back.jpg` | The real bottle in low light on black (Narayan's phone, 2026-11-02): the true semi-matte plastic, ribbed collar, clear cap; the back photo shows the nozzle dot on the back-label side | Best realism refs for dark, cinematic shots. Straightened front crop is in `ads/spraymax/cinematic-12s/product-sheet-v2.jpg` |
 | `bottle-ref-clean.jpg` | Shape, proportions, front label (studio packshots) | Clean front view; best "image 1" for packshots. Also the overlay for proportion QA |
 | `bottle-real-hand-close.jpg` | Bottle held in a hand: grip, scale, real plastic | Real photo, front label, cap on |
 | `pump-side-real.jpg` | The pump head from the side and the ribbed collar | Fixes the "nasal-spray tube" error |
