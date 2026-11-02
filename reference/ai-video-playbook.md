@@ -228,6 +228,30 @@ The "What's bro carrying" format does both: a real phone hook (about 4.4 s) that
 montage on the beat. See `ads/spraymax/bro-carrying/plan.md` and `video/blender/carry_shots.py`. It costs no
 credits. The real-crew test (rule 1) is for photoreal AI shots; stylised 3D is allowed to float.
 
+### Learned from creator studies (`reference/creators/`)
+
+- **Fix the constants once, vary one thing per scene.** A product-truth block plus a global-look block (or
+  @0xROAS's "inherited by all scenes" camera, audio and negatives blocks), then each shot adds only its change.
+- **Each reference image or video gets exactly one job,** stated in words: "Reference Image1 for the product
+  only", "Replicate the … action from @Video1", "keep everything else the same", "match the colour grading of
+  the original video".
+- **Reference sheets: exactly one of anything that must not duplicate** (one face, one front label). Each view
+  is distinct.
+- **"Never render" lists aimed at AI tells:**
+  - mirror floors and reflections of the product;
+  - visible light fixtures;
+  - a halo behind the product;
+  - lens flares;
+  - "the product centred and fully lit in every shot";
+  - captions, text overlays and watermarks.
+- **Hard cuts only in multi-shot generations,** stated as a rule, so the model doesn't morph between shots.
+- **Faceless formats that sell:**
+  - a whiteboard explainer;
+  - a one-action-per-shot hands demo with narrated steps;
+  - an illustrated explainer;
+  - a ritual montage cut on the product action, about 1 s per cut.
+- **Choose the first 3 seconds from many takes.** Budget for regenerations; "$1 per ad" claims leave them out.
+
 ## 7. Vocabulary
 
 **Camera moves** (pick one): push-in, pull back, truck left/right, pan, tilt up/down, crane up, orbit/arc

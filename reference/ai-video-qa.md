@@ -58,10 +58,11 @@ first frame alone misses drift. Score each line **0 / 1 / 2**:
 | 6 | **Temporal stability** | Parts pop in or out, edges breathe, product morphs | A few bad frames outside the usable range | Clean |
 | 7 | **People** | A face visible in the usable range, or broken hands | A face only outside the usable range | Faceless, hands right |
 | 8 | **Real look** | Plastic, CGI, glossy stock look | Grade or sharpness fixable | Reads as real footage |
-| 9 | **Audio** | Contradicts the picture (and we need it) | Usable after cleanup, or will be replaced | Usable as is |
+| 9 | **Audio** | Contradicts the picture (and we need it), or generated speech makes a claim that isn't in the brand file (transcribe it: models ad-lib benefit claims) | Usable after cleanup, or will be replaced | Usable as is |
 
 - **Pass:** no zeros and a total of 14/18 or more. Mark the usable range (e.g. "1.2–3.4 s").
 - **Zero on 1, 4, 6 or 7:** reject the take. Re-prompt after reading the failure, don't just re-roll.
+- **Any generated speech gets transcribed** (Whisper) and checked line by line against the brand file. Models invent claims nobody wrote (@0xROAS's Sora reviews added "gut health, energy, immunity").
 - **Log every failure with a timestamp**, e.g. "bottle swells at 1.8 s under the hand", "mist goes up at 1.1 s".
   The log goes on the shot card and in `ads/<brand>/prompt-log.md`.
 - **Second take only if** the failure has a clear prompt fix. Change one variable per take.

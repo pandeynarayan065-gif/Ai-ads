@@ -14,10 +14,14 @@ How to study a new creator (what worked for X, where profiles and mirrors are bl
 - **Fetch single posts** through Twitter's syndication endpoint:
   `https://cdn.syndication.twimg.com/tweet-result?id=<STATUS_ID>&token=4c2mmul6mnh&lang=en`. The JSON
   holds the text, expanded links, the parent and quoted posts, and mp4 video variants.
-- **Find the post IDs** with web search, then crawl outward through `parent`, `quoted_tweet` and links in
+- **Better route: `https://api.fxtwitter.com/2/status/<ID>`.** It returns the full text of long posts and X Articles
+  (code blocks included), plus views and bookmarks. `https://api.fxtwitter.com/2/conversation/<ID>` returns the
+  replies, where creators often drop the prompt doc link. The syndication endpoint cuts long posts short.
+- **Find the post IDs** with web search ("extended" mode, queries like `<name> on X <topic>`), then crawl outward through `parent`, `quoted_tweet` and links in
   the text.
 - **Export linked Google Docs** as text: `https://docs.google.com/document/d/<ID>/export?format=txt`.
 - **Read every video,** don't just transcribe the prompts:
   - make a contact sheet (a frame every 0.5 s) and a cut list (histogram);
+  - transcribe the speech (faster-whisper) and check it for claims the creator's prompt never asked for;
   - measure the motion per frame with optical flow (that's how we copied the "bro carrying" reel's camera
     moves).
