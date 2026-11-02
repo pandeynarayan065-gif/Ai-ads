@@ -19,36 +19,46 @@
   - Cut before any close-up of the bottle in his hand (a hand moving over the bottle made it swell in the K2
     reveal).
 
-## Shared product half (10–12 s), "Born to stand up"
+## Shared product half v1: macro montage (REJECTED)
 
-**Look:** night, ~80% black, one hard light per shot, cold indigo and ice-blue light, pink Himalayan salt as the
-only warm colour. The references are the Higgsfield Ex Nihilo film (`reference/creators/higgsfield-seedance-ex-nihilo.md`)
-and Armani's water campaigns (night ocean, slow motion).
+Narayan, 2026-11-02: "not what I expect … it needs to be very cinematic". A product-macro montage in a
+black void reads as a product reel, not a film. The macros stay in reserve as inserts.
 
-**Cuts:** hard cuts on the beat, ~1.2–1.5 s each. The cut in comes right after the intro's trigger (the hairs
-rising, or the hand closing on the bottle).
+## Shared product half v2 (10–12 s): "TETHYS", the sea that became a mountain
 
-| # | ~Time | Shot | Make with |
+**Story:** Spraymax's salt is Himalayan sea salt, and the Himalaya rose out of the Tethys sea. Told with no
+text, as cinema. A night ocean **match-cuts** into a Himalayan ridge (the transformation happens in the edit,
+not as a CGI effect), and the bottle stands on the summit when first light hits.
+
+| # | ~Time | Shot | Camera / feel |
 |---|---|---|---|
-| 1 | 0–1.2 | Extreme macro of the pump head in darkness, a hard light sweeping the ribbed collar | Blender |
-| 2 | 1.2–2.5 | The pump fires: a backlit mist burst blooming into a cloud | Blender (approved v4 spray) |
-| 3 | 2.5–3.7 | Hair strands lifting and separating in slow motion as mist lands (echo of the goosebumps) | Veo 3.1 Fast / Seedance, text-to-video, no bottle |
-| 4 | 3.7–4.9 | A night ocean wave curling into fine spray (where the sea salt comes from) | Veo text-to-video |
-| 5 | 4.9–6.1 | A pink salt crystal glowing, frost creeping across it | Veo, or Blender salt |
-| 6 | 6.1–7.5 | The bottle in a black void, an indigo wash rising behind it, slow push-in | Blender |
-| 7 | 7.5–8.7 | Macro along the wordmark | Blender (already rendered) |
-| 8 | 8.7–10 | The bottle on dark snowy rock at night, spindrift blowing past, moonlight rim | Blender |
-| 9 | 10–12 | Packshot + end card (Spraymax · BORN IN HIMACHAL · spraymax.in) | Blender + `end_screen` style card |
+| 1 | 0–1.5 | Deep ocean at night, one shaft of moonlight; rising toward the surface through drifting particles | Slow crane up, sub-bass |
+| 2 | 1.5–3 | A colossal wave rearing in slow motion, moonlit spray tearing off the crest, from the water's surface | Low angle, boom on the beat |
+| 3 | 3–4 | Match cut: the wave crest → a Himalayan snow ridge, spindrift peeling the same way | The "2001" match cut |
+| 4 | 4–5.5 | Drone pull-back: the ridge → a moonlit range under stars, a sea of cloud below | Fast-to-slow, scale reveal |
+| 5 | 5.5–7 | The bottle alone on a summit rock outcrop, tiny in frame, spindrift streaming past | Wide hero, telephoto |
+| 6 | 7–8 | Close-up: frost on the bottle, the pump fires, the mountain wind tears the mist away | Locked off |
+| 7 | 8–9.5 | Hair strands lifting in slow motion against the moonlit snow (pays off the goosebumps) | Macro, rim light, music drops out |
+| 8 | 9.5–10.5 | First light: pink alpenglow (the salt's pink) hits the peaks and the bottle | Swell back in |
+| 9 | 10.5–12 | Hero packshot on the summit rock at dawn → end card BORN IN HIMACHAL · spraymax.in | Slow push-in, last hit |
 
-**Production:** hybrid.
-- **Blender:** every shot with a readable label. Free, and the label is exact.
-- **AI:** only the organic shots that never show the bottle (hair, ocean, frost).
-- **Cost:** ~4 shots × 2 tries × ~$0.33 (Veo 3.1 Fast) ≈ **$3–5**, shared by both ads.
+**Why it works:**
+- Real-crew spectacle (ocean, ridge, drone, alpenglow), no magic objects. The failed zero-g and tethys
+  attempts were literal transformations.
+- It pays off both intros.
+- The pink alpenglow ties the colour to Himalayan salt.
 
-**Alternative:** one Seedance 2.5 generation for all 12 s in the Higgsfield structure, with the label locked in
-post: ~$3 per take at 720p, ~3 takes ≈ **$9**.
+**Production:**
+- Shots 1–4 and 7 (no bottle): Veo 3.1 Fast text-to-video.
+- Shots 5, 6, 8 and 9 (bottle): a still first (Nano Banana Pro with the real bottle refs) → Veo first frame →
+  real label locked in post.
+- Cost: ~$6 for 2 tries of every shot, shared by both ads (~$3 per ad).
+
+**Alternatives offered:**
+- **STORM:** night, volcanic rocks, waves exploding around the unmoving bottle, lightning freezing the spray.
+- **FIRST LIGHT ONLY:** one continuous drone shot up a blizzard ridge to the bottle at dawn.
 
 ## Open decisions (asked 2026-11-02)
 
 1. Is the faceless bus version OK in place of the Tom Holland clip?
-2. Hybrid (~$3–5) or one Seedance generation (~$9)?
+2. Which product half: TETHYS (recommended), STORM, FIRST LIGHT ONLY, or a mix?
