@@ -59,3 +59,5 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
   `brand/<brand>/product-lock.md` word for word for the product.
 - Run `python3 scripts/prompt_lint.py <prompt-file>` before every dry run; no FAILs before spending credits.
 - Score every still and clip with `reference/ai-video-qa.md` and log the verdict in `ads/<brand>/prompt-log.md`.
+- Before writing prompts in a style we've studied, read `reference/creators/` (verbatim prompts from creators and
+  demos, why they work, what to adopt or avoid). Save every new creator study there.
