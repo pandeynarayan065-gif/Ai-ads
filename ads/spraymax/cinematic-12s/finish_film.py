@@ -47,10 +47,16 @@ def cuts(path, fps):
     return [c / fps for c in out], n
 
 
-def end_card_png(path, x=480, y=700, width=540):
-    """White logo + BORN IN HIMACHAL in the packshot's empty right half (like the perfume film's lockup)."""
-    from PIL import ImageFont  # noqa: F401
+def end_card_png(path, x=480, y=700, width=540, scrim=0.0):
+    """White logo + BORN IN HIMACHAL in the packshot's empty space (like the perfume film's lockup). scrim > 0 adds
+    a soft dark fade from the top of the frame so the white type reads over a bright sky or sea."""
     card = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
+    if scrim > 0:
+        yy = np.arange(1920, dtype=np.float32)[:, None]
+        alpha = (scrim * np.clip(1 - yy / (y + 520), 0, 1) ** 1.6 * 255).astype(np.uint8)
+        sc = np.zeros((1920, 1080, 4), np.uint8)
+        sc[..., 3] = np.repeat(alpha, 1080, axis=1)
+        card = Image.fromarray(sc, "RGBA")
     lg = build_animatic.white_logo(width)
     card.alpha_composite(lg, (x, y))
     d = ImageDraw.Draw(card)
@@ -95,7 +101,11 @@ def main():
     import tempfile
     tmp = Path(tempfile.mkdtemp(prefix="finish_")) / out.stem       # intermediates stay out of the repo
     card = Path(str(tmp) + "_endcard.png")
-    end_card_png(card)
+    if "--card" in a:                                        # x,y,width[,scrim] of the lockup
+        v = [float(t) for t in a[a.index("--card") + 1].split(",")]
+        end_card_png(card, int(v[0]), int(v[1]), int(v[2]), v[3] if len(v) > 3 else 0.0)
+    else:
+        end_card_png(card)
     snd = Path(str(tmp) + "_bed.wav")
     mist = [(8.1, 8.8), (9.4, 10.0)]
     sound_bed(snd, dur, cut_times, mist)

@@ -1,0 +1,20 @@
+{
+  "task_id": "32f6b16750100c467cfce11c6351fc23",
+  "request": {
+    "model": "bytedance/seedance-2-5",
+    "input": {
+      "prompt": "Image 1 shows the real Spraymax bottle: a low-light photo of its front, and close-ups of its pump from the side and from the front. Use Image 1 only for the bottle's shape, proportions, plastic, ribbed collar, pump head and clear overcap. Image 2 is the bottle's complete flat label artwork. Use Image 2 only for the label print, wrapped once around the body: its centre panel, with the indigo Spraymax wordmark running top to bottom, the line Instant Hair Volume & Texture and the dark navy ocean-wave band, faces the front. Define the bottle from Image 1 wearing the label from Image 2 as <Subject 1>, always with its clear overcap on.\n\nProduct truth: <Subject 1> is a slim 100 ml bottle about 14 cm tall, about four times as tall as it is wide, roughly the length of a hand, made of milky, slightly grey-white semi-matte plastic with a soft sheen; a matte white, finely ribbed collar; a small matte white pump head; a clear, lightly frosted overcap. It is a sealed, light plastic bottle lying naturally on its side.\n\nA single continuous 4-second shot for a luxury men's hair-spray film at sea, at sunset: the bottle lying naturally on its side on wet sand at the waterline as the foam of a wave washes round it, the low sun and the sea soft and out of focus behind, warm gold light glinting across the wet sand and the foam.\n\nReal photography: filmed on an ARRI Alexa 35 with a 100 mm macro lens on a real beach at sunset, slow motion at 120 frames per second. Real physics: the edge of a wave slides up the wet sand, foam fizzes and pops, the water draws back and the sand glistens. Natural film grain, gentle lens falloff, shallow focus; no beauty smoothing, no plastic sheen, no over-sharpening.\n\nNever render: any face or person; the bottle standing upright as if posed in a studio; the bottle larger than a hand, or not resting on the sand; a warped, bent, melting or resized bottle; the overcap off; liquid leaking from the bottle; misspelled, mirrored or duplicated label text; a visible light fixture; lens flares; any text other than the bottle's own label; captions or watermarks; purple or violet light.\n\n[00:00.0] Low close-up at the waterline, the camera almost at sand level. <Subject 1>, overcap on, lies on its side on smooth wet sand, front label facing up, the wordmark sharp. A wave's thin edge slides in, foam fizzing against the bottle, then draws back, leaving the sand glistening and water beading on the plastic. The camera holds still.\n\nThroughout: <Subject 1> keeps its exact shape, size, label and colours from Images 1 and 2, the label sharp and correctly spelled. Keep it subtitle-free, with no captions and no watermark. No other logos. No music and no voices.",
+      "resolution": "720p",
+      "aspect_ratio": "9:16",
+      "duration": 4,
+      "generate_audio": false,
+      "reference_image_urls": [
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/01-bottle-photos.jpg",
+        "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/02-label-flat.jpg"
+      ]
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/seedance/1793696642870-xc8aqb1u2mr.mp4"
+  ]
+}
