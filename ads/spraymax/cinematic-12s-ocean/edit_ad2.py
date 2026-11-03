@@ -7,6 +7,11 @@ shots ("why did you remove the dark rock shot? add all shots that we have"). v3 
 the seashore insert, each at real speed, cut to fit 12 s at the reference film's pace. No end card (for now).
 
   python3 ads/spraymax/cinematic-12s-ocean/edit_ad2.py <take.mp4> <seashore.mp4> <out.mp4>
+
+Masters (v4): this edit is takes/edit-v4-720.mp4; Topaz on kie failed, so it was upscaled locally, then finished per size:
+  scripts/esrgan_upscale.py takes/edit-v4-720.mp4 esr.mp4 --weights realesr-general-x4v3.pth --size 2160x3840
+  ads/spraymax/cinematic-12s/finish_film.py esr.mp4 fin.mp4 --no-card --size 1080x1920   (and 2160x3840)
+  ffmpeg -i fin.mp4 -an -c:v copy -movflags +faststart spraymax-ocean-12s.mp4               (visuals only, no audio)
 """
 import subprocess
 import sys
