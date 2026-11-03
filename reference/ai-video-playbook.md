@@ -252,6 +252,19 @@ credits. The real-crew test (rule 1) is for photoreal AI shots; stylised 3D is a
   - a ritual montage cut on the product action, about 1 s per cut.
 - **Choose the first 3 seconds from many takes.** Budget for regenerations; "$1 per ad" claims leave them out.
 
+### Blender previz notes (`video/blender/film_shots.py`)
+
+- **Mantaflow is broken in the pip `bpy` build** (`'LevelsetGrid' object has no attribute 'setConst'`). For smoke,
+  advect particles through a curl-noise field in NumPy, then Geometry Nodes Mesh to Points → Points to Volume
+  with a Principled Volume material (`smoke_points()` in F11). Blender 5 has no Point Density node.
+- **Clear water beads render black** when they cast shadows (caustics are off): set `visible_shadow = False` on
+  the beads.
+- **A matte floor still flares under a back light** at a glancing angle: drop its Specular IOR Level.
+- **Render effects alone on black for compositing:** hide everything but the effect from the camera (F15 = F4's
+  mist only), then screen it onto real footage.
+- **Clients judge the bottle from the previz.** Use the real plastic (milky, semi-matte), never coated gloss, and
+  never let a coloured rim tint the white bottle the wrong colour (v1 read purple).
+
 ## 7. Vocabulary
 
 **Camera moves** (pick one): push-in, pull back, truck left/right, pan, tilt up/down, crane up, orbit/arc

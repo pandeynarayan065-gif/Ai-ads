@@ -438,7 +438,8 @@ def smoke_points(R, n_steps=90, per_step=1100, seed=3):
 def F11(sc):
     """Smoke: cold smoke rolls in from the left along the floor and curls round the base of the capped bottle."""
     cs.cyc(BLACK, -0.3, 0.5, glow=((4, 24, 70), 0.04, 0.12, 0.14))
-    matte_floor((2, 2, 4), rough=0.9)
+    fl = matte_floor((2, 2, 4), rough=0.9)
+    fl.data.materials[0].node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.03  # no back-light sheen
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
@@ -529,6 +530,15 @@ def F14(sc):
     pos, tgt = Vector((-0.03, -0.5, 0.075)), (0.0, 0.12, 0.09)
     cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((-0.05, -0.02, 0.08))))
 
+
+
+def F15(sc):
+    """F4's mist alone on pure black (bottle and backdrop hidden from the camera), for compositing the POV preview."""
+    F4(sc)
+    for ob in bpy.data.objects:
+        if ob.type == "MESH" and not ob.name.startswith("Mist"):
+            ob.visible_camera = False
+    bpy.context.scene.world.node_tree.nodes["Background"].inputs[0].default_value = (0, 0, 0, 1)
 
 SHOTS = {k: v for k, v in globals().items() if re.fullmatch(r"F\d+", k) and callable(v)}
 
