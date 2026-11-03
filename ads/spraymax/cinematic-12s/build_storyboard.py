@@ -13,8 +13,8 @@ Inputs:
   prompt-seedance-12s.md         the one Seedance 2.5 prompt (lint: --kind seedance --faceless)
   product-sheet-v2.jpg           real photos of the bottle + the flat label (Image 1)
 Outputs:
-  frames/F*.jpg                  1080x1920 JPEGs
-  refs/01-product-sheet.jpg, refs/02-layout-F1.jpg ...   Seedance references (Images 1..11), <= 720x1280 JPEG
+  frames/F*.jpg                  1080x1920 JPEGs (F9 with the end card)
+  refs/01-product-sheet.jpg, refs/02-layout-F1.jpg ...   Seedance references (Images 1..16), <= 720x1280 JPEG
   shots/<nn>-<slug>.md           one shot card per shot
   storyboard.html / storyboard.pdf
 
@@ -38,35 +38,52 @@ RATE = {"480p": 28, "720p": 63, "1080p": 158}
 BALANCE = 2037
 LEN = 12
 
+# v3 (2026-11-03): the Higgsfield perfume film's grammar, shot for shot, in Spraymax's world (Narayan: "there's no
+# shots and motions like the ones in the blue perfume shot"). 15 hard cuts in 12 s; t in seconds.
 SHOTS = [
-    dict(id="F1", slug="collar", t=(0, 1), title="The collar", kind="Macro",
-         line="A hard white light sweeps across the ribbed collar, one rib at a time."),
-    dict(id="F10", slug="splash", t=(1, 2), title="The splash", kind="Elemental",
-         line="Dark sea water erupts in a crown round the bottle, droplets flying in slow motion."),
-    dict(id="F3", slug="salt", t=(2, 3), title="Himalayan salt", kind="Ingredient",
-         line="Pink Himalayan salt tumbles through one cold beam of light."),
-    dict(id="F11", slug="smoke", t=(3, 4), title="The smoke", kind="Elemental",
-         line="Cold smoke rolls in and curls round the bottle as the camera pushes in."),
-    dict(id="F12", slug="pov-spray", t=(4, 6), title="In your hand", kind="POV · use",
+    dict(id="F1", slug="collar-sweep", t=(0.0, 1.2), title="Light on the ribs", kind="Macro · push-in",
+         line="A hard white light sweeps round the ribbed collar, lighting it rib by rib."),
+    dict(id="F16", slug="salt-mist", t=(1.2, 1.8), title="Salt in sea mist", kind="Ingredient · drift",
+         line="Two raw pink salt chunks meet as a fine sea mist drifts across them."),
+    dict(id="F17", slug="aloe", t=(1.8, 2.4), title="Aloe vera", kind="Ingredient · drift",
+         line="An aloe rosette from above, its leaf edges catching cold light."),
+    dict(id="F18", slug="rise", t=(2.4, 3.0), title="Out of the aloe", kind="Product reveal · push-in",
+         line="The pump and ribbed collar rise out of the heart of the aloe."),
+    dict(id="F19", slug="smoke", t=(3.0, 3.7), title="Cold smoke", kind="Smoke · drift",
+         line="A slow curl of silvery-blue smoke; the camera drifts through it."),
+    dict(id="F6", slug="bloom", t=(3.7, 4.8), title="Blue bloom", kind="Hero · push-in",
+         line="The bottle in the dark as a deep blue glow rises behind it."),
+    dict(id="F20", slug="wave-band", t=(4.8, 5.6), title="The wave band", kind="Macro · push-in",
+         line="Macro on the ocean-wave band at the base of the label."),
+    dict(id="F21", slug="drop", t=(5.6, 6.2), title="A drop runs", kind="Macro · water",
+         line="One bead of sea water runs down the bottle, back-lit ice blue."),
+    dict(id="F22", slug="rack", t=(6.2, 6.8), title="The rack", kind="Abstract · fast track",
+         line="The camera whips across the ribs: streaks of black and blue-white."),
+    dict(id="F2", slug="silhouette", t=(6.8, 7.4), title="Silhouette", kind="Product · rise",
+         line="The bottle in near-silhouette, one silver line down its edge."),
+    dict(id="F23", slug="lineup", t=(7.4, 8.1), title="Five bottles", kind="Multi-pack · drift",
+         line="Five bottles shoulder to shoulder, cold light burning through the gaps."),
+    dict(id="F12", slug="pov-spray", t=(8.1, 8.8), title="In your hand", kind="POV · use",
          line="First person: one press, and a fine mist drifts onto your open palm.",
          note="Preview: your test video plus a 3D mist. In the film, the other hand's open palm catches the mist"),
-    dict(id="F4", slug="mist", t=(6, 7), title="The mist", kind="Macro",
-         line="The mist bursts out of the nozzle, backlit ice blue. Mist, never liquid."),
-    dict(id="F13", slug="beads", t=(7, 8), title="Sea-water beads", kind="Macro",
-         line="Beads of sea water on the label; one runs down over the wordmark."),
-    dict(id="F5", slug="ocean", t=(8, 9), title="The sea", kind="Elemental",
-         line="A night swell rises toward the lens under a cold moon."),
-    dict(id="F14", slug="lineup", t=(9, 10), title="The lineup", kind="Multi-pack",
-         line="Five bottles step back into the dark, rim-lit, the front one sharp."),
-    dict(id="F9", slug="packshot", t=(10, 12), title="Packshot", kind="End card",
-         line="The bottle on deep blue, a long shadow, then the logo and BORN IN HIMACHAL."),
+    dict(id="F10", slug="splash", t=(8.8, 9.4), title="The splash", kind="Elemental · slow motion",
+         line="Dark sea water erupts in a crown round the bottle."),
+    dict(id="F4", slug="mist", t=(9.4, 10.0), title="The mist", kind="Macro · slow motion",
+         line="The mist bursts out of the side nozzle, backlit ice blue."),
+    dict(id="F9", slug="packshot", t=(10.0, 12.0), title="Packshot", kind="End card",
+         line="The bottle on deep blue, a long shadow, the logo and BORN IN HIMACHAL."),
 ]
 
 
 def shot_prompts():
     """The prompt line for each shot, keyed by its start second."""
     text = PROMPT.read_text()
-    return {int(m.group(1)): m.group(3) for m in re.finditer(r"^(\d+)-(\d+) seconds: (.+)$", text, re.M)}
+    return {round(int(m.group(1)) * 60 + float(m.group(2)), 1): m.group(3)
+            for m in re.finditer(r"^\[(\d+):(\d+\.\d)\] (.+)$", text, re.M)}
+
+
+def tc(x):
+    return f"0:{x:04.1f}"
 
 
 def prep_images(frames):
@@ -77,6 +94,9 @@ def prep_images(frames):
         src = Path(frames) / f"{s['id']}.png"
         im = Image.open(src).convert("RGB")
         assert im.size == (1080, 1920), (src, im.size)
+        if s["id"] == "F9":                                    # show the end card the edit will add
+            import build_animatic
+            im = build_animatic.end_card(im, 51, 51)
         im.save(HERE / "frames" / f"{s['id']}.jpg", quality=90, subsampling=0)
     # Seedance refs: no bigger than the output (720x1280) in pixel count, standard 4:2:0 JPEG
     sheet = Image.open(SHEET).convert("RGB")
@@ -97,7 +117,7 @@ def write_cards(lines):
 
 Part of one Seedance 2.5 multi-shot generation (`prompt-seedance-12s.md`). Rules: `reference/ai-video-playbook.md`.
 
-- **On screen:** {b - a} s, {a}–{b} s
+- **On screen:** {b - a:.1f} s, {a:.1f}–{b:.1f} s
 - **The shot:** {s['line']}
 - **Layout frame:** `frames/{s['id']}.jpg`, sent as Image {n + 1}{' (' + s['note'] + ')' if s.get('note') else ''}
 - **Product truth:** Image 1, `refs/01-product-sheet.jpg` (real photos)
@@ -109,8 +129,8 @@ Part of one Seedance 2.5 multi-shot generation (`prompt-seedance-12s.md`). Rules
 
 ## Pass criteria
 
-1. One camera move at most; a hard cut at {b} s, no morph into the next shot
-2. {'Mist only: airborne droplets, no stream, no drips' if s['id'] in ('F4', 'F12') else 'Bottle proportions, milky matte plastic and label match the real bottle' if s['id'] not in ('F3', 'F5') else 'Reads as real footage, not 3D'}
+1. One camera move at most; a hard cut at {b:.1f} s, no morph into the next shot
+2. {'Mist only: airborne droplets, no stream, no drips' if s['id'] in ('F4', 'F12') else 'Reads as real footage, not 3D' if s['id'] in ('F16', 'F17', 'F19') else 'Bottle proportions, milky matte plastic and label match the real bottle'}
 3. Blue light, never purple; no light fixtures, no glossy studio floor, no text other than the label
 
 ## Takes
@@ -141,7 +161,7 @@ html, body { margin: 0; background: var(--bg); color: var(--ink);
 .cover h1 { font-family: "Instrument Serif", "Liberation Serif", serif; font-weight: 400; font-size: 25pt; line-height: 1;
   margin: 2mm 0 2mm; }
 .eyebrow { font-size: 6.5pt; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
-.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.6mm; margin-top: 5mm; }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.4mm; margin-top: 4mm; }
 .grid figure { margin: 0; }
 .grid img { width: 100%; aspect-ratio: 9/16; object-fit: cover; display: block; border-radius: .8mm; }
 .grid figcaption { font-size: 5.2pt; color: var(--dim); margin-top: .8mm; line-height: 1.25; }
@@ -160,17 +180,18 @@ def esc(s):
 
 
 def build_html():
-    grid = "".join(f'<figure><img src="frames/{s["id"]}.jpg"><figcaption><b>0:{s["t"][0]:02d}</b> {esc(s["title"])}'
+    grid = "".join(f'<figure><img src="frames/{s["id"]}.jpg"><figcaption><b>{tc(s["t"][0])}</b> {esc(s["title"])}'
                    f'</figcaption></figure>' for s in SHOTS)
     pages = [f"""
 <section class="page cover">
-  <div class="eyebrow">Spraymax · 12 s film · storyboard v2</div>
-  <h1>Ten shots.<br>Cold blue light.</h1>
-  <p class="lead">3D previews of each shot, with the real bottle and label. The film itself is made with Seedance 2.5
-  from your real bottle photos, so it will look like real footage, not 3D.</p>
+  <div class="eyebrow">Spraymax · 12 s film · storyboard v3</div>
+  <h1>Fifteen cuts.<br>Cold blue light.</h1>
+  <p class="lead">Built on the perfume film you sent, shot for shot, in Spraymax's world: the light sweep, the
+  ingredient macros, the product rising out of an ingredient, the fast rack, light through the gaps, the packshot.
+  Watch the 12 s 3D animatic sent with this PDF to see the camera moves.</p>
   <div class="grid">{grid}</div>
-  <p class="lead" style="margin-top:5mm;color:var(--dim)">Macro · water splash · salt · smoke · first-person spray
-  · beads · night sea · five-bottle lineup · packshot. Vertical 9:16, 1080&times;1920, 12 seconds.</p>
+  <p class="lead" style="margin-top:4mm;color:var(--dim)">3D previews with the real bottle and label. The film is made
+  with Seedance 2.5 from your real bottle photos, so it will look like real footage. 9:16, 1080&times;1920, 12 s.</p>
 </section>"""]
     for n, s in enumerate(SHOTS, 1):
         a, b = s["t"]
@@ -179,7 +200,7 @@ def build_html():
 <section class="page">
   <img class="frame" src="frames/{s['id']}.jpg">
   <div class="cap">
-    <div class="row"><span class="num">{n:02d}/10</span><span class="tc">0:{a:02d}–0:{b:02d}</span>
+    <div class="row"><span class="num">{n:02d}/{len(SHOTS)}</span><span class="tc">{tc(a)}–{tc(b)}</span>
       <span class="kind">{esc(s['kind'])}</span></div>
     <div class="title">{esc(s['title'])}</div>
     <div class="line">{esc(s['line'])}</div>{note}
@@ -203,7 +224,7 @@ def build_html():
 </section>""")
     fonts = ('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Instrument+Serif'
              '&display=swap" rel="stylesheet">')
-    return (f'<!doctype html><html><head><meta charset="utf-8"><title>Spraymax storyboard v2</title>{fonts}'
+    return (f'<!doctype html><html><head><meta charset="utf-8"><title>Spraymax storyboard v3</title>{fonts}'
             f'<style>{CSS}</style></head><body>{"".join(pages)}</body></html>')
 
 

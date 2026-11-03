@@ -17,7 +17,7 @@ Veo 3.1 animates; the organic shots (salt, ocean, vapour) are previz for Veo tex
   F8 wordmark  macro down the indigo wordmark, cold light grazing the label
   F9 packshot  wide: the bottle left of centre on a matte indigo surface, a long hard shadow, dark sky for type
 
-  python video/blender/film_shots.py --shot F1 --out frame.png [--samples 48] [--res-scale 100]
+  python video/blender/film_shots.py --shot F1 --out frame.png [--samples 48] [--res-scale 100] [--t 0..1]
 """
 import math
 import random
@@ -103,7 +103,13 @@ def F1(sc):
     cs.cyc(BLACK, -0.1, 0.4, glow=((6, 32, 95), 0.03, 0.15, 0.07))
     piv, root, R = bottle(cap=False)
     white_bottle()
-    cs.strip("Graze", (0.09, -0.045, 0.126), (0, 0, 0.124), 0.10, 0.003, 0.16, SILVER)  # skims the ribs from the right
+    graze = cs.strip("Graze", (0.09, -0.045, 0.126), (0, 0, 0.124), 0.10, 0.003, 0.16, SILVER)  # skims the ribs
+
+    def sweep(t):                                            # the light travels round from the right, lighting rib after rib
+        a_ = math.radians(25 - 80 * t)                   # from behind (dark) round to the front: ribs ignite one by one
+        graze.location = (0.1 * math.cos(a_), 0.1 * math.sin(a_), 0.126)
+        k2.aim(graze, (0, 0, 0.124))
+    ANIM["sweep"] = sweep
     cs.strip("Rim", (-0.06, 0.10, 0.15), (0, 0, 0.14), 0.2, 0.01, 0.08, INDIGO)
     cam = cs.cam_make(100, 32)
     pos, tgt = Vector((-0.003, -0.13, 0.133)), (-0.003, 0, 0.132)
@@ -198,6 +204,7 @@ def F4(sc):
     pos, tgt = Vector((0.024, -0.40, 0.142)), (0.024, 0, 0.142)
     cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0.01, -r(160), 0.15))))
     mist(11)                                                # 8 frames after the press: the plume blooming
+    ANIM["mist"] = lambda t: mist(4 + int(round(10 * t)))
 
 
 def F5(sc):
@@ -559,6 +566,258 @@ def F15(sc):
             ob.visible_camera = False
     bpy.context.scene.world.node_tree.nodes["Background"].inputs[0].default_value = (0, 0, 0, 1)
 
+
+# ---------------------------------------------------------------- v3: the perfume film's shot grammar
+# Per-frame hooks for the animatic (film_anim.py): ANIM[name](t) with t = 0..1 across the shot.
+ANIM = {}
+
+
+def aloe_mat():
+    m = principled("Aloe", (0.10, 0.26, 0.15), rough=0.38, sss=0.35)
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    b.inputs["Subsurface Radius"].default_value = (0.4, 1.0, 0.5)
+    b.inputs["Subsurface Scale"].default_value = 0.004
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    spots = nt.nodes.new("ShaderNodeTexVoronoi")          # the pale speckles on aloe leaves
+    spots.inputs["Scale"].default_value = 160.0
+    nt.links.new(tc.outputs["Object"], spots.inputs["Vector"])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.0
+    ramp.color_ramp.elements[0].color = (0.55, 0.66, 0.55, 1)
+    ramp.color_ramp.elements[1].position = 0.12
+    ramp.color_ramp.elements[1].color = (0.10, 0.26, 0.15, 1)
+    nt.links.new(spots.outputs["Distance"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], b.inputs["Base Color"])
+    return m
+
+
+def aloe_rosette(scale=1.0, seed=2, elevs=(28, 50)):
+    """An aloe vera rosette: thick, pointed, upward-curving leaves in two rings."""
+    m = aloe_mat()
+    rnd = random.Random(seed)
+    leaves = []
+    for ring, (n, L, W, elev) in enumerate(((7, 0.075, 0.016, elevs[0]), (6, 0.055, 0.013, elevs[1]))):
+        for k in range(n):
+            lf = cs.petal(f"Leaf{ring}_{k}", L * scale * rnd.uniform(0.9, 1.1), W * scale, 0.35, 0.18, m, seed + k + ring * 10)
+            lf.modifiers["Solid"].thickness = 0.004 * scale
+            lf.rotation_euler = (math.radians(elev + rnd.uniform(-5, 5)), 0,
+                                 2 * math.pi * (k + 0.5 * ring) / n + rnd.uniform(-0.1, 0.1))
+            leaves.append(lf)
+    return leaves
+
+
+def black_ground(z=0.0, rgb=(6, 7, 10)):
+    """A purely diffuse dark ground (no grazing glare); hides anything below it."""
+    bpy.ops.mesh.primitive_plane_add(size=6, location=(0, 0, z))
+    g = bpy.context.object
+    m = bpy.data.materials.new("Ground")
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    d = nt.nodes.new("ShaderNodeBsdfDiffuse")
+    d.inputs["Color"].default_value = (*cs.srgb(rgb), 1)
+    nt.links.new(d.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    g.data.materials.append(m)
+    return g
+
+
+def F16(sc):
+    """Ingredient: two raw pink salt chunks meeting, a fine sea mist drifting over them, a bright blue backdrop."""
+    cs.cyc([(0, (4, 30, 90)), (0.6, (10, 70, 170)), (1, (6, 40, 120))], -0.1, 0.3)
+    m = cs.salt_mat(0.05)
+    a = cs.crystal_mesh("SaltA", 0.011, m, seed=41)
+    a.location = (-0.009, 0.0, 0.0)
+    a.rotation_euler = (0.4, 0.2, 0.6)
+    b = cs.crystal_mesh("SaltB", 0.014, m, seed=44)
+    b.location = (0.011, 0.006, -0.002)
+    b.rotation_euler = (0.1, 0.7, 2.0)
+    mm = bpy.data.materials.new("SeaMist")
+    mm.use_nodes = True
+    mb = mm.node_tree.nodes["Principled BSDF"]
+    mb.inputs["Base Color"].default_value = (0.9, 0.95, 1.0, 1)
+    mb.inputs["Alpha"].default_value = 0.25
+    ob = k2.points_mesh("Mist", mm)
+    rng = np.random.default_rng(5)
+    n = 30000
+    pts = np.column_stack([rng.uniform(-0.06, 0.06, n), rng.normal(0.02, 0.02, n), rng.normal(0.035, 0.012, n)])
+    k2.set_points(ob, pts.astype(np.float32), (0.00006 * np.exp(rng.normal(0, 0.5, n))).astype(np.float32))
+    key = area_light("Key", (-0.15, -0.12, 0.2), (0, 0, 0), 0.08, 1.2, SILVER)
+    k2.aim(key, (0, 0, 0.0))
+    back = area_light("Back", (0.05, 0.25, 0.08), (0, 0, 0), 0.08, 3.0, ICE)
+    k2.aim(back, (0, 0, 0.02))
+    cam = cs.cam_make(100, 8.0)
+    pos, tgt = Vector((0.0, -0.19, 0.016)), (0.002, 0, 0.012)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -0.01, 0.008))))
+
+
+def F17(sc):
+    """Ingredient: an aloe vera rosette from above, centred in black, back-lit so the leaf edges glow."""
+    black_ground(-0.002)
+    bpy.context.scene.world.node_tree.nodes["Background"].inputs[0].default_value = (0, 0, 0, 1)
+    aloe_rosette()
+    for k, (ang, e) in enumerate(((30, 2.5), (150, 1.8), (270, 2.2))):
+        a_ = math.radians(ang)
+        rim = area_light(f"Rim{k}", (0.22 * math.cos(a_), 0.22 * math.sin(a_), 0.04), (0, 0, 0), 0.06, e, ICE)
+        k2.aim(rim, (0, 0, 0.02))
+    key = area_light("Key", (-0.15, -0.1, 0.35), (0, 0, 0), 0.1, 0.6, SILVER)
+    k2.aim(key, (0, 0, 0.02))
+    cam = cs.cam_make(50, 5.6)
+    pos, tgt = Vector((0.0, -0.05, 0.42)), (0.0, 0.0, 0.02)
+    cs.look(cam, pos, tgt, focus=(Vector(tgt) - pos).length)
+
+
+def F18(sc):
+    """Product in the ingredient: the pump and ribbed collar rise out of the heart of the aloe rosette."""
+    cs.cyc(BLACK, -0.3, 0.4, glow=((4, 22, 70), 0.0, 0.08, 0.12))
+    black_ground(0.0)
+    aloe_rosette(scale=1.3, elevs=(12, 26))                  # opened wide, like the blossom round the cap
+    piv, root, R = bottle(cap=False)
+    white_bottle()
+
+    def rise(t):
+        piv.location = (0, 0, cs.MID - 0.125 + 0.024 * k2.ease(t))   # collar and pump rise out of the heart
+    rise(0.0)
+    ANIM["rise"] = rise
+    back = area_light("Back", (0.0, 0.25, 0.12), (0, 0, 0), 0.2, 3.5, ICE)
+    k2.aim(back, (0, 0, 0.03))
+    back.visible_glossy = False
+    kick = area_light("Kick", (-0.18, -0.2, 0.08), (0, 0, 0), 0.05, 0.9, SILVER)
+    k2.aim(kick, (0, 0, 0.035))
+    cam = cs.cam_make(85, 5.6)
+    pos, tgt = Vector((0.0, -0.33, 0.14)), (0.0, 0, 0.035)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -0.01, 0.035))))
+
+
+def F19(sc):
+    """Smoke on its own: a slow cold curl of smoke in black space, lit from one side."""
+    cs.cyc(BLACK, -0.3, 0.5)
+    pts = smoke_points(0.0005, n_steps=110, per_step=1300, seed=9)
+    me = bpy.data.meshes.new("SmokePts")
+    me.from_pydata(pts.tolist(), [], [])
+    src = bpy.data.objects.new("SmokePts", me)
+    bpy.context.collection.objects.link(src)
+    m = bpy.data.materials.new("Smoke")
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    pv = nt.nodes.new("ShaderNodeVolumePrincipled")
+    pv.inputs["Color"].default_value = (0.75, 0.85, 1.0, 1)
+    pv.inputs["Anisotropy"].default_value = 0.3
+    pv.inputs["Density"].default_value = 3.0
+    nt.links.new(pv.outputs["Volume"], nt.nodes["Material Output"].inputs["Volume"])
+    ng = bpy.data.node_groups.new("SmokeVolume", "GeometryNodeTree")
+    ng.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
+    ng.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
+    gi, go = ng.nodes.new("NodeGroupInput"), ng.nodes.new("NodeGroupOutput")
+    m2p = ng.nodes.new("GeometryNodeMeshToPoints")
+    p2v = ng.nodes.new("GeometryNodePointsToVolume")
+    if "Voxel Size" in p2v.inputs:
+        p2v.inputs["Voxel Size"].default_value = 0.0015
+    p2v.inputs["Radius"].default_value = 0.003
+    smat = ng.nodes.new("GeometryNodeSetMaterial")
+    smat.inputs["Material"].default_value = m
+    ng.links.new(gi.outputs[0], m2p.inputs["Mesh"])
+    ng.links.new(m2p.outputs["Points"], p2v.inputs["Points"])
+    ng.links.new(p2v.outputs["Volume"], smat.inputs["Geometry"])
+    ng.links.new(smat.outputs["Geometry"], go.inputs[0])
+    src.modifiers.new("Smoke", "NODES").node_group = ng
+    spot("Side", (-0.45, -0.05, 0.12), (0.0, 0.0, 0.05), 320, ICE, size_deg=40, soft=0.02)
+    spot("Back", (0.3, 0.5, 0.2), (0.0, 0.0, 0.05), 120, ICE, size_deg=40, soft=0.02)
+    cam = cs.cam_make(50, 16.0)
+    pos, tgt = Vector((0.03, -0.42, 0.06)), (0.03, 0, 0.05)
+    cs.look(cam, pos, tgt, focus=0.42)
+
+
+def F20(sc):
+    """Macro on the base of the label: the ocean-wave band and FOR ALL HAIR TYPES, a cold light grazing it."""
+    cs.cyc(BLACK, -0.2, 0.4)
+    piv, root, R = bottle(cap=True)
+    white_bottle()
+    nozzle_to_back(root)
+    cs.strip("Graze", (0.12, -0.04, 0.03), (0, 0, 0.02), 0.2, 0.006, 0.5, ICE)
+    cs.strip("Top", (-0.05, -0.08, 0.1), (0, 0, 0.02), 0.12, 0.02, 0.12, SILVER)
+    cam = cs.cam_make(100, 5.6)
+    a = math.radians(12)
+    pos = Vector((0.13 * math.sin(a), -0.13 * math.cos(a), 0.022))
+    tgt = (0.0, -R * 0.6, 0.019)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -R, 0.019))))
+
+
+def F21(sc):
+    """Macro: one bead of sea water runs diagonally down the bottle's shoulder, back-lit ice blue."""
+    cs.cyc(BLACK, -0.2, 0.4, glow=((4, 22, 70), 0.05, 0.12, 0.08))
+    piv, root, R = bottle(cap=True)
+    white_bottle()
+    nozzle_to_back(root)
+    wm = cs.water_mat("Drop", 1.33)
+    def on_body(u, off):
+        th = math.radians(-104 + 20 * u)
+        return Vector(((R + off) * math.cos(th), (R + off) * math.sin(th), 0.094 - 0.014 * u))
+    drop = cs.spheres("Drop", wm, [(0, 0, 0)], [0.0022], sub=3)
+    drop.scale = (0.85, 0.5, 1.3)
+    drop.visible_shadow = False
+    trail = cs.spheres("Trail", wm, [tuple(on_body(u, 0.0001)) for u in np.linspace(0.0, 0.45, 22)],
+                       [0.00045] * 22, sub=2)
+    trail.visible_shadow = False
+
+    def run(t):
+        u = 0.48 + 0.4 * t
+        drop.location = on_body(u, 0.0010)
+        d = (on_body(u + 0.01, 0) - on_body(u, 0)).normalized()
+        drop.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
+    run(0.0)
+    ANIM["drop"] = run
+    back = area_light("Back", (0.08, 0.2, 0.18), (0, 0, 0), 0.06, 1.0, ICE)
+    k2.aim(back, (0, 0, 0.1))
+    cs.strip("Graze", (0.14, -0.05, 0.12), (0, 0, 0.1), 0.2, 0.006, 0.12, SILVER)
+    glint = area_light("Glint", (-0.06, -0.14, 0.14), (0, 0, 0), 0.02, 0.25, SILVER)  # catchlight in the bead
+    k2.aim(glint, (0, 0, 0.09))
+    cam = cs.cam_make(100, 5.6)
+    pos, tgt = Vector((-0.008, -0.13, 0.092)), (-0.003, 0, 0.088)
+    cs.look(cam, pos, tgt, roll=-12, focus=cs.focus_on(pos, tgt, Vector((-0.004, -R, 0.088))))
+
+
+def F22(sc):
+    """Abstract: the camera racks fast across the collar's ribs, vertical bands of black and burning blue-white."""
+    cs.cyc(BLACK, -0.2, 0.4)
+    piv, root, R = bottle(cap=False)
+    white_bottle()
+    back = area_light("Back", (0.0, 0.12, 0.122), (0, 0, 0), 0.03, 1.6, ICE)
+    k2.aim(back, (0, 0, 0.122))
+    cs.strip("Side", (0.08, -0.02, 0.122), (0, 0, 0.122), 0.05, 0.002, 0.5, SILVER)
+    cam = cs.cam_make(100, 4.0)
+    cam.data.clip_start = 0.002                              # default 0.1 m would clip everything at 5 cm
+    rc = 0.0115 * SLIM                                       # collar radius
+    d = 0.06
+
+    def orbit(t):
+        ang = math.radians(-100 + 40 * t)                  # sweep round the collar: a fast lateral rack
+        pos = Vector((d * math.cos(ang), d * math.sin(ang), 0.122))
+        cs.look(cam, pos, (0, 0, 0.122), focus=d - rc)
+    orbit(0.0)
+    ANIM["orbit"] = orbit
+    sc.render.use_motion_blur = True
+    sc.render.motion_blur_shutter = 0.6
+
+
+def F23(sc):
+    """Multi-pack: five bottles shoulder to shoulder in silhouette, cold light burning through the gaps."""
+    cs.cyc([(0, (1, 3, 10)), (0.45, (60, 150, 255)), (0.62, (30, 90, 200)), (1, (1, 3, 10))], -0.02, 0.22,
+           strength=1.2)
+    for k in range(5):
+        piv, root, R = bottle(cap=True)
+        nozzle_to_back(root)
+        piv.location = ((k - 2) * (2 * R + 0.004), 0, cs.MID)
+    bottle_materials()
+    wall = area_light("Wall", (0.0, 0.12, 0.08), (0, 0, 0), 0.5, 3, ICE, size_y=0.25)
+    k2.aim(wall, (0, -0.2, 0.08))
+    edge = area_light("Edge", (0.0, -0.25, 0.3), (0, 0, 0), 0.4, 0.15, SILVER)
+    k2.aim(edge, (0, 0, 0.08))
+    cam = cs.cam_make(85, 4.0)
+    pos, tgt = Vector((-0.022, -0.42, 0.085)), (-0.022, 0, 0.085)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -R, 0.085))))
+
 SHOTS = {k: v for k, v in globals().items() if re.fullmatch(r"F\d+", k) and callable(v)}
 
 
@@ -570,6 +829,10 @@ def main():
     res = int(a[a.index("--res-scale") + 1]) if "--res-scale" in a else 100
     sc = cs.setup(samples, res)
     SHOTS[shot](sc)
+    if "--t" in a:                                           # pose the shot's hooks at a moment (0..1) for a still
+        t = float(a[a.index("--t") + 1])
+        for name, fn in ANIM.items():
+            fn(t)
     for ob in bpy.data.objects:
         if ob.type == "LIGHT":
             ob.visible_camera = False
