@@ -95,6 +95,8 @@ def main():
     a = sys.argv[1:]
     take, out = Path(a[0]), Path(a[1])
     end_at = float(a[a.index("--end-at") + 1]) if "--end-at" in a else 10.0
+    card_at = float(a[a.index("--card-at") + 1]) if "--card-at" in a else end_at + 0.5
+    fade = float(a[a.index("--fade") + 1]) if "--fade" in a else 0.5
     w, h, fps, dur = probe(take)
     cut_times, n = cuts(take, fps)
     print(f"take {w}x{h} {fps:.2f} fps {dur:.2f} s, {len(cut_times)} cuts:", [round(c, 2) for c in cut_times])
@@ -115,11 +117,13 @@ def main():
     grain = 3 if upscaled else 5
     if (ow, oh) != (1080, 1920):
         Image.open(card).resize((ow, oh), Image.LANCZOS).save(card)
+    if "--no-card" in a:                                     # no end card: an invisible overlay
+        Image.new("RGBA", (ow, oh), (0, 0, 0, 0)).save(card)
     vf = (f"[0:v]scale={ow}:{oh}:flags=lanczos,{sharpen}"
           "curves=all='0/0 0.25/0.22 0.75/0.78 1/1',colorbalance=bs=0.02:bm=0.01,"
           f"noise=alls={grain}:allf=t+u,format=yuv420p[v];"
-          f"[1:v]format=rgba,fade=in:st={end_at + 0.5}:d=0.5:alpha=1[c];"
-          f"[v][c]overlay=0:0:enable='gte(t,{end_at + 0.5})'[o]")
+          f"[1:v]format=rgba,fade=in:st={card_at}:d={fade}:alpha=1[c];"
+          f"[v][c]overlay=0:0:enable='gte(t,{card_at})'[o]")
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(take), "-loop", "1", "-t", f"{dur}", "-i", str(card),
                     "-i", str(snd), "-filter_complex", vf, "-map", "[o]", "-map", "2:a", "-c:v", "libx264", "-crf", "16",
                     "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
