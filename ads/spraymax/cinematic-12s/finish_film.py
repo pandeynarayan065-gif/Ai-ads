@@ -47,15 +47,19 @@ def cuts(path, fps):
     return [c / fps for c in out], n
 
 
-def end_card_png(path):
-    img = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
-    lay = build_animatic.end_card(Image.new("RGB", (1080, 1920), (0, 0, 0)), 51, 51)   # draws on black
-    a = np.asarray(lay).astype(np.float32).max(2)                                     # its brightness = coverage
-    rgba = np.zeros((1920, 1080, 4), np.uint8)
-    rgba[..., :3] = np.asarray(lay)
-    rgba[..., 3] = np.clip(a * 1.15, 0, 255).astype(np.uint8)
-    Image.fromarray(rgba, "RGBA").save(path)
-    return img
+def end_card_png(path, x=480, y=700, width=540):
+    """White logo + BORN IN HIMACHAL in the packshot's empty right half (like the perfume film's lockup)."""
+    from PIL import ImageFont  # noqa: F401
+    card = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
+    lg = build_animatic.white_logo(width)
+    card.alpha_composite(lg, (x, y))
+    d = ImageDraw.Draw(card)
+    f = build_animatic.font(30)
+    txt = "B O R N   I N   H I M A C H A L"
+    tw = d.textlength(txt, font=f)
+    d.text((x + (lg.width - tw) / 2, y + lg.height + 34), txt, font=f, fill=(200, 215, 240, 225))
+    card.save(path)
+    return card
 
 
 def sound_bed(path, dur, cut_times, mist_spans):
@@ -88,7 +92,8 @@ def main():
     w, h, fps, dur = probe(take)
     cut_times, n = cuts(take, fps)
     print(f"take {w}x{h} {fps:.2f} fps {dur:.2f} s, {len(cut_times)} cuts:", [round(c, 2) for c in cut_times])
-    tmp = out.with_suffix("")
+    import tempfile
+    tmp = Path(tempfile.mkdtemp(prefix="finish_")) / out.stem       # intermediates stay out of the repo
     card = Path(str(tmp) + "_endcard.png")
     end_card_png(card)
     snd = Path(str(tmp) + "_bed.wav")
