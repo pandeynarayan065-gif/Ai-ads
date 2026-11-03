@@ -7,6 +7,10 @@ and never reword it between shots. Image-to-video prompts don't use it: there th
 
 - 100 ml. About 14 cm tall including the pump, about 3.8 cm wide. [VERIFY: measure. `himalayan-launch/poster-plan.md`
   used 15.5 cm.] In a hand it is about as long as the hand from the base of the palm to the fingertips.
+- **Measured proportions (Narayan's photos, 2026-11-03):** cap top to base = 4.13-4.22x the body width. Body
+  straight up to 0.64 of the height, shoulder 0.64-0.70, narrow neck 0.71-0.735, collar 0.735-0.84 (0.60 of the
+  body width), cap above (0.39-0.44 of the body width). The printed wave band is 0.54x the body width tall.
+  `bottle-blank.png` (the old 3D source) is ~5% too wide; `film_shots.py` scales the 3D bottle by 0.95 across.
 - Body: a slim cylinder with a rounded shoulder, made of smooth, slightly greyish off-white opaque plastic
   with a soft sheen.
 - Collar: matte white and finely ribbed.

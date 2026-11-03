@@ -137,7 +137,7 @@ html, body { margin: 0; background: var(--bg); color: var(--ink);
 .title { font-family: "Instrument Serif", "Liberation Serif", serif; font-size: 17pt; line-height: 1.05; margin: 1mm 0 .8mm; }
 .line { font-size: 8.4pt; line-height: 1.35; color: #c9d1e4; }
 .note { font-size: 6.4pt; color: var(--faint); margin-top: .8mm; }
-.cover { padding: 9mm 6mm 6mm; }
+.cover { padding: 9mm 6mm 6mm; display: flex; flex-direction: column; justify-content: center; }
 .cover h1 { font-family: "Instrument Serif", "Liberation Serif", serif; font-weight: 400; font-size: 25pt; line-height: 1;
   margin: 2mm 0 2mm; }
 .eyebrow { font-size: 6.5pt; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
