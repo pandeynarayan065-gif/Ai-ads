@@ -19,3 +19,7 @@ Label lock (Narayan: "Fix the label", "it better not look like a sticker", "blen
 match the label size that seedance generated"): the real label art, laid out where Seedance printed its label
 (band edge to edge, wordmark at Seedance's letter size), lit by the bottle's own pixels, toned to Seedance's
 lighting of its band; frames 52-96 (52-55 crossfade). Before/after: label-fix-before-after.jpg.
+
+3 Nov, later: the label lock and the recolour were both rejected ("It lowk morphs and the lighting is
+distinguishable", "u lowk ruined it more than the original"). The masters are now the Real-ESRGAN upscale of the
+original take with Seedance's own label, finished with finish_film.py --no-card (no label_lock_intro.py step).
