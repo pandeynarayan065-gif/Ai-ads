@@ -18,7 +18,7 @@ Never render: a glossy or mirrored studio floor; a reflection of the bottle on a
 
 3-4 seconds: <Subject 1> with its overcap on stands on a dark floor, framed as in Image 5, while cold blue-white smoke rolls in from the left and curls round its base and drifts behind it. The camera pushes in slowly.
 
-4-6 seconds: First-person view, hands only, framed as in Image 6. One hand holds <Subject 1> with the overcap off, nozzle pointing down; the index finger presses the pump once and a fine mist settles onto the open palm of the other hand below as tiny glinting droplets. Natural skin, cold light from above. The camera holds its distance, gently handheld.
+4-6 seconds: First-person view, hands only, framed as in Image 6. One hand holds <Subject 1> upright with the overcap off; the index finger presses the pump once and a fine cone of mist leaves the nozzle hole in the side of the pump head and drifts sideways onto the open palm of the other hand, settling as tiny glinting droplets. Natural skin, cold light from above. The camera holds its distance, gently handheld.
 
 6-7 seconds: Macro side view of the pump head of <Subject 1>, overcap removed, nozzle pointing right, framed as in Image 7. Locked-off camera, slow motion. A fine cone of mist bursts sideways out of the nozzle hole, backlit ice blue, tight at the nozzle and blooming wide and translucent before thinning into black.
 

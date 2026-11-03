@@ -41,6 +41,18 @@ INDIGO = (0.12, 0.40, 1.0)                 # was violet; the brand wants blue (N
 BLACK = [(0, (2, 2, 6)), (1, (1, 3, 10))]
 
 
+SLIM = 0.95     # real bottle (Narayan's photos, 3 Nov): height/width 4.13-4.22 vs 3.87 in the model; the printed
+                # wave band / body width agrees (0.538 real vs 0.518 model). Body, collar, pump and cap all scale.
+
+
+def bottle(cap=True):
+    """cs.bottle() at the real bottle's proportions. Returns (pivot, root, body radius)."""
+    piv, root, R = cs.bottle(cap=cap)
+    piv.scale = (SLIM, SLIM, 1.0)
+    bpy.context.view_layer.update()
+    return piv, root, R * SLIM
+
+
 def white_bottle():
     """The real bottle (Narayan's video, 2 Nov): milky, slightly grey-white semi-matte plastic with a soft sheen,
     a matte ribbed collar and a matte pump. Not glossy, not coated."""
@@ -89,7 +101,7 @@ def focus_hit(pos, tgt):
 # ---------------------------------------------------------------- shots
 def F1(sc):
     cs.cyc(BLACK, -0.1, 0.4, glow=((6, 32, 95), 0.03, 0.15, 0.07))
-    piv, root, R = cs.bottle(cap=False)
+    piv, root, R = bottle(cap=False)
     white_bottle()
     cs.strip("Graze", (0.09, -0.045, 0.126), (0, 0, 0.124), 0.10, 0.003, 0.16, SILVER)  # skims the ribs from the right
     cs.strip("Rim", (-0.06, 0.10, 0.15), (0, 0, 0.14), 0.2, 0.01, 0.08, INDIGO)
@@ -100,7 +112,7 @@ def F1(sc):
 
 def F2(sc):
     cs.cyc(BLACK, -0.3, 0.5)
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     cs.strip("Blade", (0.34, 0.09, 0.09), (0, 0, 0.085), 0.7, 0.008, 6, SILVER)
@@ -170,7 +182,7 @@ def F3(sc):
 
 def F4(sc):
     cs.cyc(BLACK, -0.1, 0.45)
-    piv, root, R = cs.bottle(cap=False)
+    piv, root, R = bottle(cap=False)
     white_bottle()
     piv.rotation_euler = (0, 0, math.radians(90))          # nozzle to camera right
     bpy.context.view_layer.update()
@@ -221,7 +233,7 @@ def F5(sc):
 
 def F6(sc):
     cs.cyc([(0, (2, 2, 6)), (1, (2, 2, 7))], -0.4, 0.6, glow=((10, 56, 165), 0.06, 0.16, 0.16))
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     piv.location = (-0.025, 0, cs.MID)
@@ -265,7 +277,7 @@ def F7(sc):
 
 def F8(sc):
     cs.cyc(BLACK, -0.2, 0.4)
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     cs.strip("Graze", (0.16, 0.03, 0.075), (0, 0, 0.065), 0.3, 0.006, 0.7, ICE)
@@ -281,7 +293,7 @@ def F9(sc):
     cs.cyc([(0, (1, 7, 22)), (0.35, (2, 14, 40)), (0.7, (1, 5, 14)), (1, (2, 2, 6))], -0.3, 0.6,
            glow=((5, 31, 90), 0.12, 0.10, 0.25))
     matte_floor((2, 12, 36), rough=0.8)
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     piv.location = (-0.05, 0, cs.MID)
@@ -362,7 +374,7 @@ def crown(R, z0, seed=5, segs=160, rings=14):
 def F10(sc):
     """Elemental: dark sea water erupts in a crown splash round the base of the capped bottle."""
     cs.cyc([(0, (2, 3, 8)), (1, (2, 2, 6))], -0.2, 0.5, glow=((10, 22, 60), 0.0, 0.06, 0.10))
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     bpy.ops.mesh.primitive_circle_add(vertices=256, radius=1.5, fill_type="NGON", location=(0, 0, 0.012))
@@ -418,14 +430,16 @@ def smoke_points(R, n_steps=90, per_step=1100, seed=3):
     age = np.zeros(0)
     dt = 1 / 30
     for step in range(n_steps):
-        new = np.column_stack([rng.uniform(-0.17, -0.14, per_step), rng.normal(-0.03, 0.012, per_step),
-                               rng.uniform(0.02, 0.055, per_step)])
+        new = np.column_stack([rng.uniform(-0.17, -0.14, per_step), rng.normal(-0.035, 0.022, per_step),
+                               rng.uniform(0.008, 0.035, per_step)])
         pts = np.vstack([pts, new])
         age = np.concatenate([age, np.zeros(per_step)])
-        v = np.array([0.10, 0.0, 0.004]) + 0.035 * curl(pts, step * dt)
+        v = np.array([0.10, 0.0, 0.002]) + 0.035 * curl(pts, step * dt)
+        near = np.hypot(pts[:, 0], pts[:, 1]) < R * 2.2           # swirl round the bottle as it passes
+        v[near, 1] += 0.04 * np.sin(6.0 * pts[near, 0] / R)
         v[:, 2] += 0.008 * np.clip(age, 0, 1.5)          # lifts a little as it ages
         pts = pts + v * dt
-        pts[:, 2] = np.maximum(pts[:, 2], 0.002)          # stays above the floor
+        pts[:, 2] = 0.004 + np.abs(pts[:, 2] - 0.004)     # bounces off the floor (a clamp piles it into a flat grey sheet)
         r = np.hypot(pts[:, 0], pts[:, 1])                # round the bottle, not through it
         inside = r < R * 1.05
         pts[inside, 0] *= (R * 1.05) / r[inside]
@@ -439,8 +453,13 @@ def F11(sc):
     """Smoke: cold smoke rolls in from the left along the floor and curls round the base of the capped bottle."""
     cs.cyc(BLACK, -0.3, 0.5, glow=((4, 24, 70), 0.04, 0.12, 0.14))
     fl = matte_floor((2, 2, 4), rough=0.9)
-    fl.data.materials[0].node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.03  # no back-light sheen
-    piv, root, R = cs.bottle(cap=True)
+    fm = fl.data.materials[0]                                # purely diffuse: even rough plastic glares at this grazing angle
+    nt_ = fm.node_tree
+    nt_.nodes.remove(nt_.nodes["Principled BSDF"])
+    dif = nt_.nodes.new("ShaderNodeBsdfDiffuse")
+    dif.inputs["Color"].default_value = (*cs.srgb((10, 11, 16)), 1)
+    nt_.links.new(dif.outputs[0], nt_.nodes["Material Output"].inputs["Surface"])
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     pts = smoke_points(R)
@@ -478,7 +497,7 @@ def F11(sc):
     gm = src.modifiers.new("Smoke", "NODES")
     gm.node_group = ng
     sc.cycles.volume_step_rate = 0.6
-    spot("Back", (0.15, 0.6, 0.25), (0, 0, 0.03), 90, ICE, size_deg=45, soft=0.02)
+    spot("Back", (0.15, 0.6, 0.25), (0, 0, 0.09), 90, ICE, size_deg=45, soft=0.02)
     spot("SmokeSide", (-0.5, -0.15, 0.10), (0, 0, 0.03), 10, ICE, size_deg=35, soft=0.02)
     cs.strip("RimL", (-0.28, 0.2, 0.14), (0, 0, 0.09), 0.5, 0.02, 1.4, INDIGO)
     side = area_light("Side", (0.32, -0.05, 0.22), (0, 0, 0), 0.12, 0.5, SILVER)
@@ -492,7 +511,7 @@ def F11(sc):
 def F13(sc):
     """Macro: sea-water beads across the front label, the wordmark under them, cold grazing light."""
     cs.cyc(BLACK, -0.2, 0.4)
-    piv, root, R = cs.bottle(cap=True)
+    piv, root, R = bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
     bpy.context.view_layer.update()
@@ -518,7 +537,7 @@ def F14(sc):
     cs.cyc([(0, (1, 4, 12)), (0.5, (2, 10, 30)), (1, (2, 2, 6))], -0.3, 0.6, glow=((4, 24, 70), 0.12, 0.10, 0.25))
     matte_floor((1, 5, 14), rough=0.85)
     for k in range(5):
-        piv, root, R = cs.bottle(cap=True)
+        piv, root, R = bottle(cap=True)
         nozzle_to_back(root)
         piv.location = (-0.05 + 0.034 * k, 0.10 * k, cs.MID)
     bottle_materials()

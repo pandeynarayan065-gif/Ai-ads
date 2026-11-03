@@ -2,7 +2,8 @@
 """POV preview for shot 05 (first person, one press, mist onto the open palm).
 
 Narayan's real-bottle test video (Drive: VID_20261102_194033428.mp4, frame at 29.0 s, saved as pov-source-t29.jpg):
-his hand holding the real bottle with the cap off. Turned so the nozzle points down, graded to the film's cold blue,
+his hand holding the real bottle with the cap off, turned upright (a pump spray can't spray upside down: the
+dip tube would draw air), graded to the film's cold blue,
 with the 3D mist (film_shots.py --shot F15: F4's mist alone on black) screened on at the nozzle. The nozzle is a
 hole in the SIDE of the pump head, so the mist leaves sideways, never out of the tip (that reads as a nasal spray).
 
@@ -15,13 +16,13 @@ import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-NOZZLE = (464, 892)         # left side of the pump head, near its tip, in the turned 1080x1920 frame
+NOZZLE = (482, 1008)        # left side of the pump head, near its top, in the upright 1080x1920 frame
 NOZZLE_F4 = (0.30, 0.42)    # nozzle position in the F4/F15 render, as fractions of width/height
 
 
 def main():
     mist_png, out = sys.argv[1], sys.argv[2]
-    base = Image.open(HERE / "pov-source-t29.jpg").convert("RGB").transpose(Image.Transpose.ROTATE_270)
+    base = Image.open(HERE / "pov-source-t29.jpg").convert("RGB").transpose(Image.Transpose.ROTATE_90)
     b = np.asarray(base).astype(np.float32) / 255
     b = np.clip((b - 0.06) / 0.94, 0, 1) ** 1.25            # crush the blacks
     b *= np.array([0.86, 0.95, 1.10])                       # cold
@@ -39,6 +40,7 @@ def main():
     sc = 0.85
     mist = mist.resize((int(mist.width * sc), int(mist.height * sc)), Image.LANCZOS)
     nx, ny = int(nx * sc), int(ny * sc)
+    mist = mist.rotate(-14, resample=Image.BICUBIC, center=(nx, ny))   # aim a little upward, clear of the thumb
     m = np.asarray(mist).astype(np.float32) / 255 * np.array([0.88, 0.95, 1.0])
     canvas = np.zeros_like(b)
     ox, oy = NOZZLE[0] - nx, NOZZLE[1] - ny
