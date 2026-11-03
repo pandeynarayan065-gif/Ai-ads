@@ -1,0 +1,15 @@
+Intro "found it", take 1 (Seedance 2.5, reference-to-video, 720p, 9:16, 4 s, audio off, 252 credits; task 8ab8d6c9df42164459e18786326eb418)
+
+Prompt: ../prompt-01-seedance-ref.md
+Refs (Image 1, 2, 3): ../refs/sd-01-bottle-lying.jpg, ../refs/sd-02-label-flat.jpg, ../refs/sd-03-bottle-dark.jpg (all downsized to <=1280 px)
+
+  KIE_API_KEY=... python3 scripts/kie_generate.py seedance --prompt-file ads/spraymax/intro-found-it/prompt-01-seedance-ref.md \
+      --out ads/spraymax/intro-found-it/clips --ref .../sd-01-bottle-lying.jpg --ref .../sd-02-label-flat.jpg \
+      --ref .../sd-03-bottle-dark.jpg --resolution 720p --duration 4 --yes
+
+Output: 720x1280, 24 fps, 97 frames (4.04 s), H.264, no audio. Verdict: keep (15/18), the whole clip is usable.
+
+Post (masters):
+  scripts/esrgan_upscale.py clips/20261103-104914-1.mp4 esr.mp4 --weights realesr-general-x4v3.pth --size 2160x3840
+  ads/spraymax/cinematic-12s/finish_film.py esr.mp4 fin.mp4 --no-card --size 1080x1920   (and 2160x3840)
+  ffmpeg -i fin.mp4 -an -c:v copy -movflags +faststart spraymax-intro-found-it-4s.mp4     (visuals only)

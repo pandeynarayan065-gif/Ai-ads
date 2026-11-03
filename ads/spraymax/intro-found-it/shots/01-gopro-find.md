@@ -42,7 +42,8 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
   - **then the start frame** (`prompt-01-still-start.md`):
     - image 1: the checked end frame, for the place, light, boots and grade; no bottle, no hand.
 - **Still fixes in post:** label lock on the end frame if needed; both frames exported as exact 1080x1920 JPEGs.
-- **Motion:** Seedance 2.5, first + last frame, 4 s, audio off (`motion-01.md`). Playbook lesson: only a
+- **Motion (what ran):** Seedance 2.5 reference-to-video, 720p, 4 s, audio off (`prompt-01-seedance-ref.md`), Narayan's
+  pick ("Go 252") over the stills route. **Planned first:** Seedance 2.5, first + last frame (`motion-01.md`). Playbook lesson: only a
   frame where the bottle already lies stops Seedance standing it up.
 - **Clip fixes in post:** label lock on the last second if the label garbles; Real-ESRGAN upscale if 480p;
   grain and grade to match the film; SFX.
@@ -53,7 +54,8 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 |---|---|---|---|
 | `prompt-01-still-end.md` | WARN: 362 words. About 95 of them are the product block, which must stay word for word; the rest is cut to the frame | yes, 3 Nov | |
 | `prompt-01-still-start.md` | PASS, 248 words | yes, 3 Nov | |
-| `motion-01.md` | PASS, 94 words | yes, 3 Nov (480p 112 cr / 720p 252 cr) | |
+| `motion-01.md` | PASS, 94 words | yes, 3 Nov (480p 112 cr / 720p 252 cr) | not used |
+| `prompt-01-seedance-ref.md` (what we ran) | PASS, 611 words | yes, 3 Nov (720p 252 cr) | 3 Nov: "Go 252" |
 
 ## Budget
 
@@ -77,7 +79,8 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 
 | Take | Model / mode | Cost | Scorecard (1–9) | Total | Usable range | Verdict | Failures (with timestamps) |
 |---|---|---|---|---|---|---|---|
+| 1 `clips/20261103-104914-1.mp4` | Seedance 2.5, reference-to-video (Image 1 real bottle lying down, Image 2 flat label, Image 3 low-light bottle), 720p, 4 s, no audio | 252 | 1 2 2 2 2 1 2 2 1 | 15 | 0–4.04 s (all) | **keep** | 0–1.25 s a soft dark rectangle at the bottom left (reads as the GoPro's own shadow from the head torch); 1.3–3.2 s the top is a smooth tapered nozzle, not the ribbed collar, pump and clear cap (small in frame; under the glove from 3.2 s); 2.6 s the trampled snow turns granular as the camera gets close; small label lines garbled (wordmark correct). Passed: the bottle lies on its side and never stands up, enters from the top at 1.3 s, boots and black glove natural, five fingers, label uncovered, no face |
 
 ## Lesson for the prompt log
 
-(after the take)
+Seedance laid the bottle down for the first time when Image 1 was a real photo of it lying down (the three earlier upright failures all used upright refs). Rule: the refs' pose beats the text; for a lying product, give a reference photographed lying down.
