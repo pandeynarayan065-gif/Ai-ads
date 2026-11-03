@@ -5,7 +5,7 @@
 - the end card over the packshot's empty dark top half: white logo + BORN IN HIMACHAL, fading in;
 - a quiet sound bed: a low swell, a soft hit on every hard cut (found in the take), hiss under the mist shots.
 
-  python3 ads/spraymax/cinematic-12s/finish_film.py <take.mp4> <out.mp4> [--end-at 10.0] [--qa <dir>]
+  python3 ads/spraymax/cinematic-12s/finish_film.py <take.mp4> <out.mp4> [--end-at 10.0] [--size 1080x1920] [--qa <dir>]
 """
 import subprocess
 import sys
@@ -99,9 +99,15 @@ def main():
     snd = Path(str(tmp) + "_bed.wav")
     mist = [(8.1, 8.8), (9.4, 10.0)]
     sound_bed(snd, dur, cut_times, mist)
-    vf = ("[0:v]scale=1080:1920:flags=lanczos,unsharp=5:5:0.55:5:5:0.0,"
+    ow, oh = (int(v) for v in (a[a.index("--size") + 1] if "--size" in a else "1080x1920").split("x"))
+    upscaled = w >= ow                                     # e.g. a Topaz 4x master: scale down, don't sharpen
+    sharpen = "" if upscaled else "unsharp=5:5:0.55:5:5:0.0,"
+    grain = 3 if upscaled else 5
+    if (ow, oh) != (1080, 1920):
+        Image.open(card).resize((ow, oh), Image.LANCZOS).save(card)
+    vf = (f"[0:v]scale={ow}:{oh}:flags=lanczos,{sharpen}"
           "curves=all='0/0 0.25/0.22 0.75/0.78 1/1',colorbalance=bs=0.02:bm=0.01,"
-          "noise=alls=5:allf=t+u,format=yuv420p[v];"
+          f"noise=alls={grain}:allf=t+u,format=yuv420p[v];"
           f"[1:v]format=rgba,fade=in:st={end_at + 0.5}:d=0.5:alpha=1[c];"
           f"[v][c]overlay=0:0:enable='gte(t,{end_at + 0.5})'[o]")
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(take), "-loop", "1", "-t", f"{dur}", "-i", str(card),

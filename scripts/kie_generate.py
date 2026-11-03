@@ -15,6 +15,7 @@ Usage:
       [--ref sheet.jpg --ref layout-1.jpg ...] | [--first-frame f.jpg [--last-frame l.jpg]] \
       [--resolution 720p] [--aspect 9:16] [--duration 12] [--audio] [--draft] [--yes]
   python3 scripts/kie_generate.py seedance-final --draft-task-id <id> --duration 12 --out <dir> [--yes]
+  python3 scripts/kie_generate.py topaz --video in.mp4 --out <dir> [--factor 2|4] [--yes]
 
 Without --yes, `image` and `video` only print what they would send and spend nothing.
 Reference images (--ref) can be local files (uploaded to kie.ai first) or URLs.
@@ -266,6 +267,38 @@ def cmd_seedance_final(args):
     run_video_task(body, args.out, before)
 
 
+# Topaz Video Upscale on kie, credits per second of video (kie.ai/topaz-video-upscale, checked 2026-11-03)
+TOPAZ_RATE = {"1": 8, "2": 8, "4": 14}
+
+
+def video_seconds(path):
+    import subprocess
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True).stdout.strip()
+    return float(out)
+
+
+def cmd_topaz(args):
+    src = Path(args.video)
+    if src.stat().st_size > 50 * 1024 * 1024:
+        sys.exit("Topaz on kie takes at most 50 MB per video.")
+    import math
+    secs = video_seconds(src)
+    cost = TOPAZ_RATE[args.factor] * math.ceil(secs)
+    body = {"model": "topaz/video-upscale", "input": {"upscale_factor": args.factor}}
+    print(f"Model: topaz/video-upscale | {args.factor}x | {src} ({secs:.2f} s, {src.stat().st_size / 1e6:.1f} MB)")
+    print(f"Estimated cost: {cost} credits (${cost * 0.005:.2f})")
+    if not args.yes:
+        print("Dry run — nothing sent, no credits spent. Re-run with --yes to upscale.")
+        return
+    before = credits()
+    print(f"Credits before: {before}")
+    if before < cost:
+        sys.exit(f"Not enough credits: {before} < {cost}.")
+    body["input"]["video_url"] = upload(src)
+    run_video_task(body, args.out, before)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -310,6 +343,12 @@ def main():
     sf.add_argument("--out", required=True)
     sf.add_argument("--yes", action="store_true", help="actually generate and spend credits")
     sf.set_defaults(func=cmd_seedance_final)
+    tz = sub.add_parser("topaz")
+    tz.add_argument("--video", required=True)
+    tz.add_argument("--out", required=True)
+    tz.add_argument("--factor", default="2", choices=["1", "2", "4"])
+    tz.add_argument("--yes", action="store_true", help="actually upscale and spend credits")
+    tz.set_defaults(func=cmd_topaz)
     args = parser.parse_args()
     args.func(args)
 
