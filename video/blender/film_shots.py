@@ -9,7 +9,7 @@ Veo 3.1 animates; the organic shots (salt, ocean, vapour) are previz for Veo tex
 
   F1 collar    extreme close-up of the pump and ribbed collar, a hard white light grazing the ribs
   F2 blade     low three-quarter, the capped bottle in near-silhouette, one silver specular blade down its edge
-  F3 salt      raw pink Himalayan salt glowing from inside, sea-water beads on its edges
+  F3 salt      coarse pink Himalayan salt tumbling through one hard cold beam onto black
   F4 mist      the pump fires: a backlit mist burst blooming across the black
   F5 ocean     a night ocean swell under a low cold moon, a glitter path on the water
   F6 bloom     the bottle in a black void, a broad indigo wash blooming behind it
@@ -21,10 +21,12 @@ Veo 3.1 animates; the organic shots (salt, ocean, vapour) are previz for Veo tex
 """
 import math
 import random
+import re
 import sys
 from pathlib import Path
 
 import bpy  # noqa: I001
+import bmesh
 import numpy as np
 from mathutils import Vector
 
@@ -35,17 +37,14 @@ from spraymax_scene import area_light, principled, r, z  # noqa: E402
 
 ICE = (0.78, 0.9, 1.0)
 SILVER = (0.95, 0.97, 1.0)
-INDIGO = (0.32, 0.25, 1.0)
-BLACK = [(0, (2, 2, 6)), (1, (3, 3, 10))]
+INDIGO = (0.12, 0.40, 1.0)                 # was violet; the brand wants blue (Narayan's partners, 2 Nov)
+BLACK = [(0, (2, 2, 6)), (1, (1, 3, 10))]
 
 
 def white_bottle():
-    """Spraymax white reads silver-white: lit low, never flat white, never dull grey."""
-    cs.glossy_bottle()
-    for name in ("BottleWhite", "PumpWhite"):
-        m = bpy.data.materials.get(name)
-        if m:
-            m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.8, 0.8, 0.84, 1)
+    """The real bottle (Narayan's video, 2 Nov): milky, slightly grey-white semi-matte plastic with a soft sheen,
+    a matte ribbed collar and a matte pump. Not glossy, not coated."""
+    bottle_materials()
 
 
 def nozzle_to_back(root):
@@ -89,7 +88,7 @@ def focus_hit(pos, tgt):
 
 # ---------------------------------------------------------------- shots
 def F1(sc):
-    cs.cyc(BLACK, -0.1, 0.4, glow=((26, 20, 95), 0.03, 0.15, 0.07))
+    cs.cyc(BLACK, -0.1, 0.4, glow=((6, 32, 95), 0.03, 0.15, 0.07))
     piv, root, R = cs.bottle(cap=False)
     white_bottle()
     cs.strip("Graze", (0.09, -0.045, 0.126), (0, 0, 0.124), 0.10, 0.003, 0.16, SILVER)  # skims the ribs from the right
@@ -116,25 +115,57 @@ def F2(sc):
 
 
 def F3(sc):
-    cs.cyc(BLACK, -0.3, 0.4, glow=((40, 8, 14), 0.0, 0.05, 0.12))
-    matte_floor((4, 3, 6))
-    m = cs.salt_mat(0.08)
-    hero = cs.crystal_mesh("Hero", 0.026, m, seed=7)
-    hero.location = (0, 0, 0.02)
-    hero.rotation_euler = (0.3, 0.5, 0.2)
-    bpy.context.view_layer.update()
-    low = min((hero.matrix_world @ v.co).z for v in hero.data.vertices)
-    hero.location.z -= low + 0.0005
-    bpy.context.view_layer.update()
-    cs.beads_on([hero], 60, 0.0005, 0.0016, seed=11, from_dir=(0.3, -1, 0.6), spread=0.04, centre=(0, 0, 0.02))
-    back = area_light("Back", (0.03, 0.2, 0.06), (0, 0, 0), 0.06, 5, (1.0, 0.62, 0.52))
-    k2.aim(back, (0, 0, 0.02))
-    back.visible_glossy = False
-    key = area_light("Key", (-0.16, -0.14, 0.20), (0, 0, 0), 0.03, 1.2, ICE)
-    k2.aim(key, (0, 0, 0.02))
-    cam = cs.cam_make(100, 8.0)
-    pos, tgt = Vector((-0.025, -0.17, 0.055)), (0, 0, 0.022)
-    cs.look(cam, pos, tgt, focus=focus_hit(pos, tgt))
+    """Coarse pink Himalayan salt tumbling in slow motion through one hard cold beam, landing on black."""
+    cs.cyc(BLACK, -0.2, 0.4)
+    matte_floor((3, 3, 5), rough=0.9)
+    m = cs.salt_mat(0.04)
+    protos = []
+    for k in range(10):
+        pr = cs.crystal_mesh(f"SaltProto{k}", 1.0, m, seed=30 + k)
+        pr.hide_render = True
+        protos.append(pr)
+    rnd = random.Random(12)
+
+    def chunk(loc, size):
+        o = rnd.choice(protos).copy()
+        o.hide_render = False
+        bpy.context.collection.objects.link(o)
+        o.location = loc
+        o.rotation_euler = (rnd.uniform(0, 6.3), rnd.uniform(0, 6.3), rnd.uniform(0, 6.3))
+        o.scale = (size * rnd.uniform(0.8, 1.3), size * rnd.uniform(0.7, 1.1), size * rnd.uniform(0.6, 1.0))
+        return o
+    # falling: a loose column, denser in the middle, a few crystals near the lens (bokeh) and far behind
+    for _ in range(140):
+        x = rnd.gauss(0.0, 0.011)
+        y = rnd.gauss(0.0, 0.03)
+        zz = rnd.uniform(0.012, 0.15)
+        chunk((x, y, zz), rnd.uniform(0.001, 0.0034))
+    # landed: a low mound where the column hits the floor
+    for _ in range(420):
+        rad = abs(rnd.gauss(0, 0.018))
+        ang = rnd.uniform(0, 2 * math.pi)
+        x, y = rad * math.cos(ang), rad * math.sin(ang)
+        size = rnd.uniform(0.0012, 0.004)
+        h = max(0.0, 0.009 - rad * 0.35)
+        chunk((x, y, h + size * 0.3), size)
+    # one hard cold beam from high behind on the right, visible in a faint haze
+    beam = spot("Beam", (0.16, 0.30, 0.34), (0, 0, 0.05), 70, ICE, size_deg=11, soft=0.001)
+    beam.data.spot_blend = 0.15
+    spot("Key", (-0.30, -0.25, 0.12), (0, 0, 0.06), 3, SILVER, size_deg=30, soft=0.02)
+    bpy.ops.mesh.primitive_cube_add(size=0.5, location=(0, 0.1, 0.2))
+    haze = bpy.context.object
+    hm = bpy.data.materials.new("Haze")
+    hm.use_nodes = True
+    hn = hm.node_tree
+    hn.nodes.remove(hn.nodes["Principled BSDF"])
+    pv = hn.nodes.new("ShaderNodeVolumePrincipled")
+    pv.inputs["Density"].default_value = 0.06
+    pv.inputs["Anisotropy"].default_value = 0.6
+    hn.links.new(pv.outputs["Volume"], hn.nodes["Material Output"].inputs["Volume"])
+    haze.data.materials.append(hm)
+    cam = cs.cam_make(100, 4.0)
+    pos, tgt = Vector((0.0, -0.42, 0.055)), (0.0, 0, 0.07)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, 0, 0.07))))
 
 
 def F4(sc):
@@ -159,7 +190,7 @@ def F4(sc):
 
 def F5(sc):
     world = bpy.context.scene.world
-    world.node_tree.nodes["Background"].inputs[0].default_value = (*cs.srgb((3, 4, 14)), 1)
+    world.node_tree.nodes["Background"].inputs[0].default_value = (*cs.srgb((1, 5, 14)), 1)
     bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, 0))
     sea = bpy.context.object
     oc = sea.modifiers.new("Ocean", "OCEAN")
@@ -189,7 +220,7 @@ def F5(sc):
 
 
 def F6(sc):
-    cs.cyc([(0, (2, 2, 6)), (1, (2, 2, 7))], -0.4, 0.6, glow=((44, 30, 165), 0.06, 0.16, 0.16))
+    cs.cyc([(0, (2, 2, 6)), (1, (2, 2, 7))], -0.4, 0.6, glow=((10, 56, 165), 0.06, 0.16, 0.16))
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
@@ -247,9 +278,9 @@ def F8(sc):
 
 
 def F9(sc):
-    cs.cyc([(0, (5, 4, 22)), (0.35, (10, 8, 40)), (0.7, (4, 3, 14)), (1, (2, 2, 6))], -0.3, 0.6,
-           glow=((26, 22, 90), 0.12, 0.10, 0.25))
-    matte_floor((10, 8, 36), rough=0.8)
+    cs.cyc([(0, (1, 7, 22)), (0.35, (2, 14, 40)), (0.7, (1, 5, 14)), (1, (2, 2, 6))], -0.3, 0.6,
+           glow=((5, 31, 90), 0.12, 0.10, 0.25))
+    matte_floor((2, 12, 36), rough=0.8)
     piv, root, R = cs.bottle(cap=True)
     white_bottle()
     nozzle_to_back(root)
@@ -262,7 +293,244 @@ def F9(sc):
     cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((-0.05, -R, 0.08))))
 
 
-SHOTS = {f"F{i}": globals()[f"F{i}"] for i in range(1, 10)}
+
+# ---------------------------------------------------------------- v2 shots (variety: splash, smoke, POV, macro, lineup)
+def bottle_materials(base=(0.80, 0.81, 0.83)):
+    """Real-bottle plastics for every bottle in the scene (each make_bottle call makes its own materials)."""
+    for m in bpy.data.materials:
+        if not m.node_tree or "Principled BSDF" not in m.node_tree.nodes:
+            continue
+        b = m.node_tree.nodes["Principled BSDF"]
+        if m.name.startswith("BottleWhite"):
+            b.inputs["Base Color"].default_value = (*base, 1)
+            b.inputs["Roughness"].default_value = 0.42
+            b.inputs["Coat Weight"].default_value = 0.12
+            b.inputs["Coat Roughness"].default_value = 0.25
+            b.inputs["Subsurface Weight"].default_value = 0.3        # milky HDPE: light glows a little through it
+            b.inputs["Subsurface Scale"].default_value = 0.003
+        elif m.name.startswith("PumpWhite"):
+            b.inputs["Base Color"].default_value = (0.84, 0.84, 0.85, 1)
+            b.inputs["Roughness"].default_value = 0.55
+            b.inputs["Coat Weight"].default_value = 0.0
+        elif m.name.startswith("LabelMat"):
+            b.inputs["Roughness"].default_value = 0.38
+            b.inputs["Coat Weight"].default_value = 0.2
+            b.inputs["Coat Roughness"].default_value = 0.2
+
+
+def crown(R, z0, seed=5, segs=160, rings=14):
+    """A crown splash: a thin sheet of water rising and flaring out round the bottle base, jagged rim with spikes."""
+    rnd = np.random.default_rng(seed)
+    th = np.linspace(0, 2 * np.pi, segs, endpoint=False)
+    # rim height: smooth noise plus a few tall spikes
+    k = np.arange(1, 7)
+    amp = rnd.normal(0, 1, (6,)) / k
+    ph = rnd.uniform(0, 6.28, 6)
+    top = 0.03 + 0.006 * np.sum(amp[:, None] * np.sin(k[:, None] * th[None] + ph[:, None]), 0)
+    spikes = rnd.choice(segs, 34, replace=False)
+    for sidx in spikes:
+        w = np.exp(-0.5 * ((np.arange(segs) - sidx + segs // 2) % segs - segs // 2) ** 2 / 1.2 ** 2)
+        top += w * rnd.uniform(0.004, 0.012)
+    bm = bmesh.new()
+    grid = []
+    for i in range(segs):
+        col = []
+        for j in range(rings):
+            t = j / (rings - 1)
+            h = z0 + t * (top[i] - z0)
+            rr = R + 0.003 + 0.032 * t ** 1.6
+            col.append(bm.verts.new((rr * math.cos(th[i]), rr * math.sin(th[i]), h)))
+        grid.append(col)
+    for i in range(segs):
+        a, b = grid[i], grid[(i + 1) % segs]
+        for j in range(rings - 1):
+            bm.faces.new((a[j], b[j], b[j + 1], a[j + 1]))
+    me = bpy.data.meshes.new("Crown")
+    bm.to_mesh(me)
+    bm.free()
+    for poly in me.polygons:
+        poly.use_smooth = True
+    ob = bpy.data.objects.new("Crown", me)
+    bpy.context.collection.objects.link(ob)
+    sol = ob.modifiers.new("Solid", "SOLIDIFY")
+    sol.thickness = 0.0009
+    ob.modifiers.new("Sub", "SUBSURF").levels = 1
+    tips = [((R + 0.035) * math.cos(th[i]), (R + 0.035) * math.sin(th[i]), top[i]) for i in spikes]
+    return ob, tips
+
+
+def F10(sc):
+    """Elemental: dark sea water erupts in a crown splash round the base of the capped bottle."""
+    cs.cyc([(0, (2, 3, 8)), (1, (2, 2, 6))], -0.2, 0.5, glow=((10, 22, 60), 0.0, 0.06, 0.10))
+    piv, root, R = cs.bottle(cap=True)
+    white_bottle()
+    nozzle_to_back(root)
+    bpy.ops.mesh.primitive_circle_add(vertices=256, radius=1.5, fill_type="NGON", location=(0, 0, 0.012))
+    sea = bpy.context.object
+    sea.data.materials.append(principled("DarkSea", cs.srgb((2, 6, 14)), rough=0.08, coat=0.4))
+    wm = cs.water_mat("Splash", 1.33)
+    wm.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.75, 0.88, 1.0, 1)
+    wm.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.03
+    cr, tips = crown(R, 0.012)
+    cr.data.materials.append(wm)
+    rnd = random.Random(8)
+    cen, rad = [], []
+    for (x, y, zt) in tips:                                   # a droplet breaking off every spike
+        cen.append((x * 1.03, y * 1.03, zt + rnd.uniform(0.002, 0.008)))
+        rad.append(rnd.uniform(0.0012, 0.0022))
+    for _ in range(160):                                       # spray flung outward and up
+        a = rnd.uniform(0, 2 * math.pi)
+        d = R + rnd.uniform(0.03, 0.09)
+        cen.append((d * math.cos(a), d * math.sin(a), rnd.uniform(0.03, 0.13)))
+        rad.append(rnd.uniform(0.0006, 0.0018))
+    cs.spheres("Spray", wm, cen, rad, sub=2)
+    back = area_light("Back", (0.05, 0.35, 0.22), (0, 0, 0), 0.25, 14, ICE)
+    k2.aim(back, (0, 0, 0.05))
+    back.visible_glossy = False
+    cs.strip("RimR", (0.3, 0.12, 0.14), (0, 0, 0.09), 0.6, 0.01, 3.0, SILVER)
+    key = area_light("Key", (-0.3, -0.3, 0.2), (0, 0, 0), 0.2, 0.5, SILVER)
+    k2.aim(key, (0, 0, 0.07))
+    cam = cs.cam_make(85, 5.6)
+    pos, tgt = Vector((0.0, -0.46, 0.035)), (0.0, 0, 0.085)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -R, 0.05))))
+
+
+def smoke_points(R, n_steps=90, per_step=1100, seed=3):
+    """A cheap smoke simulation: particles emitted low on the left, carried right by a slow draft and a
+    divergence-free (curl) noise field, pushed round the bottle. Returns the particle positions."""
+    rng = np.random.default_rng(seed)
+    # curl of a vector potential made of random sine waves -> swirling, incompressible flow
+    modes = 24
+    kdir = rng.normal(0, 1, (modes, 3))
+    kdir /= np.linalg.norm(kdir, axis=1, keepdims=True)
+    kmag = rng.uniform(18, 70, modes)
+    kv = kdir * kmag[:, None]
+    adir = rng.normal(0, 1, (modes, 3))
+    ph = rng.uniform(0, 6.28, modes)
+    amp = 0.9 / kmag                                     # big swirls strong, small ones weak
+    cross = np.cross(kv, adir)                            # curl(sin(k.p) a) = cos(k.p) (k x a)
+
+    def curl(pts, t):
+        arg = pts @ kv.T + ph + t * 1.5
+        return (np.cos(arg) * amp) @ cross
+
+    pts = np.zeros((0, 3))
+    age = np.zeros(0)
+    dt = 1 / 30
+    for step in range(n_steps):
+        new = np.column_stack([rng.uniform(-0.17, -0.14, per_step), rng.normal(-0.03, 0.012, per_step),
+                               rng.uniform(0.02, 0.055, per_step)])
+        pts = np.vstack([pts, new])
+        age = np.concatenate([age, np.zeros(per_step)])
+        v = np.array([0.10, 0.0, 0.004]) + 0.035 * curl(pts, step * dt)
+        v[:, 2] += 0.008 * np.clip(age, 0, 1.5)          # lifts a little as it ages
+        pts = pts + v * dt
+        pts[:, 2] = np.maximum(pts[:, 2], 0.002)          # stays above the floor
+        r = np.hypot(pts[:, 0], pts[:, 1])                # round the bottle, not through it
+        inside = r < R * 1.05
+        pts[inside, 0] *= (R * 1.05) / r[inside]
+        pts[inside, 1] *= (R * 1.05) / r[inside]
+        age += dt
+    keep = rng.random(len(pts)) < np.exp(-age / 2.2)      # older smoke thins out
+    return pts[keep]
+
+
+def F11(sc):
+    """Smoke: cold smoke rolls in from the left along the floor and curls round the base of the capped bottle."""
+    cs.cyc(BLACK, -0.3, 0.5, glow=((4, 24, 70), 0.04, 0.12, 0.14))
+    matte_floor((2, 2, 4), rough=0.9)
+    piv, root, R = cs.bottle(cap=True)
+    white_bottle()
+    nozzle_to_back(root)
+    pts = smoke_points(R)
+    me = bpy.data.meshes.new("SmokePts")
+    me.from_pydata(pts.tolist(), [], [])
+    src = bpy.data.objects.new("SmokePts", me)
+    bpy.context.collection.objects.link(src)
+    m = bpy.data.materials.new("Smoke")
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    pv = nt.nodes.new("ShaderNodeVolumePrincipled")
+    pv.inputs["Color"].default_value = (0.82, 0.88, 1.0, 1)
+    pv.inputs["Anisotropy"].default_value = 0.35
+    pv.inputs["Density"].default_value = 0.9
+    nt.links.new(pv.outputs["Volume"], nt.nodes["Material Output"].inputs["Volume"])
+    # points -> density volume (Geometry Nodes)
+    ng = bpy.data.node_groups.new("SmokeVolume", "GeometryNodeTree")
+    ng.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
+    ng.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
+    gi = ng.nodes.new("NodeGroupInput")
+    go = ng.nodes.new("NodeGroupOutput")
+    m2p = ng.nodes.new("GeometryNodeMeshToPoints")
+    p2v = ng.nodes.new("GeometryNodePointsToVolume")
+    p2v.inputs["Density"].default_value = 1.0
+    if "Voxel Size" in p2v.inputs:
+        p2v.inputs["Voxel Size"].default_value = 0.0015
+    p2v.inputs["Radius"].default_value = 0.0025
+    smat = ng.nodes.new("GeometryNodeSetMaterial")
+    smat.inputs["Material"].default_value = m
+    ng.links.new(gi.outputs[0], m2p.inputs["Mesh"])
+    ng.links.new(m2p.outputs["Points"], p2v.inputs["Points"])
+    ng.links.new(p2v.outputs["Volume"], smat.inputs["Geometry"])
+    ng.links.new(smat.outputs["Geometry"], go.inputs[0])
+    gm = src.modifiers.new("Smoke", "NODES")
+    gm.node_group = ng
+    sc.cycles.volume_step_rate = 0.6
+    spot("Back", (0.15, 0.6, 0.25), (0, 0, 0.03), 90, ICE, size_deg=45, soft=0.02)
+    spot("SmokeSide", (-0.5, -0.15, 0.10), (0, 0, 0.03), 10, ICE, size_deg=35, soft=0.02)
+    cs.strip("RimL", (-0.28, 0.2, 0.14), (0, 0, 0.09), 0.5, 0.02, 1.4, INDIGO)
+    side = area_light("Side", (0.32, -0.05, 0.22), (0, 0, 0), 0.12, 0.5, SILVER)
+    k2.aim(side, (0, 0, 0.1))
+    cam = cs.cam_make(85, 8.0)
+    pos, tgt = Vector((0, -0.55, 0.06)), (0, 0, 0.085)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -R, 0.08))))
+    print("smoke points", len(pts))
+
+
+def F13(sc):
+    """Macro: sea-water beads across the front label, the wordmark under them, cold grazing light."""
+    cs.cyc(BLACK, -0.2, 0.4)
+    piv, root, R = cs.bottle(cap=True)
+    white_bottle()
+    nozzle_to_back(root)
+    bpy.context.view_layer.update()
+    label = [o for o in root.children if o.name.startswith("Label")]
+    cs.beads_on(label, 70, 0.0003, 0.0009, seed=21, from_dir=(0.25, -1, 0.1), spread=0.03, centre=(0, 0, 0.06))
+    for ob in bpy.data.objects:                              # clear water casts no dark shadow (caustics are off)
+        if ob.name.startswith("Beads"):
+            ob.visible_shadow = False
+    card = area_light("Card", (0.02, -0.12, 0.16), (0, 0, 0), 0.04, 0.1, (0.9, 0.95, 1.0))
+    k2.aim(card, (0, 0, 0.066))
+    cs.strip("Graze", (0.15, -0.03, 0.08), (0, 0, 0.065), 0.3, 0.006, 0.16, ICE)
+    cs.strip("Top", (0.0, -0.06, 0.2), (0, 0, 0.06), 0.15, 0.01, 0.12, SILVER)
+    cs.strip("Fill", (-0.15, -0.12, 0.09), (0, 0, 0.065), 0.25, 0.04, 0.04, ICE)
+    cam = cs.cam_make(100, 5.6)
+    a = math.radians(18)
+    pos = Vector((0.15 * math.sin(a), -0.15 * math.cos(a), 0.07))
+    tgt = (0.0, -R * 0.5, 0.066)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((0, -R, 0.066))))
+
+
+def F14(sc):
+    """Multi-pack: five capped bottles staggered back into the dark, the front one sharp."""
+    cs.cyc([(0, (1, 4, 12)), (0.5, (2, 10, 30)), (1, (2, 2, 6))], -0.3, 0.6, glow=((4, 24, 70), 0.12, 0.10, 0.25))
+    matte_floor((1, 5, 14), rough=0.85)
+    for k in range(5):
+        piv, root, R = cs.bottle(cap=True)
+        nozzle_to_back(root)
+        piv.location = (-0.05 + 0.034 * k, 0.10 * k, cs.MID)
+    bottle_materials()
+    cs.strip("RimR", (0.45, 0.35, 0.2), (0.05, 0.2, 0.08), 1.2, 0.02, 9, SILVER)
+    cs.strip("RimL", (-0.35, 0.5, 0.18), (0.05, 0.2, 0.08), 1.2, 0.02, 4, INDIGO)
+    key = area_light("Key", (-0.35, -0.3, 0.25), (0, 0, 0), 0.25, 1.2, SILVER)
+    k2.aim(key, (0.0, 0.1, 0.08))
+    cam = cs.cam_make(85, 2.8)
+    pos, tgt = Vector((-0.03, -0.5, 0.075)), (0.0, 0.12, 0.09)
+    cs.look(cam, pos, tgt, focus=cs.focus_on(pos, tgt, Vector((-0.05, -0.02, 0.08))))
+
+
+SHOTS = {k: v for k, v in globals().items() if re.fullmatch(r"F\d+", k) and callable(v)}
 
 
 def main():
@@ -276,7 +544,7 @@ def main():
     for ob in bpy.data.objects:
         if ob.type == "LIGHT":
             ob.visible_camera = False
-    sc.frame_set(1)
+    sc.frame_set(sc.frame_current)                       # F11 leaves the scene on its smoke frame
     sc.render.filepath = out
     bpy.ops.render.render(write_still=True)
     print("wrote", out)
