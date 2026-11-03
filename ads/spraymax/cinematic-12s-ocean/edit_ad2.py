@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Ad 2 (ocean) edit, v3: every shot we have, trimmed to its best moment, 12.0 s, visuals only.
+"""Ad 2 (ocean) edit, v4: every shot we have, 12.0 s, visuals only; the wave crash moved between the two
+standing-bottle shots, the beach capped at 1.2 s (Narayan, 3 Nov).
 
 History: v1 ended on the rocks shot slowed and frozen under the logo ("stupid, too long"); v2 dropped the rocks
 shots ("why did you remove the dark rock shot? add all shots that we have"). v3 keeps all ten shots of the take plus
@@ -13,28 +14,29 @@ import sys
 FPS = 24
 # (input 0 = take, 1 = seashore insert, start s, end s); the take's cuts: 1.08 2.29 3.75 4.92 6.04 7.21 7.92 8.83 10.29
 EDL = [
-    (0, 0.10, 1.00),    # 1 cliff, man in silhouette
-    (0, 1.10, 2.20),    # 2 the dive
-    (0, 2.35, 3.65),    # 3 the plunge, seen from underwater
-    (0, 3.85, 4.75),    # 4 sinking past the lens
-    (0, 5.00, 5.90),    # 5 the shipwreck
+    (0, 0.00, 1.08),    # 1 cliff, man in silhouette
+    (0, 1.08, 2.29),    # 2 the dive
+    (0, 2.29, 3.75),    # 3 the plunge, seen from underwater
+    (0, 3.75, 4.92),    # 4 sinking past the lens
+    (0, 4.95, 5.95),    # 5 the shipwreck
     (0, 6.10, 7.00),    # 6 landing by the wreck
     (0, 7.21, 7.91),    # 7 the school of fish
-    (0, 7.98, 8.78),    # 8 the wave on the rocks
-    (0, 8.90, 10.00),   # 9 the dark rock shot: lying on its side as a wave washes over it
-    (0, 10.40, 11.60),  # 10 standing on the rock at sunset
-    (1, 0.60, 2.80),    # 11 the beach: foam rushing in round the bottle
+    (0, 8.83, 10.00),   # 8 the dark rock shot: lying on its side as a wave washes over it
+    (0, 10.40, 11.60),  # 9 standing on the rock at sunset
+    (0, 7.92, 8.83),    # 10 the wave exploding on the rocks (moved here to separate the two standing shots)
+    (1, 0.85, 2.00),    # 11 the beach, 28 frames = 1.17 s (1.2 s max): foam rushing in round the bottle
 ]
+ADJUST = 8              # frame rounding is absorbed by the standing shot (room on both sides), never by the beach
 TOTAL = 12.0
 
 
 def main():
     take, shore, out = sys.argv[1:4]
-    # frame-exact: round every in/out to a frame, then give the last shot whatever makes exactly TOTAL * FPS frames
+    # frame-exact: round every in/out to a frame, then give shot ADJUST whatever makes exactly TOTAL * FPS frames
     frames = [(src, round(s * FPS), round(b * FPS)) for src, s, b in EDL]
     short = round(TOTAL * FPS) - sum(b - s for _, s, b in frames)
-    src, s0, b0 = frames[-1]
-    frames[-1] = (src, s0, b0 + short)
+    src, s0, b0 = frames[ADJUST]
+    frames[ADJUST] = (src, s0, b0 + short)
     parts = []
     for k, (src, s, b) in enumerate(frames):
         parts.append(f"[{src}:v]trim=start_frame={s}:end_frame={b},setpts=PTS-STARTPTS,scale=720:1280,setsar=1[v{k}]")
