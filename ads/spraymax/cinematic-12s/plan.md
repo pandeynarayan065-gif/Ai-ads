@@ -82,7 +82,10 @@ Rates: 480p 28 cr, 720p 63 cr, 1080p 158 cr. Reference images are free. Balance 
 | B · native 1080p | 1,896 | $9.48 | Over the $7 budget. One take, no fixes possible (141 cr left) |
 | C · 480p draft, then 1080p from the draft | ~2,232 | ~$11.16 | More than the balance; kie lists no price for the draft-to-1080p step |
 
-**Status:** v1 and v2 sent; v3 (perfume grammar plus animatic) being built. Waiting for A or B. Nothing spent.
+**Status (3 Nov):** Narayan chose A. Take 1 generated on kie (756 credits; 1,281 left on the old account), QA'd
+shot by shot, the small `fl.oz.` line label-locked (`label_lock.py`), finished at 1080x1920 (`finish_film.py`):
+`spraymax-cinematic-12s.mp4`. The 3D animatic was stopped at Narayan's request ("stop wasting time"); the prompt
+went sheet-only (real photos + flat label) like the perfume film.
 
 ## Commands
 
