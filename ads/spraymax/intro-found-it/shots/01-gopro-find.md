@@ -22,7 +22,7 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 - **Product:** shown, lying on its side, cap to the left, front label up. Label: must read in the last second;
   lock in post if garbled.
 - **Scale anchor:** the bottle is about as long as his hand; his boot toe is in the same frame.
-- **People:** hands-and-feet only (POV): his bare left hand, his jacket cuff, his boots. No face can be in frame.
+- **People:** hands-and-feet only (POV): his gloved left hand (black insulated glove; Narayan: "The hand can have gloves"), his jacket cuff, his boots. No face can be in frame.
 - **Camera (one move):** chest-mount GoPro, ultra-wide, about 120 cm up while walking, dipping to about 60 cm
   as he crouches; the natural walking bob, no pans.
 - **What moves:** 0–1.6 s two steps forward, the bottle enters from the top of the frame; 1.6–2.6 s he stops
@@ -66,7 +66,7 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 1. For the first ~1 s the bottle isn't in frame; it slides in from the top by ~1.6 s, already lying in the snow.
 2. The bottle stays the real size (about a hand long) and lying on its side; it never stands up; the cap stays on;
    no swelling as the hand closes on it.
-3. The hand has five natural fingers, grips the shoulder and collar, never covers the label, and lifts the
+3. The gloved hand has five natural fingers, grips the shoulder and collar, never covers the label, and lifts the
    bottle only a few centimetres.
 4. No face in any frame: only the hand, the cuff and the boots.
 5. Reads as real GoPro night footage: wide-lens distortion, natural walking bob, sensor noise, the head torch
