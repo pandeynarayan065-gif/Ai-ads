@@ -44,20 +44,33 @@ in Spraymax's colours:
    - grade, grain, SFX and music;
    - end card in post: logo, BORN IN HIMACHAL, spraymax.in.
 
-## Shots (v2)
+## Shots (v3): the perfume film's grammar, shot for shot
 
-| # | Frame | Time | Shot | Type |
+Narayan, 3 Nov: "there's no shots and motions like the ones that was in the blue perfume shot". v2 had drifted
+into static, centred shots at a slower pace. v3 copies the reference's cut (measured in
+`reference/creators/higgsfield-seedance-ex-nihilo.md`) and keeps every requested type (POV and use, macro,
+multi-pack, smoke, water splash). The preview is a moving 3D animatic (`build_animatic.py` →
+`animatic-v3.mp4`) because a PDF can't show camera moves.
+
+| # | Frame | Time (s) | Shot | Move (from the reference) |
 |---|---|---|---|---|
-| 1 | F1 | 0–1 s | A hard light sweeps across the ribbed collar | Macro |
-| 2 | F10 | 1–2 s | Dark sea water erupts in a crown round the bottle | Elemental water |
-| 3 | F3 | 2–3 s | Pink Himalayan salt tumbles through one cold beam | Ingredient |
-| 4 | F11 | 3–4 s | Cold smoke rolls in and curls round the bottle | Smoke |
-| 5 | F12 | 4–6 s | First person: one press, a fine mist settles on the open palm | POV, use |
-| 6 | F4 | 6–7 s | The mist bursts out of the nozzle, backlit ice blue | Macro |
-| 7 | F13 | 7–8 s | Sea-water beads on the label, one runs down over the wordmark | Macro |
-| 8 | F5 | 8–9 s | A night swell rises toward the lens under a cold moon | Elemental water |
-| 9 | F14 | 9–10 s | Five bottles staggered back into the dark | Multi-pack |
-| 10 | F9 | 10–12 s | Packshot on deep blue, long shadow, end card | Packshot |
+| 1 | F1 | 0.0-1.2 | Light sweeps round the ribbed collar | push-in |
+| 2 | F16 | 1.2-1.8 | Pink salt chunks meeting in sea mist, blue backdrop (= citrus) | drift |
+| 3 | F17 | 1.8-2.4 | Aloe rosette from above (= the blossom) | drift |
+| 4 | F18 | 2.4-3.0 | Pump and collar rise out of the aloe's heart (= cap in the blossom) | push-in |
+| 5 | F19 | 3.0-3.7 | Cold smoke curl | drift through |
+| 6 | F6 | 3.7-4.8 | Bottle, deep blue bloom rising behind | push-in |
+| 7 | F20 | 4.8-5.6 | Macro on the wave band (= the base text) | push-in |
+| 8 | F21 | 5.6-6.2 | A bead of sea water runs down (= the liquid strand; never from the nozzle) | locked, drop moves |
+| 9 | F22 | 6.2-6.8 | Fast rack across the collar ribs (= the glass ridges) | fast track, motion blur |
+| 10 | F2 | 6.8-7.4 | Near-silhouette, silver edge | rise + push |
+| 11 | F23 | 7.4-8.1 | Five bottles, light through the gaps (= the wood shards) | lateral drift |
+| 12 | F12 | 8.1-8.8 | POV: one press, mist onto the palm | handheld hold |
+| 13 | F10 | 8.8-9.4 | Crown splash round the bottle | locked, slow motion |
+| 14 | F4 | 9.4-10.0 | Mist burst from the side nozzle | locked, slow motion |
+| 15 | F9 | 10.0-12.0 | Packshot + logo, BORN IN HIMACHAL | near-still push |
+
+Seedance: Image 1 is the product sheet; Images 2-16 are the layout frames, one per shot. Duration 12 s.
 
 ## Budget (kie, Seedance 2.5, per second of output; 1 credit = $0.005)
 
@@ -69,7 +82,7 @@ Rates: 480p 28 cr, 720p 63 cr, 1080p 158 cr. Reference images are free. Balance 
 | B · native 1080p | 1,896 | $9.48 | Over the $7 budget. One take, no fixes possible (141 cr left) |
 | C · 480p draft, then 1080p from the draft | ~2,232 | ~$11.16 | More than the balance; kie lists no price for the draft-to-1080p step |
 
-**Status:** v1 sent 2 Nov (feedback above). v2 storyboard being built. Waiting for A or B. Nothing spent.
+**Status:** v1 and v2 sent; v3 (perfume grammar plus animatic) being built. Waiting for A or B. Nothing spent.
 
 ## Commands
 

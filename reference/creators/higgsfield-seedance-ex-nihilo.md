@@ -42,6 +42,39 @@ alternate with ingredient macros, then a packshot ends it.
 8. **The closing style line:** "Cinematic, photorealistic, luxury fragrance campaign. [palette]. [the one warm
    accent]. No distortion. Maintain product proportions."
 
+## The cut, measured (2026-11-03)
+
+Film panel cropped out of the reel (x 72-647, y 231-663 of the 720x1280 screen recording), cuts found by frame
+differencing and camera moves by optical flow (Farneback; % = share of frame width per second). 17 hard cuts in
+~12.6 s, then a ~4 s packshot that fades out.
+
+| # | t (s) | Shot | Measured move |
+|---|---|---|---|
+| 1 | 0.00-1.40 | Gold cap ECU, a key sweeps across the lattice | push-in, zoom 7%/s |
+| 2 | 1.40-2.07 | Citrus peels on blue, mist | drift, 7.5%/s |
+| 3 | 2.07-2.73 | White blossom centred in black | drift left to right, 6.6%/s |
+| 4 | 2.73-3.33 | Cap standing in the blossom's heart | push-in, 4.8%/s |
+| 5 | 3.33-4.10 | Blue smoke curl, wave-like | the smoke moves (13%/s) |
+| 6 | 4.10-5.33 | Flacon, sapphire bloom rising behind | push-in, 3.3%/s |
+| 7 | 5.33-6.67 | Macro of the base, EAU DE PARFUM | push-in 5.3%/s, slight tilt |
+| 8 | 6.67-7.33 | Liquid strand, a droplet travelling | the drop moves; camera locked |
+| 9 | 7.33-7.97 | Fast rack across the glass ridges (streaks) | fast lateral, 14%/s |
+| 10 | 7.97-8.67 | Flacon near-silhouette | creep in and rise |
+| 11 | 8.67-9.33 | Wood shards, light through the gaps | lateral, 12.7%/s |
+| 12 | 9.33-10.00 | Tighter on the shards | lateral, same direction, 14%/s |
+| 13 | 10.00-10.63 | Pear skin with dew | still |
+| 14 | 10.63-11.33 | High three-quarter on the cap | still (slight orbit) |
+| 15 | 11.33-12.00 | Wood grain | diagonal drift, 10%/s |
+| 16 | 12.00-12.63 | Vapour cloud | drift |
+| 17 | 12.63-16.67 | Packshot with the logo lockup | near-still push, then fade |
+
+**What makes it read as luxury:**
+- The pace: 0.6-0.7 s cuts in the middle, longer at the open (1.4 s) and the close (4 s).
+- Every shot moves, and each move is one of a small set: push-in, lateral drift, rise, fast rack.
+- Consecutive cuts that carry the same direction (11-12) feel like one gesture.
+
+Our version: `ads/spraymax/cinematic-12s/` (storyboard v3, `build_animatic.py`).
+
 ## The prompt, verbatim (transcribed from the reel)
 
 ```
