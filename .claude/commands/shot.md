@@ -4,9 +4,10 @@ argument-hint: <brand> <campaign> <shot idea>
 ---
 Make one AI shot: $ARGUMENTS
 
-1. Read `reference/ai-video-playbook.md`, `reference/ai-video-qa.md`, the brand file,
-   `brand/<brand>/product-lock.md` and `ads/<brand>/prompt-log.md`. Read the campaign's `edit-plan.md` too, if
-   there is one.
+1. Read `reference/quick.md`, `brand/<brand>/product-lock.md`, `brand/<brand>/preferences.md` (if there is
+   one) and the newest rows of `ads/<brand>/prompt-log.md`. Read the campaign's `edit-plan.md` or `notes.txt` too,
+   if there is one. Open `reference/ai-video-playbook.md` or `reference/ai-video-qa.md` only for a section
+   `quick.md` doesn't cover (templates, the full scorecard).
 2. **Gate 0 (concept).** Write the shot in one sentence: camera, subject, one action, place, light.
    Run the real-crew test, and check it against the "Avoid" column of the playbook's shot recipes and against
    the prompt log.

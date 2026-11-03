@@ -2,6 +2,16 @@
 
 This repo is a workspace for generating ad copy and creative concepts with Claude.
 
+## Keep it lean (token budget)
+
+- One task per session. Everything a session needs is in the repo (brand files, preferences, prompt log, shot cards,
+  `notes.txt` per campaign), so start fresh rather than carry a long chat.
+- For AI video and stills, read `reference/quick.md` first, then the full playbook only for what it doesn't cover.
+  For Spraymax, read `brand/spraymax/preferences.md` too.
+- Images for checking: at most 800 px wide, one combined sheet per check, not one image per frame.
+- At most two fix rounds on a post fix before showing the user the result and asking.
+- Short replies and short command output (pipe long logs through `tail`).
+
 ## How work flows
 
 1. **Brand** — `brand/<brand-slug>.md` describes the business, audience, voice and rules.
@@ -51,7 +61,7 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
 
 ## AI video shots
 
-- Follow `reference/ai-video-playbook.md` for every AI video shot and its keyframe: still first, then animate;
+- Start from `reference/quick.md` (one page). The full rules are in `reference/ai-video-playbook.md`: still first, then animate;
   one camera move and one action per shot; only things a real crew could film; image-to-video prompts describe
   motion only; never ask a video model for words (labels, supers and end cards are done in post). Static image
   ads can still carry a short headline + CTA as above.
