@@ -9,7 +9,13 @@ Refs (Image 1, 2, 3): ../refs/sd-01-bottle-lying.jpg, ../refs/sd-02-label-flat.j
 
 Output: 720x1280, 24 fps, 97 frames (4.04 s), H.264, no audio. Verdict: keep (15/18), the whole clip is usable.
 
-Post (masters):
+Post (masters: spraymax-intro-found-it-4s.mp4 1080x1920, spraymax-intro-found-it-4s-4k.mp4 2160x3840, visuals only):
   scripts/esrgan_upscale.py clips/20261103-104914-1.mp4 esr.mp4 --weights realesr-general-x4v3.pth --size 2160x3840
-  ads/spraymax/cinematic-12s/finish_film.py esr.mp4 fin.mp4 --no-card --size 1080x1920   (and 2160x3840)
-  ffmpeg -i fin.mp4 -an -c:v copy -movflags +faststart spraymax-intro-found-it-4s.mp4     (visuals only)
+  ads/spraymax/intro-found-it/label_lock_intro.py esr.mp4 lock.mp4 --scale 3 --track clips/20261103-104914-1.mp4
+  ads/spraymax/cinematic-12s/finish_film.py lock.mp4 fin.mp4 --no-card --size 1080x1920   (and 2160x3840)
+  ffmpeg -i fin.mp4 -an -c:v copy -movflags +faststart spraymax-intro-found-it-4s.mp4
+
+Label lock (Narayan: "Fix the label", "it better not look like a sticker", "blend it with the actual bottle and
+match the label size that seedance generated"): the real label art, laid out where Seedance printed its label
+(band edge to edge, wordmark at Seedance's letter size), lit by the bottle's own pixels, toned to Seedance's
+lighting of its band; frames 52-96 (52-55 crossfade). Before/after: label-fix-before-after.jpg.

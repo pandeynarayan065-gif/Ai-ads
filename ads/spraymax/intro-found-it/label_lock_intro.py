@@ -8,10 +8,11 @@ Seedance drew a lavender wordmark, a pale band and garbled small lines. Per fram
    (the bottle still tiny at the top of the frame) keep the AI pixels, with a short crossfade into the lock.
 2. Wrap: in REF's coordinates the bottle is a cylinder (axis, radius, label bottom edge measured from the AI
    band), and the flat label art (label-hires.jpg) is wrapped round it at the AI print's own scale.
-3. Light: the frame is pulled back into REF coordinates and the AI bottle's paper/plastic colour is measured
-   on a grid across and along the bottle (its ink skipped), so the torch falloff, the cylinder shading and the
-   cool cast carry onto the real print. Glove pixels (dark, unsaturated) are never painted.
-4. Match: the print is softened and given the frame's own noise so it doesn't read as a sticker.
+3. Light: the frame is pulled back into REF coordinates; wherever the AI bottle shows bare paper/plastic, its own
+   pixels are the light (shading, highlights, grain), and under its ink the light is filled in from the paper
+   around it. The real print is multiplied into that, so the label is the bottle's own surface with the real
+   print on it, not a sticker pasted on top. The glove (large dark blobs at the cap end) is never painted.
+4. Match: the print is softened to the footage's focus; grain is added only where the light was filled in.
 
   python3 ads/spraymax/intro-found-it/label_lock_intro.py <clip.mp4> <out.mp4> [--scale 3] [--qa <dir>]
 
@@ -197,10 +198,10 @@ def main():
     paper_art = np.median(art[1200:2400, 1900:2300].reshape(-1, 3), axis=0)      # the art's white paper
     edge_px = int(8 * ART_SCALE)                                                  # the file's thin border lines
     art[:edge_px], art[-edge_px:] = paper_art, paper_art
-    # the side panels' tiny text only reads as dots at this size: half its contrast
+    # the side panels' tiny text only reads as a dotted line along the edge at this size: leave it out
     side = np.ones(art.shape[1], np.float32)
-    side[:int((ART_X0 - 240) * ART_SCALE)] = 0.5
-    side[int((ART_X0 + 240) * ART_SCALE):] = 0.5
+    side[:int((ART_X0 - 240) * ART_SCALE)] = 0.0       # Seedance's bottle shows no side-panel print: plain paper
+    side[int((ART_X0 + 240) * ART_SCALE):] = 0.0
     art = paper_art + (art - paper_art) * side[None, :, None]
     corners = label_pts((0.0, 1.0), k)
     pad = REF_R + 12
@@ -213,30 +214,58 @@ def main():
     nrm = np.array([-REF_A[1], REF_A[0]])
     u, v = px * REF_A[0] + py * REF_A[1], px * nrm[0] + py * nrm[1]
     inside = np.abs(v) < REF_R
-    theta = np.arcsin(np.clip(v / REF_R, -0.9999, 0.9999))
-    ax = (ART_X0 + theta * REF_R / k) * ART_SCALE
-    ay = (ART_H - u / k) * ART_SCALE
-    on_label = inside & (ay >= 0) & (ay <= ART_H * ART_SCALE - 1)
-    blur_px = ART_SCALE / (k * s) * 0.45                              # pre-filter the hires art to the output pixel
+    # --- the real art laid out exactly where Seedance printed its label (measured on REF in bottle coords:
+    # band u 1..41.5 and v -32.5..30.5, i.e. edge to edge; wordmark u 53..137.5 with letters ~14 px tall).
+    # Along the axis: piecewise-linear from label-flat rows to u. Across: a smooth stretch from the art's column
+    # (art px from the front centre) to the angle round the bottle, so the wordmark keeps Seedance's letter size
+    # while the band still reaches the edges, as Seedance drew it.
+    ALONG_U = np.array([0.0, 41.5, 53.0, 137.5, 144.5])
+    ALONG_Y = np.array([ART_H, 690.0, 629.0, ART_WM_TOP, 0.0])
+    yb, yw = (ALONG_Y[0] - ALONG_Y[1]) / ALONG_U[1], (ALONG_Y[3] - ALONG_Y[4]) / (ALONG_U[4] - ALONG_U[3])
+    ay = np.interp(u, ALONG_U, ALONG_Y)
+    ay = np.where(u < 0, ART_H - u * yb, np.where(u > ALONG_U[-1], -(u - ALONG_U[-1]) * yw, ay)) * ART_SCALE
+    V_OFF = -1.0                                                      # Seedance's print sits 1 px off the axis
+    th_wm, th_band = np.arcsin(7.0 / REF_R), np.arcsin(31.5 / REF_R)  # wordmark half-height, band half-width
+    s1 = 55.0 / th_wm                                                 # art px per radian at the centre
+    c3 = (th_band * s1 / 233.0) - 1.0                                 # cubic stretch so +-233 art px hits the band edge
+    dx_grid = np.linspace(-520, 520, 4161)
+    th_grid = dx_grid / s1 * (1 + c3 * (dx_grid / 233.0) ** 2)
+    theta = np.arcsin(np.clip((v - V_OFF) / REF_R, -0.9999, 0.9999))
+    dx = np.interp(theta, th_grid, dx_grid)
+    ax = (ART_X0 + dx) * ART_SCALE
+    ay_end = ART_H * ART_SCALE - 1
+    bare = 3.0 * yb * ART_SCALE                                       # ~3 px of bare plastic past the label's base edge
+    on_label = inside & (ay >= 0) & (ay <= ay_end + bare)                # (covers the AI band where it ran long)
+    # where the real band and wordmark land (for matching them to Seedance's look per frame)
+    art_band = ((ay > 690 * ART_SCALE) & (ay < 950 * ART_SCALE) & (np.abs(dx) < 233)).astype(np.float32)
+    art_wm = ((ay > (ART_WM_TOP - 4) * ART_SCALE) & (ay < 633 * ART_SCALE) & (np.abs(dx) < 60)).astype(np.float32)
+    ai_band = inside & (u > 4) & (u < 38) & (np.abs(v - V_OFF) < 0.85 * REF_R)
+    ai_wm_zone = (u > 56) & (u < 135) & (np.abs(v - V_OFF) < 8)
+    ai_print = inside & (((u > -1.5) & (u < 53)) | ((u > 51) & (u < 140) & (np.abs(v - V_OFF) < 10)))
+
+    def axis_kernel(sig_along, sig_across):
+        """Gaussian elongated along the bottle's axis (in REF crop pixels), for filling light under the print
+        from the paper beyond it while keeping the shading across the cylinder."""
+        rad = int(3 * sig_along)
+        yk, xk = np.mgrid[-rad:rad + 1, -rad:rad + 1].astype(np.float32)
+        al = xk * REF_A[0] + yk * REF_A[1]
+        ac = -xk * REF_A[1] + yk * REF_A[0]
+        kk = np.exp(-0.5 * ((al / sig_along) ** 2 + (ac / sig_across) ** 2))
+        return kk / kk.sum()
+    k_small = axis_kernel(5.0 * s, 1.5 * s)
+    k_large = axis_kernel(22.0 * s, 2.0 * s)
+    blur_px = ART_SCALE / (k * s) * 0.45 + ART_SCALE / k * 0.18       # anti-alias + match the footage's softness
     art_soft = cv2.GaussianBlur(art, (0, 0), max(0.3, blur_px))
     label = cv2.remap(art_soft, ax.astype(np.float32), ay.astype(np.float32), cv2.INTER_LINEAR,
                       borderMode=cv2.BORDER_REPLICATE)
     del art, art_soft
     reflect = label / paper_art                                       # 1 = white paper
+    reflect[ay > ay_end] = 1.0
     edge = np.clip((REF_R - np.abs(v)) * s / 1.2, 0, 1)               # fade over the cylinder's last ~1.2 px
-    ends = np.clip(np.minimum(ay, ART_H * ART_SCALE - ay) / (ART_SCALE * 1.2 / k / s), 0, 1)
+    ends = np.clip(np.minimum(ay, ay_end + bare - ay) / (ART_SCALE * 1.2 / k / s), 0, 1)
     paint_ref = (on_label * edge * ends).astype(np.float32)
 
-    # light grid (v bins across, u bins along), from the AI's paper / plastic
-    NV, NU = 14, 8
-    u0, u1 = -0.25 * REF_R, ART_H * k + 0.15 * REF_R
-    ub = np.clip(((u - u0) / (u1 - u0) * NU).astype(int), 0, NU - 1)
-    vb = np.clip(((v + REF_R) / (2 * REF_R) * NV).astype(int), 0, NV - 1)
-    band_lo = (ART_H - 700) * k                                       # the band and the small line sit below this
-    bins = ub * NV + vb
-    bottle_band = inside & (u > u0) & (u < u1) & (np.abs(v) < REF_R * 0.97) & ~((u > 0) & (u < band_lo))
-    Lx = np.clip((v + REF_R) / (2 * REF_R) * NV * 16 - 0.5, 0, NV * 16 - 1).astype(np.float32)
-    Ly = np.clip((u - u0) / (u1 - u0) * NU * 16 - 0.5, 0, NU * 16 - 1).astype(np.float32)
+    u0, u1 = -0.25 * REF_R, ART_H * k + 0.15 * REF_R                   # where the light is sampled (label + plastic)
 
     lock_w = np.zeros(len(Hs), np.float32)
     for i in locked:
@@ -268,40 +297,61 @@ def main():
         hsv = cv2.cvtColor(back, cv2.COLOR_BGR2HSV)
         back = back.astype(np.float32) / 255
         lum = back.mean(2)
-        cand = bottle_band & (hsv[..., 1] < 60)
-        light = np.zeros((NU * NV, 3), np.float32)
-        valid = np.zeros(NU * NV, bool)
-        cb, cpx = bins[cand], back[cand]
-        order = np.argsort(cb, kind="stable")
-        cb, cpx = cb[order], cpx[order]
-        starts = np.searchsorted(cb, np.arange(NU * NV + 1))
-        for b in range(NU * NV):
-            px_ = cpx[starts[b]:starts[b + 1]]
-            if len(px_) >= 4 * s * s:
-                l = px_.mean(1)
-                light[b] = np.median(px_[l >= np.percentile(l, 40)], axis=0)  # skip the AI's ink and specks
-                valid[b] = True
-        light, valid = light.reshape(NU, NV, 3), valid.reshape(NU, NV)
-        for bv in range(NV):                                          # fill along u (under the band)
-            idx = np.nonzero(valid[:, bv])[0]
-            if len(idx):
-                for c in range(3):
-                    light[:, bv, c] = np.interp(np.arange(NU), idx, light[idx, bv, c])
-        colok = valid.any(0)
-        idx = np.nonzero(colok)[0]
-        for bu in range(NU):                                          # and across v if a column was empty
-            for c in range(3):
-                light[bu, :, c] = np.interp(np.arange(NV), idx, light[bu, idx, c])
-        light = cv2.GaussianBlur(light, (3, 3), 0.7)
-        Lmap = cv2.remap(cv2.resize(light, (NV * 16, NU * 16), interpolation=cv2.INTER_CUBIC), Lx, Ly, cv2.INTER_LINEAR)
-        new = reflect * Lmap
-        g = cv2.GaussianBlur(lum, (0, 0), 1.2 * s)                    # the frame's own noise, on its paper
-        res_n = (lum - g)[cand]
-        noise = min(0.02, 0.8 * 1.4826 * np.median(np.abs(res_n - np.median(res_n)))) if len(res_n) > 50 else 0.006
+        # light = the AI bottle's own pixels wherever its bare paper/plastic shows (its shading, highlights and
+        # grain, pixel for pixel); under its ink (wordmark, band, small text) it is filled in from the paper
+        # around it by normalized convolution, and only there do we add matching grain. The real print is then
+        # multiplied into that light, so the paper is literally the bottle's own surface, not a pasted sticker.
+        region = inside & (u > u0) & (u < u1)
+        # Seedance's ink: its print zones (band, small line, wordmark) plus any thin dark stroke or saturated
+        # pixel; soft shading across the bottle is NOT ink (it is compared with its own local blur)
+        g3 = cv2.GaussianBlur(lum, (0, 0), 3.0 * s)
+        ink = ai_print | (hsv[..., 1] >= 45) | (lum < 0.9 * g3)
+        ink = cv2.dilate((region & ink).astype(np.uint8), np.ones((4 * s + 1, 4 * s + 1), np.uint8)) > 0
+        paper = region & ~ink
+        pm = paper.astype(np.float32)
+        def nconv(kern):
+            w_ = cv2.filter2D(pm, -1, kern)
+            return cv2.filter2D(back * pm[..., None], -1, kern) / np.maximum(w_, 1e-5)[..., None], w_
+        f1, w1 = nconv(k_small)
+        f2, _ = nconv(k_large)
+        fill = np.where((w1 > 0.08)[..., None], f1, f2)
+        m_soft = cv2.GaussianBlur(pm, (0, 0), 0.7 * s)[..., None]
+        light = m_soft * back + (1 - m_soft) * fill
+        # matching grain where the light was filled in: the frame's own noise, measured on its paper
+        g = cv2.GaussianBlur(lum, (0, 0), 1.2 * s)
+        res_n = (lum - g)[paper]
+        noise = min(0.02, 1.4826 * np.median(np.abs(res_n - np.median(res_n)))) if len(res_n) > 50 else 0.006
         nz = cv2.GaussianBlur(np.random.default_rng(i).standard_normal((ch, cw)).astype(np.float32), (0, 0), 0.6 * s)
         nz *= noise / max(1e-4, nz.std())
-        new = new + nz[..., None]
-        glove = ((lum < 0.30) & (hsv[..., 1] < 110)).astype(np.uint8)  # never paint over the glove
+        new = reflect * light + (nz * (1 - m_soft[..., 0]))[..., None]
+        # blend into Seedance's own lighting of its print: the real band takes Seedance's band brightness, contrast
+        # and part of its colour cast; the real wordmark keeps its indigo but takes part of Seedance's lightness
+        lab_new = cv2.cvtColor(np.clip(new, 0, 1).astype(np.float32), cv2.COLOR_BGR2Lab)
+        lab_ai = cv2.cvtColor(back, cv2.COLOR_BGR2Lab)
+        rb, ab = art_band > 0.5, ai_band
+        if rb.sum() > 50 and ab.sum() > 50:
+            mr, sr = lab_new[rb].mean(0), lab_new[rb].std(0)
+            ma, sa = lab_ai[ab].mean(0), lab_ai[ab].std(0)
+            adj = lab_new.copy()
+            gain = np.clip(sa[0] / max(sr[0], 1e-3), 0.7, 1.4) ** 0.6
+            adj[..., 0] = mr[0] + (lab_new[..., 0] - mr[0]) * gain + 0.75 * (ma[0] - mr[0])
+            adj[..., 1:] = lab_new[..., 1:] + 0.5 * (ma[1:] - mr[1:])
+            wb = cv2.GaussianBlur(art_band, (0, 0), 0.8 * s)[..., None]
+            lab_new = lab_new * (1 - wb) + adj * wb
+        wm_ai = ai_wm_zone & (hsv[..., 1] > 45)
+        rw = (art_wm > 0.5) & (lab_new[..., 0] < 60)
+        if rw.sum() > 20 and wm_ai.sum() > 20:
+            dL = 0.4 * (lab_ai[wm_ai][:, 0].mean() - lab_new[rw][:, 0].mean())
+            ww = cv2.GaussianBlur(art_wm, (0, 0), 0.8 * s)
+            ink_w = np.clip((90 - lab_new[..., 0]) / 50, 0, 1) * ww      # only the ink, not the paper round it
+            lab_new[..., 0] += dL * ink_w
+        new = cv2.cvtColor(lab_new, cv2.COLOR_Lab2BGR)
+        # never paint over the glove: large dark, unsaturated blobs at the cap end only (the AI's dark print and
+        # the shadowed parts of its band are thin or small, and must be painted over)
+        glove = ((lum < 0.30) & (hsv[..., 1] < 110) & (u > 0.6 * ART_H * k)).astype(np.uint8)
+        glove = cv2.morphologyEx(glove, cv2.MORPH_OPEN, np.ones((7 * s, 7 * s), np.uint8))
+        nb, lab_, st_, _ = cv2.connectedComponentsWithStats(glove)
+        glove = np.isin(lab_, [b for b in range(1, nb) if st_[b, 4] >= (18 * s) ** 2]).astype(np.uint8)
         glove = cv2.dilate(glove, np.ones((3 * s, 3 * s), np.uint8))
         glove = cv2.GaussianBlur(glove.astype(np.float32), (0, 0), 0.8 * s)
         mask_ref = paint_ref * (1 - np.clip(glove * 1.5, 0, 1)) * lock_w[i]

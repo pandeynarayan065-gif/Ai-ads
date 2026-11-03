@@ -45,8 +45,9 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 - **Motion (what ran):** Seedance 2.5 reference-to-video, 720p, 4 s, audio off (`prompt-01-seedance-ref.md`), Narayan's
   pick ("Go 252") over the stills route. **Planned first:** Seedance 2.5, first + last frame (`motion-01.md`). Playbook lesson: only a
   frame where the bottle already lies stops Seedance standing it up.
-- **Clip fixes in post:** label lock on the last second if the label garbles; Real-ESRGAN upscale if 480p;
-  grain and grade to match the film; SFX.
+- **Clip fixes in post (done):** Real-ESRGAN 4x; label lock (`label_lock_intro.py`, frames 52-96) with the real art in
+  Seedance's own layout and light; `finish_film.py` grade and grain; masters `spraymax-intro-found-it-4s.mp4` and
+  `-4k.mp4`, visuals only. SFX still to add.
 
 ## Prompts
 
@@ -84,3 +85,5 @@ Rules: `reference/ai-video-playbook.md`. Gates: `reference/ai-video-qa.md`.
 ## Lesson for the prompt log
 
 Seedance laid the bottle down for the first time when Image 1 was a real photo of it lying down (the three earlier upright failures all used upright refs). Rule: the refs' pose beats the text; for a lying product, give a reference photographed lying down.
+Label lock: the real art laid out to scale read as a pasted sticker ("looks slapped on"); laid out in Seedance's own
+footprint (band edge to edge, its letter size) and lit by the bottle's own pixels, it blends.

@@ -312,6 +312,7 @@ his face; he never turns toward the camera". Or crop to the hands.
 | Label garbled on a still | `scripts/label_lock_still.py` |
 | Label garbled, bottle upright or moving in water | `scripts/label_lock_upright.py` (`--track-flow` for optical-flow tracking) |
 | Label garbled, small bottle in a hand, needs real light and taper | `scripts/label_lock_handheld.py` |
+| Label garbled, bottle lying in a moving POV shot then picked up and tilted | `ads/spraymax/intro-found-it/label_lock_intro.py` (two-half ECC track joined into a homography, re-anchoring; the real art laid out in the AI's own label footprint and lit by the AI bottle's own pixels, so it doesn't read as a sticker) |
 | Wrapping flat label art onto a cylinder | `scripts/label_wrap.py` |
 | Milky cap should be clear | `ads/spraymax/studio-hero/clear_cap.py` |
 | Small label lines garbled while tracking | `ads/spraymax/studio-hero/fix_text_v2.py` |
