@@ -1,0 +1,14 @@
+Shelf still + motion graphics (Narayan, 3 Nov: "Recreate this with veo still, and then do motion graphics and give it
+motion, 100 accurate bottle and label"; "go blue")
+
+Source: bro-carrying/clips-v4/09-shelf.mp4 (our Blender shot C9, purple).
+Still: Nano Banana Pro edit (Veo only makes video), 2K, 18 cr -> images/20261103-180852-1.png
+  prompt-01-still.md; refs: refs/01 frame 24 of the clip, refs/02 real bottle in low light, refs/03 real pump.
+Fixes (fix_labels.py): real "Instant Hair Volume & Texture", "FOR ALL HAIR TYPES", "100ml/3.38fl.oz." in place of
+  the AI's made-up lines; nozzle holes that faced the camera painted out (the real one faces the back label).
+  1080 plate: fix at native, crop to 9:16 -> images/shelf-still-fixed(-916).png
+  4K plate: Real-ESRGAN the raw still to 2160 wide first, then fix -> images/shelf-still-fixed-4k.png
+Motion (animate_shelf.py, from the 4K plate): push-in 100->107%, light sweep across each bottle in turn, glint on the
+  shelf edge, dust motes, live grain; "lockup" version adds the animated end-card lockup from 1.4 s.
+  spraymax-shelf-motion(.mp4|-4k.mp4)          3.0 s
+  spraymax-shelf-motion-lockup(.mp4|-4k.mp4)   4.0 s

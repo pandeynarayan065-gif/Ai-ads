@@ -39,6 +39,7 @@ Lint = today's `scripts/prompt_lint.py --faceless` result on the prompt as sent 
 
 | Still | Model | Verdict | What the AI got wrong | Fix |
 |---|---|---|---|---|
+| Shelf still (Pack of 3 on a glass shelf, blue; edit of our 3D shelf frame) | Nano Banana Pro edit, 2K, 18 cr; image 1 our render's frame, image 2 real bottle in low light, image 3 real pump | **Kept** after post fixes (`shelf-still/fix_labels.py`), animated in post (`animate_shelf.py`) | Kept the layout 1:1 and made a real set (tempered glass, steel rods); bottles 4% squat (in tolerance), ribbed collars and clear caps right; small lines garbled into made-up "100% ..." / "98% ..." text (claim risk); nozzle hole drawn facing front on 2 of 3 | An edit of our own 3D frame keeps the layout pixel-true, so the real lines can be placed by the band; upscale first, then lay in the real text (an upscaler smears tiny lines) |
 | Ocean spray (resize edit) | Nano Banana Pro edit | Kept as the v2 first frame | n/a | The resize edit fixed the scale |
 | Ocean spray | Nano Banana Pro, 3 real refs | Fixed in post, then rejected for scale | Nasal-spray pump; smooth collar; label reversed with "TTFES"; bottle 13% long and oversized | `spray-ocean-fix.py`, `label_lock_still.py`, then the resize edit |
 | Studio mockup (the user's, from Gemini) | Gemini | Proportions wrong | Squat bottle; "8.38 fl.oz."; watermark | Rebuilt at real proportions (`build_first_v2.py`) |
