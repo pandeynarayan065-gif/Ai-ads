@@ -23,6 +23,13 @@ flowchart LR
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
 
+## ads/jpg-spec/ultra-male-12s
+- `plan.md`: Jean Paul Gaultier Ultra Male — 12 s portfolio spec ad (ad 3)
+- `prompt-seedance-12s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
+
+## ads/jpg-spec/ultra-male-12s/refs
+- media: 1 .jpg
+
 ## ads/redbull-spec/cinematic-12s
 - `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
 - `edit_redbull.py`: Red Bull spec edit: the cleaned take minus the cliff dive (Narayan, 4 Nov: "Remove this shot from redbull").
@@ -353,6 +360,7 @@ flowchart LR
 - `0xroas.md`: @0xROAS ("0x ROAS"): AI UGC ads (Sora 2, Seedance 2.0/2.5, Veo 3.1, lipsync stacks)
 - `README.md`: Creator studies
 - `higgsfield-seedance-ex-nihilo.md`: Higgsfield: Seedance 2.5 luxury product film (Ex Nihilo "Blue Talisman")
+- `prada-green-glass-reflections.md`: "Even glass reflections can look this real" — Prada green-glass perfume breakdown (Instagram reel)
 
 ## scripts
 - `check_limits.py`: Check ad copy files against platform character limits.
