@@ -27,3 +27,6 @@ is his preference.
   suit sleeve and white cuff, not the striped sleeve; the plunge goes in head-first.
 - Preview `takes/preview-1080.mp4` (finish_film on the 720p take). Masters: `make_masters.sh` -> `jpg-ultra-male-spec.mp4`
   and `-4k.mp4`.
+- Narayan: "Delete this shot" (the spray hand) and "generate a new shot more elemental". `edit_ultra_male.py` cuts
+  take frames 208-221 -> `takes/edit-v1-720.mp4` (275 frames, 11.46 s). New shot: `prompt-storm-3s.md` (night storm on
+  the deck, rain bursting off the glass, a lightning fork behind; 720p, 3 s, 189 cr: 4 s would be 252 > 231 left).
