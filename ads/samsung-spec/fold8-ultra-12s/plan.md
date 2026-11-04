@@ -61,3 +61,5 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
   one fixed Lab tone curve on the logo shot: back lifted to the opener's Star White (L 180 vs 182, same tint), black
   chrome to polished grey, the violet reflection kept -> `takes/edit-v5-720.mp4`; preview `takes/preview-v5-1080.mp4`
   (replaces the v4 preview). 4K order: add_opener -> grade_logo_shot -> finish_film --no-card -> hud_overlay --offset 62.
+- Delivered (4 Nov): `samsung-fold8-ultra-spec.mp4` (1080x1920) and `-4k.mp4` (2160x3840), 351 frames, 14.63 s,
+  visuals only, built by `make_masters.sh`.

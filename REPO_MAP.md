@@ -46,6 +46,7 @@ flowchart LR
 - `plan.md`: Samsung Galaxy Z Fold8 Ultra: 12 s spec film (Misfits portfolio)
 - `prompt-opener-seedance-4s.md`: Image 1 is Apple's official photo of the real iPhone Duo in Star White: the back, its camera bar and its Apple
 - `prompt-seedance-12s.md`: Image 1 is Samsung's official photo of the real Galaxy Z Fold8 Ultra in Violet Shadow, closed, seen from the f
+- media: 2 .mp4
 
 ## ads/samsung-spec/fold8-ultra-12s/images
 - media: 1 .jpg
