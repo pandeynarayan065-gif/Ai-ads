@@ -1,0 +1,74 @@
+[
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/social/ig-profile-1080.html",
+  "png": "/home/user/Ai-ads/brand/misfits/social/ig-profile-1080.png",
+  "w": 1080,
+  "h": 1080
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/social/ig-launch-post-1080x1350.html",
+  "png": "/home/user/Ai-ads/brand/misfits/social/ig-launch-post-1080x1350.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/social/banner-1500x500.html",
+  "png": "/home/user/Ai-ads/brand/misfits/social/banner-1500x500.png",
+  "w": 1500,
+  "h": 500
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/social/web-hero-1920x1080.html",
+  "png": "/home/user/Ai-ads/brand/misfits/social/web-hero-1920x1080.png",
+  "w": 1920,
+  "h": 1080
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/social/palette-1600x1200.html",
+  "png": "/home/user/Ai-ads/brand/misfits/social/palette-1600x1200.png",
+  "w": 1600,
+  "h": 1200
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_logo-on-dark.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-logo-on-dark.png",
+  "w": 2000,
+  "h": 284,
+  "transparent": true
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_wordmark-on-dark.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-wordmark-on-dark.png",
+  "w": 2000,
+  "h": 359,
+  "transparent": true
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_symbol-on-dark.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-symbol-on-dark.png",
+  "w": 2000,
+  "h": 2000,
+  "transparent": true
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_logo-on-light.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-logo-on-light.png",
+  "w": 2000,
+  "h": 284,
+  "transparent": true
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_wordmark-on-light.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-wordmark-on-light.png",
+  "w": 2000,
+  "h": 359,
+  "transparent": true
+ },
+ {
+  "html": "/home/user/Ai-ads/brand/misfits/logo/_symbol-on-light.html",
+  "png": "/home/user/Ai-ads/brand/misfits/logo/misfits-symbol-on-light.png",
+  "w": 2000,
+  "h": 2000,
+  "transparent": true
+ }
+]

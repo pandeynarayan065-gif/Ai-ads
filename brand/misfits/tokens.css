@@ -1,0 +1,28 @@
+/* Misfits design tokens: for the website. Primary theme: Noir / Acid. */
+@font-face { font-family: "Archivo Expanded"; src: url("fonts/Archivo-VF.ttf") format("truetype");
+  font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-VF.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+
+:root {
+  --mf-bg: #0B0B0D;
+  --mf-panel: #17171B;
+  --mf-ink: #EEEBE4;
+  --mf-muted: #8C8C91;
+  --mf-accent: #C6FF33;      /* the misfit: one use per screen */
+  --mf-line: #2A2A30;
+
+  --mf-font-display: "Archivo Expanded", "Archivo", system-ui, sans-serif;   /* use font-stretch: 125%; weight 900 */
+  --mf-font-body: "Inter", system-ui, sans-serif;
+
+  --mf-tilt: -14deg;         /* the misfit angle (logo I, accents) */
+  --mf-radius: 14px;
+  --mf-radius-pill: 999px;
+}
+
+/* Alternate themes */
+[data-theme="noir-signal"] { --mf-accent: #FF4B2B; }
+[data-theme="midnight-volt"] { --mf-bg: #0A0F1F; --mf-panel: #131A30; --mf-ink: #E8EEFF; --mf-muted: #8A93AD;
+  --mf-accent: #3D6BFF; --mf-line: #222B45; }
+
+.mf-display { font-family: var(--mf-font-display); font-stretch: 125%; font-weight: 900; letter-spacing: -0.01em; line-height: 0.95; }
+.mf-misfit { display: inline-block; color: var(--mf-accent); transform: translateY(0.06em) rotate(var(--mf-tilt)); }
