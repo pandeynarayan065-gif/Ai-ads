@@ -22,3 +22,5 @@ Spec ad: not commissioned by, affiliated with or endorsed by Red Bull. Say so wh
 - Cut (Narayan, 4 Nov: "Remove this shot"): the cliff dive, frames 185-204 (`edit_redbull.py`); the film is 11.21 s.
 - Next: Real-ESRGAN 4x of the cleaned take, then `edit_redbull.py`, then `finish_film.py --no-card` at 1080x1920 and 4K,
   visuals only.
+- Delivered (4 Nov): `redbull-cinematic-12s.mp4` (1080x1920) and `redbull-cinematic-12s-4k.mp4` (2160x3840), visuals only,
+  268 frames, 11.17 s: ESRGAN 4x of the cleaned take, `edit_redbull.py`, `finish_film.py --no-card`, audio stripped.
