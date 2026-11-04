@@ -45,3 +45,8 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
 - HUD: `hud_overlay.py`, run last on the finished film. Official specs only: 200MP/50MP/10MP 3x, Armor FlexHinge,
   up to 30x digital zoom, Snapdragon 8 Elite Gen 5 for Galaxy, 5000 mAh, Flex Titanium, Gorilla Glass Victus 2,
   8.0" / 3000 nits peak, 4.1 mm / 215 g. Preview `takes/preview-hud-1080.mp4` (Lanczos 1080p, not the final upscale).
+- Opener take `takes/20261104-203734-1.mp4` (252 cr): the iPhone Duo matches Apple's photo (camera pill, flash, logo).
+  From frame ~66 the Fold8 "reflection" is a flat pasted copy of the reference photo, so only frames 0-64 are used.
+  `add_opener.py` puts them before v1 -> `takes/edit-v2-720.mp4` (354 frames, 14.75 s): opener, hard cut to v1's
+  chrome-logo shot (its reflection reads as real), then the film unchanged. HUD: `--offset 65`.
+- 4K: ESRGAN of edit-v1 + of the 65 opener frames, `add_opener.py` on both, `finish_film.py --no-card`, HUD last.

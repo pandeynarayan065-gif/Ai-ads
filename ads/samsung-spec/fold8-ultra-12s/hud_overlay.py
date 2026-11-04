@@ -8,7 +8,9 @@ a leader line draws out, then the label types on and the value decodes left to r
 Frames are those of takes/edit-v1-720.mp4 (289 frames, 24 fps); any resolution of it works (positions are relative).
 Run it last, on the finished film, so the lines stay crisp.
 
-  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--qa <dir>]
+  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 65] [--qa <dir>]
+
+--offset shifts every callout by that many frames (65 for the v2 edit with the iPhone Duo opener in front).
 """
 import math
 import subprocess
@@ -163,6 +165,7 @@ def main():
     a = sys.argv[1:]
     src, dst = a[0], a[1]
     qa = Path(a[a.index("--qa") + 1]) if "--qa" in a else None
+    off = int(a[a.index("--offset") + 1]) if "--offset" in a else 0
     W, H = probe(src)
     s = W / 1080
     dec = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", src, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
@@ -177,10 +180,11 @@ def main():
             break
         f = np.frombuffer(buf, np.uint8).reshape(H, W, 3)
         for c in CALLOUTS:
-            if c["shot"][0] <= n < c["shot"][1]:
-                L = c["shot"][1] - c["shot"][0]
-                f = composite(f, draw_callout(W, H, c, n - c["shot"][0], L), s)
-                if qa and n - c["shot"][0] == L - 2:
+            a0, a1 = c["shot"][0] + off, c["shot"][1] + off
+            if a0 <= n < a1:
+                L = a1 - a0
+                f = composite(f, draw_callout(W, H, c, n - a0, L), s)
+                if qa and n - a0 == L - 2:
                     qa.mkdir(parents=True, exist_ok=True)
                     Image.fromarray(f).save(qa / f"f{n:03d}.png")
         enc.stdin.write(np.ascontiguousarray(f).tobytes())
