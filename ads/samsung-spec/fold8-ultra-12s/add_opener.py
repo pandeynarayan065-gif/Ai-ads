@@ -7,12 +7,11 @@ From frame ~66 its Fold8 "reflection" fades in as a flat copy of the reference p
 hard-cuts into v1's own shot 1 (the chrome logo macro, whose reflection reads as real). 62 + 289 = 351 frames, 14.63 s.
 Works at 720p or on 4x upscales of both (same frames).
 
-v3 (Narayan: "the editing is sloppy"): the opener's frosted Star White logo cut straight to v1's black-chrome logo on a
-dark back, which reads as a different phone. So by default v1's shot 1 (frames 0-37) is dropped and the opener cuts
-straight to the Fold8 reveal, back to back: 62 + 251 = 313 frames, 13.04 s; HUD --offset 24. --keep-logo-shot restores
-v2 (351 frames; HUD --offset 62).
+v3 tried dropping v1's shot 1 (the black-chrome logo) so the opener cut straight to the Fold8 reveal; Narayan: "Bring
+back old chrome logo shot everything else is good". So v4 = v2's cut (opener, then v1 whole: 351 frames, 14.63 s; HUD
+--offset 62) with v3's clean supers. --drop-logo-shot rebuilds v3 (313 frames; HUD --offset 24).
 
-  python3 ads/samsung-spec/fold8-ultra-12s/add_opener.py <opener.mp4> <edit-v1.mp4> <out.mp4> [--keep-logo-shot]
+  python3 ads/samsung-spec/fold8-ultra-12s/add_opener.py <opener.mp4> <edit-v1.mp4> <out.mp4> [--drop-logo-shot]
 """
 import subprocess
 import sys
@@ -24,7 +23,7 @@ OPENER = (0, 62)             # opener frames kept (2.58 s), end exclusive; the H
 
 def main():
     opener, edit, dst = sys.argv[1:4]
-    v1_from = 0 if "--keep-logo-shot" in sys.argv else V1_SHOT2
+    v1_from = V1_SHOT2 if "--drop-logo-shot" in sys.argv else 0
     fc = (f"[0:v]trim=start_frame={OPENER[0]}:end_frame={OPENER[1]},setpts=PTS-STARTPTS,setsar=1[a];"
           f"[1:v]trim=start_frame={v1_from},setpts=PTS-STARTPTS,setsar=1[b];[a][b]concat=n=2:v=1:a=0,format=yuv420p[o]")
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", opener, "-i", edit, "-filter_complex", fc, "-map", "[o]",

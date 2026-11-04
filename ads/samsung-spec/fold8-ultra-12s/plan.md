@@ -54,3 +54,6 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
   313 frames, 13.04 s. Supers rebuilt: Inter only, one baseline, hairline + wipe-on, no boxes or scrambled glyphs;
   six supers on readable shots only. HUD `--offset 24`. Preview `takes/preview-v3-1080.mp4`.
 - 4K: ESRGAN of edit-v1 + of the 65 opener frames, `add_opener.py` on both, `finish_film.py --no-card`, HUD last.
+- v4, final cut (Narayan: "Bring back old chrome logo shot everything else is good"): v2's cut (`takes/edit-v2-720.mp4`,
+  351 frames, 14.63 s: opener 2.6 s, then v1 whole) with v3's clean supers, HUD `--offset 62`. Preview
+  `takes/preview-v4-1080.mp4`. 4K: `add_opener.py` on the two ESRGAN outputs, `finish_film.py --no-card`, HUD last.

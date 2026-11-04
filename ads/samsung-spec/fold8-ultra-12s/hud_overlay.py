@@ -9,9 +9,9 @@ wipes on behind a thin light edge, like a scan. Same baseline every time; left-a
 part fills the left. A soft shadow keeps it legible; it cuts with the shot.
 
 Frames are those of takes/edit-v1-720.mp4 (24 fps); any resolution works (positions are relative). Run it last, on
-the finished film. --offset shifts every super (24 for the v3 edit: the opener in place of v1's shot 1).
+the finished film. --offset shifts every super (62 for the v4 edit: the opener before v1; 24 for v3).
 
-  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 24] [--qa <dir>]
+  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 62] [--qa <dir>]
 """
 import subprocess
 import sys
