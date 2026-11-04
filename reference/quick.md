@@ -54,6 +54,12 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 - **Seedance writes fake text on anything that would carry print in life:** a chip lid ("SALOXY SNMAD"), a glove (a
   real brand's star logo), a wingsuit (pseudo-letters). Say "blank" for those surfaces. If it still prints, remake the
   shot from a first frame with the surface wiped blank (`ads/samsung-spec/fold8-ultra-12s/`).
+- **A reference used "only for a reflection" gets pasted in flat.** Given Samsung's front+back product photo for the
+  Fold8 seen in the iPhone's logo, Seedance faded in a copy of that photo, wallpaper and all. Cut before it shows, or
+  describe the reflection in words (a thin violet sliver of an edge) and leave that reference out.
+- **Official product photos as refs make the product true** (Apple's iPhone Duo, Samsung's Fold8 camera column).
+  Get them with the headless browser from the brand's own site; save them in the project's `refs/`.
+- **Text over the film:** clean supers only, on shots long enough to read (`brand/spraymax/preferences.md`).
 
 ## QA, cheap version
 
@@ -66,6 +72,8 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 ## Post toolbox
 
 - **Edits:** frame-exact edit (`ads/spraymax/cinematic-12s-ocean/edit_ad2.py`).
+- **Match a shot to the next one's colour** (one fixed Lab curve, no masks): `ads/samsung-spec/fold8-ultra-12s/grade_logo_shot.py`.
+- **Spec supers:** `ads/samsung-spec/fold8-ultra-12s/hud_overlay.py`.
 - **Finish:** grade, grain, end card, size (`ads/spraymax/cinematic-12s/finish_film.py --no-card | --card x,y,w,scrim --size`).
 - **End-card overlay:** `ads/spraymax/cinematic-12s-ocean/endcard/make_endcard_overlay.py`.
 - **Motion on a still** (push-in, light sweep, glint, dust): `ads/spraymax/shelf-still/animate_shelf.py`.
