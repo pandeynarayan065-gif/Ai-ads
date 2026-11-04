@@ -51,3 +51,4 @@ Lint = today's `scripts/prompt_lint.py --faceless` result on the prompt as sent 
 - kie: Veo 3.1 Fast 1080p 8 s = 65 cr; Nano Banana Pro 2K = 18 cr. 1 cr = $0.005.
 - Balances on 2026-10-17: new account 10 cr, old account 37 cr. Neither is enough for a Veo take; top up first.
 | 2026-11-04 | samsung-spec | Opener 4 s, Seedance 2.5 ref mode, 3 official refs | iPhone Duo true to Apple photo; Fold8 reflection pasted-looking from ~2.7 s | Keep frames 0-64 as an opener before shot 1 |
+| 2026-11-04 | jpg-spec | Ultra Male 12 s, Seedance 2.5 ref mode, 1 official packshot, 12 shots (Prada-reel grammar + sea at night) | Keeper: bottle true in every shot, no fake text, real-time ending | Upscale and finish |

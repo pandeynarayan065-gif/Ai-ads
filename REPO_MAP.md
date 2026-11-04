@@ -30,6 +30,9 @@ flowchart LR
 ## ads/jpg-spec/ultra-male-12s/refs
 - media: 1 .jpg
 
+## ads/jpg-spec/ultra-male-12s/takes
+- media: 2 .mp4
+
 ## ads/redbull-spec/cinematic-12s
 - `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
 - `edit_redbull.py`: Red Bull spec edit: the cleaned take minus the cliff dive (Narayan, 4 Nov: "Remove this shot from redbull").
