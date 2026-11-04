@@ -57,3 +57,7 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
 - v4, final cut (Narayan: "Bring back old chrome logo shot everything else is good"): v2's cut (`takes/edit-v2-720.mp4`,
   351 frames, 14.63 s: opener 2.6 s, then v1 whole) with v3's clean supers, HUD `--offset 62`. Preview
   `takes/preview-v4-1080.mp4`. 4K: `add_opener.py` on the two ESRGAN outputs, `finish_film.py --no-card`, HUD last.
+- v5 (Narayan: "Cc the chrome shot to make it look like the 1st phone"): `grade_logo_shot.py --from 62` on the v2 cut,
+  one fixed Lab tone curve on the logo shot: back lifted to the opener's Star White (L 180 vs 182, same tint), black
+  chrome to polished grey, the violet reflection kept -> `takes/edit-v5-720.mp4`; preview `takes/preview-v5-1080.mp4`
+  (replaces the v4 preview). 4K order: add_opener -> grade_logo_shot -> finish_film --no-card -> hud_overlay --offset 62.
