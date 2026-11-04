@@ -11,7 +11,7 @@ part fills the left. A soft shadow keeps it legible; it cuts with the shot.
 Frames are those of takes/edit-v1-720.mp4 (24 fps); any resolution works (positions are relative). Run it last, on
 the finished film. --offset shifts every super (62 for the v4 edit: the opener before v1; 24 for v3).
 
-  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 62] [--qa <dir>]
+  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 62] [--crf 12] [--qa <dir>]
 """
 import subprocess
 import sys
@@ -162,11 +162,12 @@ def main():
     src, dst = a[0], a[1]
     qa = Path(a[a.index("--qa") + 1]) if "--qa" in a else None
     off = int(a[a.index("--offset") + 1]) if "--offset" in a else 0
+    crf = a[a.index("--crf") + 1] if "--crf" in a else "12"
     W, H = probe(src)
     dec = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", src, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
                            stdout=subprocess.PIPE)
     enc = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                            "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-crf", "12", "-preset", "slow", "-pix_fmt",
+                            "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-crf", crf, "-preset", "slow", "-pix_fmt",
                             "yuv420p", "-movflags", "+faststart", dst], stdin=subprocess.PIPE)
     n = 0
     while True:
