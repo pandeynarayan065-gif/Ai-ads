@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Jarvis-style spec HUD over the Samsung spec film (Narayan, 4 Nov: "add the specs ... Jarvis type of animated text").
+"""Spec supers over the Samsung spec film (Narayan, 4 Nov: "Jarvis type of animated text"; then "the text looks like
+slop", so v2 is stripped back: one typeface, one position, no boxes, no scrambled glyphs, no shot numbers).
 
-Every value is from Samsung's official Galaxy Z Fold8 Ultra page (samsung.com, read 4 Nov 2026; see plan.md). No
-invented numbers: the only other text is a shot index and a plain label. Per component shot: corner brackets lock on,
-a leader line draws out, then the label types on and the value decodes left to right. It all cuts with the shot.
+Every value is from Samsung's official Galaxy Z Fold8 Ultra page (samsung.com, read 4 Nov 2026; see plan.md).
+Six supers, only on shots long enough to read (short ones are skipped or share a super with the next shot). Each one:
+a hairline draws out (from a small ring on the part, where the part holds still), the label wipes on, then the value
+wipes on behind a thin light edge, like a scan. Same baseline every time; left-aligned, or right-aligned where the
+part fills the left. A soft shadow keeps it legible; it cuts with the shot.
 
-Frames are those of takes/edit-v1-720.mp4 (289 frames, 24 fps); any resolution of it works (positions are relative).
-Run it last, on the finished film, so the lines stay crisp.
+Frames are those of takes/edit-v1-720.mp4 (24 fps); any resolution works (positions are relative). Run it last, on
+the finished film. --offset shifts every super (24 for the v3 edit: the opener in place of v1's shot 1).
 
-  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 65] [--qa <dir>]
-
---offset shifts every callout by that many frames (65 for the v2 edit with the iPhone Duo opener in front).
+  python3 ads/samsung-spec/fold8-ultra-12s/hud_overlay.py <in.mp4> <out.mp4> [--offset 24] [--qa <dir>]
 """
-import math
 import subprocess
 import sys
 from pathlib import Path
@@ -21,32 +21,21 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 FPS = 24
-LINE = (226, 242, 255)
-ACCENT = (110, 214, 255)
-MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
-SANS = "/usr/share/fonts/opentype/inter/Inter-Medium.otf"
+REG = "/usr/share/fonts/opentype/inter/Inter-Medium.otf"
 LIGHT = "/usr/share/fonts/opentype/inter/Inter-Light.otf"
-SCRAMBLE = "0123456789ABCDEF#%/<>"
+ICE = (178, 226, 255)
+MARGIN = 0.085                    # left/right margin, fraction of width
+BASE = 0.86                       # value baseline, fraction of height
 
-# One callout per shot. box = what the brackets lock onto, anchor = where the leader starts, text = the panel's top-left
-# corner (all as fractions of the frame); lines = (label, value, sub). Shots and frames from the cut list in plan.md.
-CALLOUTS = [
-    dict(shot=(76, 106), idx="03", box=(0.20, 0.06, 0.86, 0.94), anchor=(0.80, 0.58), text=(0.55, 0.585),
-         lines=("CAMERA", "200MP WIDE", "50MP ULTRA-WIDE\n10MP 3X TELEPHOTO"), small=True),
-    dict(shot=(124, 136), idx="05", box=(0.50, 0.50, 0.76, 0.72), anchor=(0.56, 0.56), text=(0.07, 0.30),
-         lines=("HINGE", "ARMOR FLEXHINGE", None)),
-    dict(shot=(147, 159), idx="07", box=(0.42, 0.18, 0.86, 0.52), anchor=(0.50, 0.50), text=(0.07, 0.80),
-         lines=("ZOOM", "UP TO 30X", "DIGITAL ZOOM")),
-    dict(shot=(159, 177), idx="08", box=(0.33, 0.36, 0.82, 0.64), anchor=(0.36, 0.62), text=(0.07, 0.76),
-         lines=("PROCESSOR", "SNAPDRAGON 8 ELITE GEN 5", "FOR GALAXY")),
-    dict(shot=(177, 192), idx="09", box=(0.27, 0.10, 0.56, 0.92), anchor=(0.55, 0.42), text=(0.62, 0.36),
-         lines=("BATTERY", "5000 mAh", None)),
-    dict(shot=(192, 205), idx="10", box=(0.06, 0.24, 0.94, 0.90), anchor=(0.50, 0.24), text=(0.07, 0.06),
-         lines=("DISPLAY", "FLEX TITANIUM", "GORILLA GLASS VICTUS 2")),
-    dict(shot=(205, 234), idx="11", box=(0.08, 0.30, 0.90, 0.81), anchor=(0.50, 0.30), text=(0.07, 0.08),
-         lines=("MAIN SCREEN", '8.0"', "3000 NITS PEAK")),
-    dict(shot=(234, 248), idx="12", box=(0.17, 0.24, 0.63, 0.95), anchor=(0.63, 0.50), text=(0.68, 0.44),
-         lines=("BUILD", "4.1 MM", "215 G")),
+# frames (end exclusive) in edit-v1 numbering; ring = a point on the part (fraction of frame), or None
+SUPERS = [
+    dict(frames=(76, 106), label="WIDE CAMERA", value="200MP", align="left", ring=None),
+    dict(frames=(124, 147), label="HINGE", value="Armor FlexHinge", align="left", ring=None),
+    dict(frames=(159, 177), label="PROCESSOR", value="Snapdragon 8 Elite Gen 5", sub="for Galaxy", align="left",
+         ring=(0.58, 0.50)),
+    dict(frames=(177, 192), label="BATTERY", value="5000 mAh", align="right", ring=None, size=64),
+    dict(frames=(205, 234), label="MAIN SCREEN", value='8.0"', align="left", ring=None),
+    dict(frames=(234, 248), label="THICKNESS", value="4.1 mm", align="right", ring=None),
 ]
 
 
@@ -55,104 +44,111 @@ def ease(x):
     return 1 - (1 - x) ** 3
 
 
-def decode(text, p, seed):
-    """`text` revealed left to right for progress p (0..1), with a short run of scrambled glyphs at the head."""
-    n = len(text)
-    r = int(round(p * n))
-    rng = np.random.default_rng(seed)
-    head = "".join(c if c == " " else SCRAMBLE[rng.integers(len(SCRAMBLE))] for c in text[r:r + 3])
-    return text[:r] + (head if p < 1 else "")
+def tracked(d, xy, text, font, fill, track):
+    """Text with extra letter spacing; returns its width."""
+    x, y = xy
+    for ch in text:
+        d.text((x, y), ch, font=font, fill=fill)
+        x += d.textlength(ch, font=font) + track
+    return x - xy[0] - track
 
 
-def draw_callout(W, H, c, t, L):
-    """The callout's RGBA layer at frame t (0-based) of a shot L frames long."""
+def tracked_len(d, text, font, track):
+    return sum(d.textlength(c, font=font) for c in text) + track * (len(text) - 1)
+
+
+def wipe(img, x0, x1, p):
+    """Keep only the part of RGBA `img` left of x0 + p * (x1 - x0)."""
+    if p >= 1:
+        return img
+    cut = int(x0 + p * (x1 - x0))
+    a = np.array(img)
+    a[:, max(cut, 0):, 3] = 0
+    return Image.fromarray(a)
+
+
+def render(W, H, sp, t, L):
     s = W / 1080
-    k = min(1.0, L / 24)                                   # short shots animate faster
-    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    flicker = [0.45, 1.0, 0.7][t] if t < 3 else 1.0
-    a = int(255 * flicker)
-    lw = max(2, round(2 * s))
+    k = min(1.0, L / 22)                                   # short shots animate faster
+    f_lab = ImageFont.truetype(REG, round(24 * s))
+    d0 = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    size = sp.get("size", 78)
+    f_val = ImageFont.truetype(LIGHT, round(size * s))
+    while d0.textlength(sp["value"], font=f_val) > (1 - 2 * MARGIN) * W and size > 40:
+        size -= 2
+        f_val = ImageFont.truetype(LIGHT, round(size * s))
+    f_sub = ImageFont.truetype(REG, round(24 * s))
+    track = 0.22 * f_lab.size
+    wv = d0.textlength(sp["value"], font=f_val)
+    wl = tracked_len(d0, sp["label"], f_lab, track)
+    ws = d0.textlength(sp.get("sub", ""), font=f_sub)
+    wmax = max(wv, wl, ws)
+    right = sp["align"] == "right"
+    x0 = (1 - MARGIN) * W - wmax if right else MARGIN * W
+    asc = f_val.getmetrics()[0]
+    vy = BASE * H - asc                                    # value top
+    ly = vy - 38 * s                                       # label top
+    hy = ly - 22 * s                                       # hairline
+    sy = vy + asc + 14 * s                                 # sub top
 
-    # 1. brackets lock onto the component, closing in from 12% out
-    x0, y0, x1, y1 = c["box"]
-    g = 1 + 0.12 * (1 - ease(t / (6 * k)))
-    cx, cy, hw, hh = (x0 + x1) / 2 * W, (y0 + y1) / 2 * H, (x1 - x0) / 2 * W * g, (y1 - y0) / 2 * H * g
-    arm = 0.18 * min(hw, hh) * 2
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            px, py = cx + sx * hw, cy + sy * hh
-            d.line([(px, py - sy * arm), (px, py), (px - sx * arm, py)], fill=LINE + (a,), width=lw)
-    # tick marks along the top edge of the box, like a range scale
-    for i in range(1, 12):
-        tx = cx - hw + i * 2 * hw / 12
-        d.line([(tx, cy - hh), (tx, cy - hh + (10 if i % 3 == 0 else 5) * s)], fill=LINE + (a // 2,), width=1)
+    text = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(text)
+    # label
+    lx = x0 + (wmax - wl if right else 0)
+    tracked(d, (lx, ly), sp["label"], f_lab, (255, 255, 255, 200), track)
+    text = wipe(text, lx, lx + wl, ease((t - 2 * k) / (5 * k)))
+    # value, with a light edge riding the wipe
+    val = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    dv = ImageDraw.Draw(val)
+    vx = x0 + (wmax - wv if right else 0)
+    rise = (1 - ease((t - 3 * k) / (7 * k))) * 10 * s
+    dv.text((vx, vy + rise), sp["value"], font=f_val, fill=(255, 255, 255, 255))
+    if sp.get("sub"):
+        sx = x0 + (wmax - ws if right else 0)
+        dv.text((sx, sy + rise), sp["sub"], font=f_sub, fill=(255, 255, 255, 190))
+    pv = ease((t - 3 * k) / (7 * k))
+    val = wipe(val, vx, vx + max(wv, ws), pv)
+    if 0 < pv < 1:
+        ex = vx + pv * max(wv, ws)
+        dv = ImageDraw.Draw(val)
+        dv.rectangle([ex, vy + 4 * s, ex + 2 * s, vy + asc + 6 * s], fill=ICE + (220,))
+    text = Image.alpha_composite(text, val)
 
-    # 2. a rotating reticle on the anchor
-    ax, ay = c["anchor"][0] * W, c["anchor"][1] * H
-    rr = 16 * s
-    rot = t * 9
-    for q in range(4):
-        st = rot + q * 90
-        d.arc([ax - rr, ay - rr, ax + rr, ay + rr], st, st + 50, fill=ACCENT + (a,), width=lw)
-    d.ellipse([ax - 3 * s, ay - 3 * s, ax + 3 * s, ay + 3 * s], fill=ACCENT + (a,))
+    # hairline (and, where the part holds still, a ring on it with a line down to the hairline)
+    lines = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    dl = ImageDraw.Draw(lines)
+    lw = max(1, round(1.5 * s))
+    hl = 0.10 * W
+    ph = ease(t / (6 * k))
+    if right:
+        dl.line([((1 - MARGIN) * W - hl * ph, hy), ((1 - MARGIN) * W, hy)], fill=ICE + (230,), width=lw)
+    else:
+        dl.line([(x0, hy), (x0 + hl * ph, hy)], fill=ICE + (230,), width=lw)
+    if sp.get("ring"):
+        rx, ry = sp["ring"][0] * W, sp["ring"][1] * H
+        r = 11 * s
+        pr = ease(t / (4 * k))
+        dl.arc([rx - r, ry - r, rx + r, ry + r], -90, -90 + 360 * pr, fill=ICE + (230,), width=lw)
+        dl.ellipse([rx - 2.5 * s, ry - 2.5 * s, rx + 2.5 * s, ry + 2.5 * s], fill=ICE + (230,))
+        # an elbow: straight down from the ring, then across to the hairline's end
+        ex, ey = x0 + hl, hy
+        pts = [(rx, ry + r), (rx, ey), (ex, ey)]
+        pl = ease((t - 1 * k) / (6 * k))
+        seg1, seg2 = abs(ey - (ry + r)), abs(rx - ex)
+        want = pl * (seg1 + seg2)
+        drawn = [pts[0], (rx, ry + r + min(want, seg1) * (1 if ey > ry else -1))]
+        if want > seg1:
+            f = (want - seg1) / max(seg2, 1)
+            drawn.append((rx + f * (ex - rx), ey))
+        if pl > 0:
+            dl.line(drawn, fill=ICE + (150,), width=lw)
 
-    # 3. the leader line draws out from the reticle to the panel
-    tx, ty = c["text"][0] * W, c["text"][1] * H
-    right = tx > ax
-    ex = tx - 14 * s if right else tx + 14 * s
-    pts = [(ax, ay), (ex, ty + 18 * s), (tx, ty + 18 * s)] if right else [(ax, ay), (ax, ty + 18 * s), (tx - 6 * s, ty + 18 * s)]
-    p = ease((t - 2 * k) / (5 * k))
-    segs = [math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-    want, drawn = p * sum(segs), [pts[0]]
-    for i, sl in enumerate(segs):
-        if want <= 0:
-            break
-        f = min(1.0, want / sl) if sl else 1.0
-        drawn.append((pts[i][0] + f * (pts[i + 1][0] - pts[i][0]), pts[i][1] + f * (pts[i + 1][1] - pts[i][1])))
-        want -= sl
-    if len(drawn) > 1:
-        d.line(drawn, fill=LINE + (int(a * 0.8),), width=lw)
-
-    # 4. the panel: a dark glass plate, a shot index, the label typing on, the value decoding
-    label, value, sub = c["lines"]
-    small = c.get("small")
-    f_lab = ImageFont.truetype(MONO, round(24 * s))
-    f_val = ImageFont.truetype(SANS, round((46 if small else 64) * s))
-    f_sub = ImageFont.truetype(LIGHT, round((26 if small else 30) * s))
-    px, py = tx + 10 * s, ty + 34 * s
-    t0 = 4 * k
-    lab = f"[{c['idx']}]  {label}"
-    lab_s = decode(lab, ease((t - t0) / (4 * k)), seed=t)
-    val_s = decode(value, ease((t - t0 - 2 * k) / (8 * k)), seed=t + 99) if t >= t0 + 2 * k else ""
-    sub_s = [decode(x, ease((t - t0 - (5 + 2 * j) * k) / (6 * k)), seed=t + 7 + j) if t >= t0 + (5 + 2 * j) * k else ""
-             for j, x in enumerate(sub.split("\n"))] if sub else []
-    subs = sub.split("\n") if sub else []
-    wv = max([d.textlength(value, font=f_val), d.textlength(lab, font=f_lab)] + [d.textlength(x, font=f_sub) for x in subs])
-    hv = (24 + 14 + (46 if small else 64) + (14 + 36 * len(subs) if subs else 0) + 14) * s
-    if t >= t0:
-        plate = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        ImageDraw.Draw(plate).rectangle([px - 14 * s, py - 12 * s, px + wv + 18 * s, py + hv], fill=(2, 8, 16, int(120 * flicker)))
-        layer = Image.alpha_composite(plate, layer)
-        d = ImageDraw.Draw(layer)
-        d.line([(px - 14 * s, py - 12 * s), (px - 14 * s, py + hv)], fill=ACCENT + (a,), width=lw)
-    d.text((px, py), lab_s, font=f_lab, fill=ACCENT + (a,))
-    vy = py + 38 * s
-    d.text((px, vy), val_s, font=f_val, fill=(255, 255, 255, a))
-    if val_s and len(val_s) < len(value) + 3 and val_s != value:
-        cw = d.textlength(val_s, font=f_val)
-        d.rectangle([px + cw + 4 * s, vy + 8 * s, px + cw + 4 * s + 0.45 * f_val.size, vy + f_val.size * 1.05], fill=ACCENT + (a,))
-    for j, x in enumerate(sub_s):
-        d.text((px, vy + ((46 if small else 64) + 14 + 36 * j) * s), x, font=f_sub, fill=LINE + (int(a * 0.9),))
-    return layer
-
-
-def composite(frame_rgb, layer, s):
-    """The HUD over the frame with a soft glow under its lines."""
-    base = Image.fromarray(frame_rgb).convert("RGBA")
-    glow = layer.filter(ImageFilter.GaussianBlur(5 * s))
-    base = Image.alpha_composite(base, glow)
-    return np.asarray(Image.alpha_composite(base, layer).convert("RGB"))
+    hud = Image.alpha_composite(lines, text)
+    a = np.array(hud)[..., 3].astype(np.float32)
+    shadow = np.zeros((H, W, 4), np.uint8)
+    shadow[..., 3] = np.clip(np.array(Image.fromarray(a.astype(np.uint8)).filter(ImageFilter.GaussianBlur(12 * s)),
+                                      np.float32) * 0.7, 0, 255).astype(np.uint8)
+    return Image.alpha_composite(Image.fromarray(shadow), hud)
 
 
 def probe(path):
@@ -167,7 +163,6 @@ def main():
     qa = Path(a[a.index("--qa") + 1]) if "--qa" in a else None
     off = int(a[a.index("--offset") + 1]) if "--offset" in a else 0
     W, H = probe(src)
-    s = W / 1080
     dec = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", src, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
                            stdout=subprocess.PIPE)
     enc = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
@@ -179,12 +174,12 @@ def main():
         if len(buf) < W * H * 3:
             break
         f = np.frombuffer(buf, np.uint8).reshape(H, W, 3)
-        for c in CALLOUTS:
-            a0, a1 = c["shot"][0] + off, c["shot"][1] + off
+        for sp in SUPERS:
+            a0, a1 = sp["frames"][0] + off, sp["frames"][1] + off
             if a0 <= n < a1:
-                L = a1 - a0
-                f = composite(f, draw_callout(W, H, c, n - a0, L), s)
-                if qa and n - a0 == L - 2:
+                base = Image.fromarray(f).convert("RGBA")
+                f = np.asarray(Image.alpha_composite(base, render(W, H, sp, n - a0, a1 - a0)).convert("RGB"))
+                if qa and n - a0 == a1 - a0 - 2:
                     qa.mkdir(parents=True, exist_ok=True)
                     Image.fromarray(f).save(qa / f"f{n:03d}.png")
         enc.stdin.write(np.ascontiguousarray(f).tobytes())

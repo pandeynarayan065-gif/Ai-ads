@@ -47,6 +47,10 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
   8.0" / 3000 nits peak, 4.1 mm / 215 g. Preview `takes/preview-hud-1080.mp4` (Lanczos 1080p, not the final upscale).
 - Opener take `takes/20261104-203734-1.mp4` (252 cr): the iPhone Duo matches Apple's photo (camera pill, flash, logo).
   From frame ~66 the Fold8 "reflection" is a flat pasted copy of the reference photo, so only frames 0-64 are used.
-  `add_opener.py` puts them before v1 -> `takes/edit-v2-720.mp4` (354 frames, 14.75 s): opener, hard cut to v1's
-  chrome-logo shot (its reflection reads as real), then the film unchanged. HUD: `--offset 65`.
+  `add_opener.py` puts them before v1 -> `takes/edit-v2-720.mp4` (351 frames, 14.63 s; Narayan cut the opener to 2.6 s = 62 frames): opener, hard cut to v1's
+  chrome-logo shot (its reflection reads as real), then the film unchanged. HUD: `--offset 62`.
+- v3 (Narayan: "the editing is sloppy", "the text looks like slop"): the opener cuts straight to the Fold8 reveal
+  (v1 shot 1 dropped: its black-chrome logo on a dark back read as a different phone) -> `takes/edit-v3-720.mp4`,
+  313 frames, 13.04 s. Supers rebuilt: Inter only, one baseline, hairline + wipe-on, no boxes or scrambled glyphs;
+  six supers on readable shots only. HUD `--offset 24`. Preview `takes/preview-v3-1080.mp4`.
 - 4K: ESRGAN of edit-v1 + of the 65 opener frames, `add_opener.py` on both, `finish_film.py --no-card`, HUD last.
