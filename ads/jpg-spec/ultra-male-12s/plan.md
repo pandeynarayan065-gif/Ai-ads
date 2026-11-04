@@ -30,3 +30,4 @@ is his preference.
 - Narayan: "Delete this shot" (the spray hand) and "generate a new shot more elemental". `edit_ultra_male.py` cuts
   take frames 208-221 -> `takes/edit-v1-720.mp4` (275 frames, 11.46 s). New shot: `prompt-storm-3s.md` (night storm on
   the deck, rain bursting off the glass, a lightning fork behind; 720p, 3 s, 189 cr: 4 s would be 252 > 231 left).
+- 3 s was refused by kie ("Value must be within the specified range", uncharged): Seedance 2.5's minimum is 4 s.

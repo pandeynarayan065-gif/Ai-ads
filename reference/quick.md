@@ -20,6 +20,7 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 |---|---|---|
 | Still, or an edit of a frame we have | Nano Banana Pro, 2K | 18 cr |
 | Multi-shot film from real product photos | Seedance 2.5, reference images, `[mm:ss.s]` timestamps, hard-cuts rule | 720p 63 cr/s, 480p 28 cr/s, 1080p 158 cr/s |
+| Shortest Seedance 2.5 clip | 4 s: a 3 s request is refused (kie 500 "Value must be within the specified range", uncharged) | 4 x rate |
 | Exact start (and end) frame | Seedance 2.5, `--first-frame` (`--last-frame`) with `--aspect adaptive` (9:16 is rejected); refs can't be combined | same |
 | Upscale | Real-ESRGAN, local and free (`scripts/esrgan_upscale.py`, ~11 s/frame); Topaz on kie failed 4/4 | free |
 
