@@ -11,6 +11,8 @@ This repo is a workspace for generating ad copy and creative concepts with Claud
 - Images for checking: at most 800 px wide, one combined sheet per check, not one image per frame.
 - At most two fix rounds on a post fix before showing the user the result and asking.
 - Short replies and short command output (pipe long logs through `tail`).
+- To find a file, grep `REPO_MAP.md` before searching the tree. After adding work, refresh it with
+  `python3 scripts/repo_map.py`.
 
 ## How work flows
 
