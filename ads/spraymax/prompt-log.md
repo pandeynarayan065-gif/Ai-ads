@@ -52,3 +52,4 @@ Lint = today's `scripts/prompt_lint.py --faceless` result on the prompt as sent 
 - Balances on 2026-10-17: new account 10 cr, old account 37 cr. Neither is enough for a Veo take; top up first.
 | 2026-11-04 | samsung-spec | Opener 4 s, Seedance 2.5 ref mode, 3 official refs | iPhone Duo true to Apple photo; Fold8 reflection pasted-looking from ~2.7 s | Keep frames 0-64 as an opener before shot 1 |
 | 2026-11-04 | jpg-spec | Ultra Male 12 s, Seedance 2.5 ref mode, 1 official packshot, 12 shots (Prada-reel grammar + sea at night) | Keeper: bottle true in every shot, no fake text, real-time ending | Upscale and finish |
+| 2026-11-04 | jpg-spec | Storm insert 4 s, Seedance 2.5 480p ref mode (3 s refused) | Keeper: bottle true, rain beads, lightning fork; 480p holds up after upscale | Frames 46-65 replace the spray shot |

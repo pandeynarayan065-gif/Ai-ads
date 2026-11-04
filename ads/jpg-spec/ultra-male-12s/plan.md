@@ -31,3 +31,7 @@ is his preference.
   take frames 208-221 -> `takes/edit-v1-720.mp4` (275 frames, 11.46 s). New shot: `prompt-storm-3s.md` (night storm on
   the deck, rain bursting off the glass, a lightning fork behind; 720p, 3 s, 189 cr: 4 s would be 252 > 231 left).
 - 3 s was refused by kie ("Value must be within the specified range", uncharged): Seedance 2.5's minimum is 4 s.
+- Storm shot `takes/20261104-231535-1.mp4`: Seedance 2.5, 480p, 4 s, 112 cr (credits now 119), prompt
+  `prompt-storm-4s.md`. Bottle true (seven stripes, collar), rain beading on the glass, a lightning fork behind from
+  ~2.1 s. Frames 46-65 (the strike) replace the spray shot -> `takes/edit-v2-720.mp4` (295 frames, 12.29 s); preview
+  `takes/preview-v2-1080.mp4`. Masters: `make_masters_v2.sh` (supersedes `make_masters.sh`).
