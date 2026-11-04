@@ -63,3 +63,5 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
   (replaces the v4 preview). 4K order: add_opener -> grade_logo_shot -> finish_film --no-card -> hud_overlay --offset 62.
 - Delivered (4 Nov): `samsung-fold8-ultra-spec.mp4` (1080x1920) and `-4k.mp4` (2160x3840), 351 frames, 14.63 s,
   visuals only, built by `make_masters.sh`.
+- No-text versions (Narayan: "Can u give without text"): `samsung-fold8-ultra-spec-notext.mp4` and `-notext-4k.mp4`,
+  the same masters before `hud_overlay.py` (`make_masters.sh` writes them as `fin_<size>_v.mp4` in its work dir).
