@@ -19,4 +19,6 @@ Spec ad: not commissioned by, affiliated with or endorsed by Red Bull. Say so wh
   rock.
 - Fixed in post (`clean_logos.py` -> `takes/20261104-192915-1_clean.mp4`): a white star logo on the racing gloves
   (9.5-10.7 s), like a real glove brand's mark; red pseudo-letters on the wingsuit (6.5-7.1 s).
-- Next: Real-ESRGAN 4x, then `finish_film.py --no-card` at 1080x1920 and 4K, visuals only.
+- Cut (Narayan, 4 Nov: "Remove this shot"): the cliff dive, frames 185-204 (`edit_redbull.py`); the film is 11.21 s.
+- Next: Real-ESRGAN 4x of the cleaned take, then `edit_redbull.py`, then `finish_film.py --no-card` at 1080x1920 and 4K,
+  visuals only.
