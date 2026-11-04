@@ -20,7 +20,7 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 |---|---|---|
 | Still, or an edit of a frame we have | Nano Banana Pro, 2K | 18 cr |
 | Multi-shot film from real product photos | Seedance 2.5, reference images, `[mm:ss.s]` timestamps, hard-cuts rule | 720p 63 cr/s, 480p 28 cr/s, 1080p 158 cr/s |
-| Exact start (and end) frame | Seedance 2.5, `--first-frame` (`--last-frame`); refs can't be combined | same |
+| Exact start (and end) frame | Seedance 2.5, `--first-frame` (`--last-frame`) with `--aspect adaptive` (9:16 is rejected); refs can't be combined | same |
 | Upscale | Real-ESRGAN, local and free (`scripts/esrgan_upscale.py`, ~11 s/frame); Topaz on kie failed 4/4 | free |
 
 1 cr = $0.005.
@@ -51,6 +51,9 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
   (`ads/spraymax/shelf-still/fix_labels.py`). Upscale first, then lay in the text.
 - **Full label replacement on a moving AI bottle was rejected** (morphs, lighting reads as pasted). Don't repeat it.
 - **Watch the nozzle:** models draw it facing front. The real hole faces the back-label side.
+- **Seedance writes fake text on anything that would carry print in life:** a chip lid ("SALOXY SNMAD"), a glove (a
+  real brand's star logo), a wingsuit (pseudo-letters). Say "blank" for those surfaces. If it still prints, remake the
+  shot from a first frame with the surface wiped blank (`ads/samsung-spec/fold8-ultra-12s/`).
 
 ## QA, cheap version
 

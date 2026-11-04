@@ -1,0 +1,17 @@
+{
+  "task_id": "6984abbf3503684c70847b944c4234d4",
+  "request": {
+    "model": "bytedance/seedance-2-5",
+    "input": {
+      "prompt": "Extreme macro, single continuous real-time shot: the camera pushes in slowly toward the processor chip while a thin line of cold white light rakes across the board from left to right, glinting along the gold traces and sliding over the chip's blank polished metal lid. Nothing else moves. The lid stays completely blank: no text, no logo, no numbers, no markings of any kind. No cuts. No music, no voices.",
+      "resolution": "720p",
+      "aspect_ratio": "adaptive",
+      "duration": 4,
+      "generate_audio": false,
+      "first_frame_url": "https://tempfile.redpandaai.co/kieai/11721004/ai-ads/refs/chip-first-frame-1080x1920.jpg"
+    }
+  },
+  "result_urls": [
+    "https://tempfile.aiquickdraw.com/seedance/1793822280931-6bq1bm9mhl9.mp4"
+  ]
+}

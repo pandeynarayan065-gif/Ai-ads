@@ -19,3 +19,19 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
 - The cameras are a vertical column of three at the top-left of the back (the half-open photo made them look like a row).
 - Model: Seedance 2.5, reference mode, 720p, 9:16, 12 s, 756 cr.
 - Screens show only an abstract gradient: no UI or text from the model. Spec text is added in post.
+
+## Take 1 (4 Nov): kept, with the chip shot remade
+- `takes/20261104-194336-1.mp4`: Seedance 2.5, 720p, 12 s, 756 cr, three official refs. All 13 shots, in order:
+  - the Apple logo with the Fold8 reflected;
+  - the reveal, with the vertical camera column right;
+  - lens macro; two-hand unfold (ribbon wallpaper, no UI); hinge;
+  - parts flat lay; camera module; chip; battery; display layers;
+  - open flat; fold shut; hero packshot.
+- The chip shot (6.62-7.38 s) printed fake text on the lid ("SALOXY SNMAD..."). Two clean-up tries failed (lid mask
+  merged with the gold traces). Narayan: "Remake shot". Remake `takes/20261104-195802-1.mp4`: Seedance 2.5 first frame,
+  4 s, 252 cr, from `images/chip-first-frame-1080x1920.jpg` (the take's chip frame with the lid wiped blank), prompt
+  `motion-chip-remake.md`. The lid stayed blank; a light line sweeps across it.
+- kie rule learned: Seedance 2.5 first-frame tasks need `--aspect adaptive` (9:16 is rejected with a 422, uncharged).
+- Edit: `edit_samsung.py` swaps in remake frames 36-53 for take frames 159-176 -> `takes/edit-v1-720.mp4` (289 frames).
+- Next: Real-ESRGAN 4x of the edit, `finish_film.py --no-card` at 1080x1920 and 4K, visuals only; spec supers in post
+  from the official facts above.
