@@ -34,4 +34,4 @@ is his preference.
 - Storm shot `takes/20261104-231535-1.mp4`: Seedance 2.5, 480p, 4 s, 112 cr (credits now 119), prompt
   `prompt-storm-4s.md`. Bottle true (seven stripes, collar), rain beading on the glass, a lightning fork behind from
   ~2.1 s. Frames 46-65 (the strike) replace the spray shot -> `takes/edit-v2-720.mp4` (295 frames, 12.29 s); preview
-  `takes/preview-v2-1080.mp4`. Masters: `make_masters_v2.sh` (supersedes `make_masters.sh`).
+  `takes/preview-v2-1080.mp4`. Masters: `make_masters.sh` (v2 cut; upscales write .part files, so an interrupted run restarts cleanly).
