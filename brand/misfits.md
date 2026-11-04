@@ -1,7 +1,9 @@
 # Brand: Misfits
 
 Narayan's agency (Nov 2026). Brand kit assets are in `brand/misfits/`. Rebuild them with
-`python3 brand/misfits/build_brand.py && node brand/misfits/render.js`.
+`python3 brand/misfits/build_brand.py [theme] && node brand/misfits/render.js`.
+Each theme's files are in `brand/misfits/<theme>/`. **Primary: Midnight / Volt** (Narayan's pick, 4 Nov), in
+`brand/misfits/midnight-volt/`. Noir / Acid is in `brand/misfits/noir-acid/`.
 
 ## Basics
 - **Website:** [VERIFY: domain not chosen yet]
@@ -57,32 +59,30 @@ Narayan's agency (Nov 2026). Brand kit assets are in `brand/misfits/`. Rebuild t
   - A (112): Ads that don't fit in.⏎Cinematic AI product films for brands that refuse to blend in.⏎📩 DM "FILM" to start yours
   - B (137): AI-powered creative studio 🎬⏎Scroll-stopping product ads, concept to final cut.⏎Made by misfits, for brands that stand out.⏎👇 Book a call
   - C (~117): We make the ads your feed can't ignore.⏎Cinematic · AI-powered · Made for the feed⏎Misfits by design ⚡ DM to work with us
-- **Profile picture:** `brand/misfits/social/ig-profile-1080.png` (the symbol; reads at small sizes and in a circle)
-- **First post / banner:** `brand/misfits/social/ig-launch-post-1080x1350.png` (4:5; text inside the 3:4 grid crop)
-- **Wide banner (LinkedIn / X / YouTube art):** `brand/misfits/social/banner-1500x500.png`
+- **Profile picture:** `brand/misfits/midnight-volt/social/ig-profile-1080.png` (the symbol; reads at small sizes and in a circle)
+- **First post / banner:** `brand/misfits/midnight-volt/social/ig-launch-post-1080x1350.png` (4:5; text inside the 3:4 grid crop)
+- **Wide banner (LinkedIn / X / YouTube art):** `brand/misfits/midnight-volt/social/banner-1500x500.png`
 
 ## Visual identity
 - **The idea:** the misfit is the one piece that doesn't line up. Symbol: four tiles, one knocked off-axis
   (-14°+30°) in the accent. Wordmark: MISFITS with the second I tilted -14° in the accent, dropped slightly.
-- **Logo files:** `brand/misfits/logo/`
+- **Logo files:** `brand/misfits/midnight-volt/logo/`
   - lockup, wordmark and symbol;
   - each as SVG (vector, for web and print) and as 2000 px transparent PNG;
   - `on-dark` (bone ink) and `on-light` (noir ink) versions.
-- **Colours (primary theme: Noir / Acid):**
+- **Colours (primary theme: Midnight / Volt):**
 
   | Role | Hex | Use |
   |---|---|---|
-  | bg | `#0B0B0D` | backgrounds |
-  | panel | `#17171B` | cards and sections |
-  | ink | `#EEEBE4` | text and logo |
-  | muted | `#8C8C91` | secondary text |
-  | accent | `#C6FF33` | the misfit; CTAs; one thing per screen |
+  | bg | `#0A0F1F` | backgrounds |
+  | panel | `#131A30` | cards and sections |
+  | ink | `#E8EEFF` | text and logo |
+  | muted | `#8A93AD` | secondary text |
+  | accent | `#3D6BFF` | the misfit; CTAs (white text on it); one thing per screen |
 
 - **Alternates:**
-  - Noir / Signal: the same base, accent `#FF4B2B`;
-  - Midnight / Volt: bg `#0A0F1F`, panel `#131A30`, ink `#E8EEFF`, muted `#8A93AD`, accent `#3D6BFF`.
-
-  Sheet: `brand/misfits/social/palette-1600x1200.png`.
+  - Noir / Acid: bg `#0B0B0D`, panel `#17171B`, ink `#EEEBE4`, muted `#8C8C91`, accent `#C6FF33`;
+  - Noir / Signal: the same base, accent `#FF4B2B`.
 - **Fonts (SIL OFL, free for web and print, in `brand/misfits/fonts/`):**
   - display: Archivo, Expanded (wdth 125), Black and SemiBold;
   - body: Inter.
@@ -93,8 +93,8 @@ Narayan's agency (Nov 2026). Brand kit assets are in `brand/misfits/`. Rebuild t
   - minimum size: 24 px tall for the lockup, 16 px for the symbol.
 
 ## Website (next)
-- **Design:** dark theme from the tokens in `brand/misfits/tokens.css`. Hero direction:
-  `brand/misfits/social/web-hero-1920x1080.png`.
+- **Design:** Midnight / Volt, from the tokens in `brand/misfits/tokens.css`. Hero direction:
+  `brand/misfits/midnight-volt/social/web-hero-1920x1080.png`.
 - **Sections:**
   - Hero: "Ads that don't fit in." with Book a call and See the work;
   - showreel;
