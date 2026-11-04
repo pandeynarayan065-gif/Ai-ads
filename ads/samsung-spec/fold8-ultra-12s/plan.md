@@ -35,3 +35,13 @@ Apple's logo on an iPhone Duo: a trademark of another company, used in a compara
 - Edit: `edit_samsung.py` swaps in remake frames 36-53 for take frames 159-176 -> `takes/edit-v1-720.mp4` (289 frames).
 - Next: Real-ESRGAN 4x of the edit, `finish_film.py --no-card` at 1080x1920 and 4K, visuals only; spec supers in post
   from the official facts above.
+
+## Opener and spec HUD (4 Nov)
+- Narayan: open on the real iPhone Duo, push in to its Apple logo, Fold8 Ultra in the reflection; add Jarvis-style
+  animated spec text on the component shots.
+- Opener: `prompt-opener-seedance-4s.md`, Seedance 2.5 reference mode, 4 s, 720p, 252 cr. Refs: Apple's official
+  iPhone Duo photos (`refs/04-...`, `refs/05-...`, Star White) and `refs/01-...` for the reflection. Plan: it replaces
+  shot 1 (frames 0-37) so the film stays about 12 s. Awaiting approval.
+- HUD: `hud_overlay.py`, run last on the finished film. Official specs only: 200MP/50MP/10MP 3x, Armor FlexHinge,
+  up to 30x digital zoom, Snapdragon 8 Elite Gen 5 for Galaxy, 5000 mAh, Flex Titanium, Gorilla Glass Victus 2,
+  8.0" / 3000 nits peak, 4.1 mm / 215 g. Preview `takes/preview-hud-1080.mp4` (Lanczos 1080p, not the final upscale).
