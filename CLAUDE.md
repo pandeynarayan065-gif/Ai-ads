@@ -4,6 +4,7 @@ This repo is a workspace for generating ad copy and creative concepts with Claud
 
 ## Keep it lean (token budget)
 
+- New chat, account or container: `SETUP.md` (key, tools). Where work stands: `STATUS.md`.
 - One task per session. Everything a session needs is in the repo (brand files, preferences, prompt log, shot cards,
   `notes.txt` per campaign), so start fresh rather than carry a long chat.
 - For AI video and stills, read `reference/quick.md` first, then the full playbook only for what it doesn't cover.

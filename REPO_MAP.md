@@ -16,9 +16,45 @@ flowchart LR
 ## (root)
 - `CLAUDE.md`: AI Ads Workspace
 - `README.md`: AI Ads
+- `REPO_MAP.md`: Repo map
+- `SETUP.md`: Setup for a new chat, account or container
+- `STATUS.md`: Status (updated 4 Nov 2026)
 
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
+
+## ads/redbull-spec/cinematic-12s
+- `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
+- `edit_redbull.py`: Red Bull spec edit: the cleaned take minus the cliff dive (Narayan, 4 Nov: "Remove this shot from redbull").
+- `plan.md`: Red Bull: 12 s spec film (Misfits portfolio)
+- `prompt-seedance-12s.md`: Image 1 is Red Bull's official product photo of the real Red Bull Energy Drink 250 ml can, front view, cold, w
+- media: 2 .mp4
+
+## ads/redbull-spec/cinematic-12s/refs
+- media: 1 .jpg
+
+## ads/redbull-spec/cinematic-12s/takes
+- media: 1 .jpg, 2 .mp4
+
+## ads/samsung-spec/fold8-ultra-12s
+- `add_opener.py`: Samsung spec edit v2: the iPhone Duo opener in front of the v1 edit (Narayan, 4 Nov: "create the clip before shot 1
+- `clean_text.py`: Paint out the fake text Seedance printed on the chip lid in the Samsung take (takes/20261104-194336-1.mp4).
+- `edit_samsung.py`: Samsung spec edit: take 1 with its chip shot replaced (Narayan, 4 Nov: "Remake shot").
+- `grade_logo_shot.py`: Grade the chrome Apple-logo shot to match the iPhone Duo opener (Narayan, 4 Nov: "Cc the chrome shot to make it
+- `hud_overlay.py`: Spec supers over the Samsung spec film (Narayan, 4 Nov: "Jarvis type of animated text"; then "the text looks like
+- `motion-chip-remake.md`: Extreme macro, single continuous real-time shot: the camera pushes in slowly toward the processor chip while a
+- `plan.md`: Samsung Galaxy Z Fold8 Ultra: 12 s spec film (Misfits portfolio)
+- `prompt-opener-seedance-4s.md`: Image 1 is Apple's official photo of the real iPhone Duo in Star White: the back, its camera bar and its Apple
+- `prompt-seedance-12s.md`: Image 1 is Samsung's official photo of the real Galaxy Z Fold8 Ultra in Violet Shadow, closed, seen from the f
+
+## ads/samsung-spec/fold8-ultra-12s/images
+- media: 1 .jpg
+
+## ads/samsung-spec/fold8-ultra-12s/refs
+- media: 5 .jpg
+
+## ads/samsung-spec/fold8-ultra-12s/takes
+- media: 1 .jpg, 11 .mp4
 
 ## ads/spraymax
 - `prompt-log.md`: Spraymax prompt log
@@ -286,6 +322,10 @@ flowchart LR
 
 ## brand/misfits/noir-acid/social
 - media: 5 .png
+
+## brand/misfits/portfolio
+- `make_portfolio.py`: Misfits Instagram portfolio: the four Spraymax pieces as reels with a Misfits outro, plus matching grid covers.
+- media: 4 .jpg, 5 .mp4, 1 .png; deliverables: `misfits-outro-1080x1920.mp4`
 
 ## brand/spraymax
 - `bottle-spec.md`: Spraymax bottle: real-world spec (from Narayan's hand-held photos, 2026-10-13)

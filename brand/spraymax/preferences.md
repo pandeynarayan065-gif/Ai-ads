@@ -28,6 +28,17 @@ standing rule.
   original"). Prefer Seedance's own label over a fix that reads as a sticker. On stills, replacing only the garbled
   small lines with the real ones worked (`ads/spraymax/shelf-still/fix_labels.py`).
 - When he says **"stop"**, stop at once: end the running work and change nothing more.
+- **Edits must hold continuity.** A cut between two shots of the same object must match in colour and finish; he
+  calls a mismatch "sloppy" ("Cc the chrome shot to make it look like the 1st phone": "Cc" = colour-correct). One
+  fixed grade per shot, no masks: `ads/samsung-spec/fold8-ultra-12s/grade_logo_shot.py`.
+
+## On-screen text (spec supers, HUD)
+
+- **Clean, never "slop".** He rejected a busy HUD (dark boxes, scrambled glyphs, mono + sans fonts, shot numbers,
+  brackets, ticks, a new position every shot). What works: one typeface (Inter), one baseline and margin, a hairline
+  that draws out, the label and the value wiping on, a soft shadow instead of a box, and only on shots long enough to
+  read (>= ~0.6 s, or one super over two short shots). `ads/samsung-spec/fold8-ultra-12s/hud_overlay.py`.
+- Every number from the brand's official page; no comparative claims about rivals.
 
 ## End-card lockup
 
