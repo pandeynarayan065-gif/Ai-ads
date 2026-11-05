@@ -41,3 +41,7 @@ is his preference.
   streams buds across it (frames ~24-50), then they pile around its base. Frames 26-49 go in after the side silhouette
   (studio half -> lavender -> sea half): v3 `takes/edit-v3-720.mp4`, 319 frames, 13.29 s. `edit_ultra_male.py` now
   builds v3 by default (`--no-lavender` = v2); `make_masters.sh` builds the v3 masters.
+- v4, final (Narayan: "Replace the lavendar shot with the lightning shot", then "Remove lightning"): the lavender gust
+  takes the lightning's slot (between the anchor chain and the underwater plunge); no lightning; nothing after the
+  silhouette. `takes/edit-v4-720.mp4` (299 frames). Masters rebuilt by `make_masters.sh`: 298 frames, 12.42 s (the
+  finish drops the last frame). The storm take stays in `takes/` (v2/v3 still build with `--version`).

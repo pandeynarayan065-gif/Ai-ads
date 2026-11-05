@@ -24,8 +24,9 @@ flowchart LR
 - `_shot-template.md`: Shot <nn>: <slug>
 
 ## ads/jpg-spec/ultra-male-12s
-- `edit_ultra_male.py`: Ultra Male spec edit (Narayan, 4 Nov: "Delete this shot" = the hand pressing the spray cap, take frames 208-221,
+- `edit_ultra_male.py`: Ultra Male spec edit, frame-exact, from the take and its inserts (Narayan, 4-5 Nov).
 - `plan.md`: Jean Paul Gaultier Ultra Male — 12 s portfolio spec ad (ad 3)
+- `prompt-lavender-4s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
 - `prompt-seedance-12s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
 - `prompt-storm-4s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
 - media: 2 .mp4
@@ -34,7 +35,7 @@ flowchart LR
 - media: 1 .jpg
 
 ## ads/jpg-spec/ultra-male-12s/takes
-- media: 6 .mp4
+- media: 9 .mp4
 
 ## ads/redbull-spec/cinematic-12s
 - `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
