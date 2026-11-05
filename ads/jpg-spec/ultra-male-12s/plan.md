@@ -35,3 +35,4 @@ is his preference.
   `prompt-storm-4s.md`. Bottle true (seven stripes, collar), rain beading on the glass, a lightning fork behind from
   ~2.1 s. Frames 46-65 (the strike) replace the spray shot -> `takes/edit-v2-720.mp4` (295 frames, 12.29 s); preview
   `takes/preview-v2-1080.mp4`. Masters: `make_masters.sh` (v2 cut; upscales write .part files, so an interrupted run restarts cleanly).
+- Delivered (5 Nov): `jpg-ultra-male-spec.mp4` (1080x1920) and `-4k.mp4` (2160x3840), v2 cut, 295 frames, 12.29 s, visuals only.

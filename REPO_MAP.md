@@ -28,6 +28,7 @@ flowchart LR
 - `plan.md`: Jean Paul Gaultier Ultra Male — 12 s portfolio spec ad (ad 3)
 - `prompt-seedance-12s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
 - `prompt-storm-4s.md`: Image 1 is Jean Paul Gaultier's official product photo of the real Ultra Male eau de toilette bottle, front vi
+- media: 2 .mp4
 
 ## ads/jpg-spec/ultra-male-12s/refs
 - media: 1 .jpg
