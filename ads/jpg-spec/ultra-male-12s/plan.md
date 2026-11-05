@@ -36,3 +36,4 @@ is his preference.
   ~2.1 s. Frames 46-65 (the strike) replace the spray shot -> `takes/edit-v2-720.mp4` (295 frames, 12.29 s); preview
   `takes/preview-v2-1080.mp4`. Masters: `make_masters.sh` (v2 cut; upscales write .part files, so an interrupted run restarts cleanly).
 - Delivered (5 Nov): `jpg-ultra-male-spec.mp4` (1080x1920) and `-4k.mp4` (2160x3840), v2 cut, 295 frames, 12.29 s, visuals only.
+- Lavender shot prompt `prompt-lavender-4s.md` (Narayan: "a new jpg shot with lavendar or whatever element", 480p): wind sweeps dried lavender past the bottle in the navy studio; lavender, vanilla and pear surround the bottle in the brand's own Ultra Male campaign photo. 480p 4 s = 112 cr of 119. Awaiting approval.
