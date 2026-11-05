@@ -37,3 +37,7 @@ is his preference.
   `takes/preview-v2-1080.mp4`. Masters: `make_masters.sh` (v2 cut; upscales write .part files, so an interrupted run restarts cleanly).
 - Delivered (5 Nov): `jpg-ultra-male-spec.mp4` (1080x1920) and `-4k.mp4` (2160x3840), v2 cut, 295 frames, 12.29 s, visuals only.
 - Lavender shot prompt `prompt-lavender-4s.md` (Narayan: "a new jpg shot with lavendar or whatever element", 480p): wind sweeps dried lavender past the bottle in the navy studio; lavender, vanilla and pear surround the bottle in the brand's own Ultra Male campaign photo. 480p 4 s = 112 cr of 119. Awaiting approval.
+- Lavender take `takes/20261105-010257-1.mp4`: Seedance 2.5, 480p, 4 s, 112 cr (credits now 7). Bottle true; the gust
+  streams buds across it (frames ~24-50), then they pile around its base. Frames 26-49 go in after the side silhouette
+  (studio half -> lavender -> sea half): v3 `takes/edit-v3-720.mp4`, 319 frames, 13.29 s. `edit_ultra_male.py` now
+  builds v3 by default (`--no-lavender` = v2); `make_masters.sh` builds the v3 masters.
