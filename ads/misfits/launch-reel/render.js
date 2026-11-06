@@ -9,6 +9,8 @@ const files = {
   'fonts/Archivo-VF.ttf': path.join(repo, 'brand/misfits/fonts/Archivo-VF.ttf'),
   'fonts/Inter-VF.ttf': path.join(repo, 'brand/misfits/fonts/Inter-VF.ttf'),
   'scene.html': path.join(here, 'scene.html'),
+  'fonts/InstrumentSerif-Italic.ttf': path.join(repo, 'brand/misfits/fonts/InstrumentSerif-Italic.ttf'),
+  'fonts/JetBrainsMono-Bold.ttf': path.join(repo, 'brand/misfits/fonts/JetBrainsMono-Bold.ttf'),
 };
 (async () => {
   const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });

@@ -9,6 +9,8 @@
 <style>
 @font-face{font-family:"Arch";src:url("fonts/Archivo-VF.ttf");font-weight:100 900;font-stretch:62% 125%}
 @font-face{font-family:"Inter";src:url("fonts/Inter-VF.ttf");font-weight:100 900}
+@font-face{font-family:"Serif";src:url("fonts/InstrumentSerif-Italic.ttf");font-style:italic}
+@font-face{font-family:"Mono";src:url("fonts/JetBrainsMono-Bold.ttf");font-weight:700}
 :root{--ink:#08090b;--paper:#ecede8;--fit:#8bd346;--fit2:#c6ff5e;--mute:#8b9099}
 html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--ink)}
 canvas{position:absolute;inset:0}
@@ -25,32 +27,33 @@ canvas{position:absolute;inset:0}
    filter:drop-shadow(0 6px 24px #000c)}
 .w.fit,.fit{background:linear-gradient(180deg,var(--fit2) 0%,var(--fit) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;
    filter:drop-shadow(0 0 22px #8bd346aa) drop-shadow(0 0 60px #8bd34666)}
+.w.sf,.sf{font-family:"Serif";font-style:italic;font-weight:400;font-stretch:100%;letter-spacing:-2px;font-size:1.22em;line-height:.8;text-transform:none}
 .w.out{background:none;color:transparent;-webkit-text-stroke:4px var(--paper);filter:drop-shadow(0 0 18px #ffffff40)}
 .w.mute{background:linear-gradient(180deg,#a3a8b0,#6f747c);-webkit-background-clip:text;background-clip:text}
 .tilt{display:inline-block;transform:rotate(-14deg) translateY(10px);background:linear-gradient(180deg,var(--fit2),var(--fit));-webkit-background-clip:text;background-clip:text;color:transparent}
-#clock{position:absolute;left:64px;top:140px;font:700 38px "Inter";color:var(--paper);letter-spacing:3px;font-variant-numeric:tabular-nums}
+#clock{position:absolute;left:64px;top:140px;font:700 38px "Mono";color:var(--paper);letter-spacing:3px;font-variant-numeric:tabular-nums}
 #clock b{display:inline-block;width:20px;height:20px;border-radius:50%;background:#ff3b30;margin-right:14px;box-shadow:0 0 18px #ff3b30}
 #clockbig{top:250px}
-#clockbig .lbl{font-size:50px;font-weight:800;letter-spacing:0;color:var(--paper)}
+#clockbig .lbl{font:700 40px "Mono";letter-spacing:2px;color:var(--paper)}
 #clockbig .num{font-size:330px;line-height:1;letter-spacing:-10px}
 #mark{top:1170px;font-size:156px}
 #mark .fit{display:inline-block}
-#tag{top:1378px;font-size:48px;font-weight:700;letter-spacing:0;
+#tag{top:1360px;font-family:"Serif";font-style:italic;font-weight:400;font-stretch:100%;font-size:76px;letter-spacing:0;
    background:linear-gradient(180deg,#fff,#b9bbb4);-webkit-background-clip:text;background-clip:text;color:transparent}
 #cta{top:1530px;letter-spacing:0}
 #cta .pill{display:inline-block;background:linear-gradient(180deg,var(--fit2),var(--fit));color:var(--ink);font-size:56px;padding:28px 60px;border-radius:999px;
    box-shadow:0 0 40px #8bd34699,0 0 120px #8bd34655,inset 0 2px 0 #ffffff80}
-#cta .url{display:block;margin-top:30px;font:600 36px "Inter";color:var(--mute);letter-spacing:1px}
+#cta .url{display:block;margin-top:30px;font:700 34px "Mono";color:var(--mute);letter-spacing:1px}
 </style></head><body>
 <div id="scrim"></div><div id="glow"></div>
 <div id="clock"><b></b>00:00</div>
-<div class="o big" id="t1" style="top:230px"><span class="w">EVERY</span><span class="w">AD</span><br><span class="w">LOOKS</span><span class="w">THE</span><br><span class="w fit">SAME.</span></div>
-<div class="o big" id="t2" style="top:230px"><span class="w out">SAME</span><span class="w">LOOK.</span><br><span class="w out">SAME</span><span class="w">OFFER.</span><br><span class="w out">SAME</span><span class="w mute">FLICK.</span></div>
-<div class="o big" id="t3" style="top:230px"><span class="w">THEN&nbsp;ONE</span><br><span class="w">DOESN’T</span><br><span class="w fit">F<span class="tilt">I</span>T&nbsp;IN.</span></div>
+<div class="o big" id="t1" style="top:230px"><span class="w">EVERY</span><span class="w">AD</span><br><span class="w">LOOKS</span><span class="w">THE</span><br><span class="w fit sf">same.</span></div>
+<div class="o big" id="t2" style="top:260px;font-size:96px"><span class="w out">SAME</span><span class="w">LOOK.</span><br><span class="w out">SAME</span><span class="w">OFFER.</span><br><span class="w out">SAME</span><span class="w mute sf">flick.</span></div>
+<div class="o big" id="t3" style="top:230px"><span class="w sf">Then one</span><br><span class="w">DOESN’T</span><br><span class="w fit">F<span class="tilt">I</span>T&nbsp;IN.</span></div>
 <div class="o" id="clockbig"><div class="lbl">YOU JUST WATCHED THIS FOR</div><div class="num fit">0:08</div></div>
-<div class="o big" id="t5" style="top:210px"><span class="w">IMAGINE</span><span class="w">IT&nbsp;WAS</span><br><span class="w fit">YOUR</span><br><span class="w fit">PRODUCT.</span></div>
+<div class="o big" id="t5" style="top:210px"><span class="w sf">Imagine</span><br><span class="w">IT&nbsp;WAS</span><br><span class="w fit">YOUR</span><br><span class="w fit">PRODUCT.</span></div>
 <div class="o" id="mark"><span class="w" style="opacity:1;margin:0">MISF</span><span class="fit tilt">I</span><span class="w" style="opacity:1;margin:0">TS</span></div>
-<div class="o" id="tag">ADS THAT DON’T FIT IN.</div>
+<div class="o" id="tag">Ads that don’t fit in.</div>
 <div class="o" id="cta"><span class="pill">COMMENT “FILM”</span><span class="url">misfitsagency.in</span></div>
 <canvas id="grain" width="540" height="960"></canvas>
 <div id="flash"></div>
@@ -61,7 +64,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 const W=1080,H=1920, C={ink:0x08090b,paper:0xecede8,fit:0x8bd346,mute:0x8b9099,card:0x15171c};
-await document.fonts.load('900 60px "Arch"'); await document.fonts.load('500 30px "Inter"');
+await document.fonts.load('900 60px "Arch"'); await document.fonts.load('500 30px "Inter"'); await document.fonts.load('italic 60px "Serif"'); await document.fonts.load('700 30px "Mono"');
 
 const R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
 R.setSize(W,H); R.setPixelRatio(1); R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFSoftShadowMap;
