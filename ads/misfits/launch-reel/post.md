@@ -51,3 +51,32 @@ ffmpeg -i video.mp4 -i mix.wav -map 0:v -map 1:a -c:v copy -af loudnorm=I=-14:TP
 ```
 Kokoro model files: `kokoro-v1.0.onnx` + `voices-v1.0.bin` from the kokoro-onnx GitHub releases (`pip install kokoro-onnx`).
 three.js 0.170.0 from npm. Colours are the live site's: ink `#08090b`, paper `#ecede8`, fit `#8bd346`.
+
+---
+
+# Carousel (album) — 5 photos, 1080×1350
+
+Files: `carousel/slide-1.png` … `slide-5.png` (rebuild: `node carousel/render_carousel.js`). Backgrounds are clean frames
+from the reel's 3D scene, so the reel and the album look like one launch.
+
+1. **Hook:** STAND OUT / OR SCROLL PAST. (glowing misfit tile over the feed)
+2. **Problem:** SAME LOOK. SAME OFFER. SAME FLICK. + the split-second line from the site
+3. **What we do:** WE MAKE THE AD. THEN WE MAKE IT WORK. Make / Run lists (from the site's services)
+4. **Proof:** Spraymax, 121K views · 7,365 likes · 131 comments (public counts on @spraymaxindia, both reels, Nov 2026)
+5. **CTA:** YOUR BRAND COULD BE NEXT. Comment "FILM" · book a call
+
+Caption:
+```
+Stand out or scroll past. 👀
+
+Most ads look the same, so they get the same flick. Misfits makes the ones that don't fit in, then runs the campaigns that turn them into leads, sales and bookings.
+
+Swipe to see how, and what it did for Spraymax →
+
+💬 Comment FILM and we'll DM you to start yours.
+🌐 misfitsagency.in
+
+#misfits #aiads #adagency #creativeagency #productads #performancemarketing #d2cindia #metaads
+```
+Post the reel first, then the album a day or two later (or the same day if you want both on the grid at launch).
+Before posting slide 4, re-check the Spraymax counts on their profile and update them if they've grown.

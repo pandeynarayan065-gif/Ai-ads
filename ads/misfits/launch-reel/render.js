@@ -24,6 +24,7 @@ const files = {
   });
   await p.goto('http://reel.local/scene.html');
   await p.waitForFunction('window.ready === true', null, { timeout: 60000 });
+  if (process.env.CLEAN) await p.addStyleTag({ content: '.o,#clock,#scrim,#flash,#credit{display:none!important}' });
   if (flag === '--stills') {
     for (const t of list.split(',')) {
       await p.evaluate(t => window.renderAt(t), +t);

@@ -1,0 +1,93 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Misfits launch carousel: 5 slides, 1080x1350 (4:5). Backgrounds are clean frames from the launch reel's 3D scene.
+     Render: node render_carousel.js  -> slide-1.png ... slide-5.png -->
+<style>
+@font-face{font-family:"Arch";src:url("../../../../brand/misfits/fonts/Archivo-VF.ttf");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:"Inter";src:url("../../../../brand/misfits/fonts/Inter-VF.ttf");font-weight:100 900}
+:root{--ink:#08090b;--paper:#ecede8;--fit:#8bd346;--fit2:#c6ff5e;--mute:#8b9099;--panel:#101216}
+body{margin:0;background:#222}
+.s{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--ink) center/cover no-repeat;font-family:"Inter";color:var(--paper)}
+.s::before{content:"";position:absolute;inset:0;background:var(--shade,linear-gradient(#08090be6 0%,#08090b80 40%,#08090b00 70%))}
+.s>*{position:relative}
+.top{position:absolute;left:64px;right:64px;top:56px;display:flex;justify-content:space-between;align-items:center;
+  font:800 30px "Arch";font-stretch:125%;letter-spacing:1px}
+.top .n{font:600 26px "Inter";color:var(--mute);letter-spacing:3px}
+.i{display:inline-block;transform:rotate(-14deg) translateY(4px)}
+.h{font-family:"Arch";font-stretch:125%;font-weight:900;letter-spacing:-3px;line-height:.98;margin:0}
+.wh{background:linear-gradient(180deg,#fff 20%,#c9cbc4);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px #000c)}
+.fit{background:linear-gradient(180deg,var(--fit2),var(--fit) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px #8bd346aa) drop-shadow(0 0 60px #8bd34655)}
+.out{color:transparent;-webkit-text-stroke:3px var(--paper)}
+.body{font:500 38px/1.38 "Inter";color:#c9ccd2;margin:0}
+.swipe{position:absolute;right:64px;bottom:60px;font:700 30px "Inter";color:var(--fit);letter-spacing:2px}
+.panel{background:#0d0f12d9;border:1px solid #ecede81f;border-radius:36px;padding:40px 44px;backdrop-filter:blur(6px)}
+.panel h3{font:900 44px "Arch";font-stretch:125%;margin:0 0 22px;letter-spacing:-1px}
+.panel ul{margin:0;padding:0;list-style:none;font:500 34px/1.62 "Inter";color:#d5d8dc}
+.panel li::before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--fit);margin-right:20px;transform:rotate(-14deg) translateY(-3px);box-shadow:0 0 14px #8bd346}
+.stat{font:900 132px "Arch";font-stretch:125%;letter-spacing:-5px;line-height:1}
+.lbl{font:600 28px "Inter";color:var(--mute);letter-spacing:4px;text-transform:uppercase;margin-top:8px}
+.pill{display:inline-block;background:linear-gradient(180deg,var(--fit2),var(--fit));color:var(--ink);font:900 52px "Arch";font-stretch:125%;
+  padding:30px 60px;border-radius:999px;box-shadow:0 0 40px #8bd34699,0 0 120px #8bd34655,inset 0 2px 0 #ffffff80}
+</style></head><body>
+
+<!-- 1 · hook -->
+<section class="s" id="s1" style="background-image:url(bg/scene-7.0.jpg);background-position:50% 0%">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">01 / 05</span></div>
+  <div style="position:absolute;left:64px;right:64px;top:170px">
+    <p class="h wh" style="font-size:150px">STAND<br>OUT</p>
+    <p class="h fit" style="font-size:118px;margin-top:14px">OR SCROLL<br>PAST.</p>
+  </div>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 2 · problem -->
+<section class="s" id="s2" style="background-image:url(bg/scene-3.8.jpg);background-position:50% 70%;--shade:linear-gradient(#08090bf2 0%,#08090bcc 50%,#08090b66 100%)">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">02 / 05</span></div>
+  <div style="position:absolute;left:64px;right:64px;top:190px">
+    <p class="h" style="font-size:94px"><span class="out">SAME</span> <span class="wh">LOOK.</span><br><span class="out">SAME</span> <span class="wh">OFFER.</span><br><span class="out">SAME</span> <span class="fit">FLICK.</span></p>
+    <p class="body" style="margin-top:60px;max-width:880px">People decide in a split second whether to keep scrolling. Most ads look the same, so they get the same flick.</p>
+  </div>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 3 · what we do -->
+<section class="s" id="s3" style="background-image:url(bg/scene-11.5.jpg);background-position:50% 100%;--shade:linear-gradient(#08090bf5 0%,#08090bd0 55%,#08090b55 100%)">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">03 / 05</span></div>
+  <div style="position:absolute;left:64px;right:64px;top:170px">
+    <p class="h" style="font-size:78px"><span class="wh">WE MAKE THE AD.</span><br><span class="fit">THEN WE MAKE<br>IT WORK.</span></p>
+    <div style="display:flex;gap:28px;margin-top:56px">
+      <div class="panel" style="flex:1"><h3 class="wh">MAKE</h3><ul><li>Hooks &amp; scripts</li><li>AI product films</li><li>UGC-style reels</li><li>Statics &amp; carousels</li></ul></div>
+      <div class="panel" style="flex:1"><h3 class="fit">RUN</h3><ul><li>Meta &amp; Google</li><li>Audience targeting</li><li>A/B creative tests</li><li>Weekly optimising</li></ul></div>
+    </div>
+  </div>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 4 · proof (real, public numbers from the live site) -->
+<section class="s" id="s4" style="--shade:none">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">04 / 05</span></div>
+  <div style="position:absolute;right:-70px;top:160px;width:470px;height:760px;border-radius:44px;overflow:hidden;transform:rotate(6deg);
+    border:6px solid var(--fit);box-shadow:0 0 60px #8bd34688,0 30px 80px #000;background:url(bg/spraymax-ocean.jpg) 50% 30%/cover"></div>
+  <div style="position:absolute;left:64px;top:170px;width:560px">
+    <p class="lbl" style="color:var(--fit)">Live client · Spraymax</p>
+    <p class="h wh" style="font-size:74px;margin-top:18px">TWO REELS.<br>REAL<br>NUMBERS.</p>
+    <div style="margin-top:60px"><div class="stat fit">121K</div><div class="lbl">views</div></div>
+    <div style="display:flex;gap:56px;margin-top:40px">
+      <div><div class="stat wh" style="font-size:84px;letter-spacing:-3px">7,365</div><div class="lbl">likes</div></div>
+      <div><div class="stat wh" style="font-size:84px;letter-spacing:-3px">131</div><div class="lbl">comments</div></div>
+    </div>
+  </div>
+  <p style="position:absolute;left:64px;right:64px;bottom:60px;font:500 24px Inter;color:var(--mute)">Public counts on @spraymaxindia across both reels, as of Nov 2026.</p>
+</section>
+
+<!-- 5 · CTA -->
+<section class="s" id="s5" style="background-image:url(bg/scene-17.5.jpg);background-position:50% -170px;--shade:linear-gradient(#08090b00 0%,#08090b00 50%,#08090bee 70%)">
+  <div class="top"><span></span><span class="n">05 / 05</span></div>
+  <div style="position:absolute;left:0;right:0;top:790px;text-align:center">
+    <p class="h" style="font-size:96px"><span class="wh">YOUR BRAND</span><br><span class="fit">COULD BE NEXT.</span></p>
+    <div style="margin-top:56px"><span class="pill">COMMENT “FILM”</span></div>
+    <p style="margin-top:34px;font:600 34px Inter;color:var(--mute);letter-spacing:1px">or book a call · misfitsagency.in</p>
+  </div>
+</section>
+</body></html>
