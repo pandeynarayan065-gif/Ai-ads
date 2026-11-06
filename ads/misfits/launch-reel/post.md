@@ -1,13 +1,15 @@
 # Misfits — first post: launch reel
 
-**File:** `misfits-launch-reel.mp4` (1080×1920, 30 fps, 18.6 s, one continuous camera move, no cuts)
+**File:** `misfits-launch-reel.mp4` (1080×1920, 30 fps, 18.6 s, one continuous camera move, no cuts; v2 with bloom glow, 3D tiles, particles, gradient)
 **Cover:** `cover.jpg` (the "you just watched this for 0:09" frame; text sits inside the 3:4 grid crop)
 **Pin it** as post 1 of 3.
 
 ## Concept: the attention test
-A feed of identical grey ad cards scrolls by. One card turns lime and tilts off-axis (the misfit, same idea
-as the logo). The rest of the feed falls away. A timer shows how long you've been watching. The card shows
-real client work (Spraymax), then locks into the Misfits symbol: end card + "Comment FILM".
+Open: the camera dives in fast while a lime scan line sweeps the feed and the cards pop up in its wake.
+A feed of identical grey ad cards scrolls by. One card turns lime, glows and tilts off-axis (the misfit, same
+idea as the logo), lighting up the cards around it. The rest of the feed falls away. A REC timer shows how long
+you've been watching. The card cycles through vector product silhouettes (spray bottle, perfume, can: "your
+product"), then locks into the Misfits symbol: end card + "Comment FILM".
 
 | Time | Voiceover (Kokoro, voice `am_michael`, free/local) | On screen |
 |---|---|---|
@@ -15,7 +17,7 @@ real client work (Spraymax), then locks into the Misfits symbol: end card + "Com
 | 2.7 | Same look. Same offer. Same flick. | SAME LOOK. SAME OFFER. SAME FLICK. |
 | 5.6 | Then one doesn't fit in. | THEN ONE DOESN'T FIT IN. (lime card rises, tilts) |
 | 8.0 | And you just watched this for eight seconds. | YOU JUST WATCHED THIS FOR 0:08 |
-| 10.6 | Imagine it was your product. | IMAGINE IT WAS YOUR PRODUCT. + Spraymax frame, "Client work · Spraymax" |
+| 10.6 | Imagine it was your product. | IMAGINE IT WAS YOUR PRODUCT. + silhouettes: spray bottle → perfume → can |
 | 13.4 | Misfits. Ads that don't fit in. | Symbol assembles, MISFITS wordmark |
 | 15.6 | Comment film, to start yours. | COMMENT "FILM" · misfitsagency.in |
 
@@ -28,7 +30,6 @@ Imagine it was your product.
 Most ads look the same, so they get the same flick. We make the ones that don't fit in, then run the campaigns that turn them into leads, sales and bookings.
 
 AI ad production + paid ads, under one roof.
-Client work in this reel: Spraymax.
 
 💬 Comment FILM and we'll DM you to start yours.
 🌐 misfitsagency.in

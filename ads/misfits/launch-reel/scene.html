@@ -1,123 +1,193 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
-<!-- Misfits launch reel: one continuous 3D camera move + kinetic type. Rendered frame by frame by render.js.
-     The feed of identical ad cards scrolls; one card turns lime and tilts off-axis (the misfit); the rest fall
-     away; it shows real client work; then it locks into the Misfits symbol and the end card. -->
+<!-- Misfits launch reel v2: one continuous 3D camera move + kinetic type. Rendered frame by frame by render.js.
+     Open: the camera dives in as a lime scan line wakes the feed. A feed of identical ad cards scrolls; one card
+     turns lime and tilts off-axis (the misfit) and lights up the cards around it; the rest fall away; it cycles
+     through product silhouettes ("your product"); then it locks into the Misfits symbol and the end card.
+     v2: bloom glow, bevelled tiles, lime point light, particles, gradient sky, bigger type with gradient + glow. -->
+<script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./addons/"}}</script>
 <style>
 @font-face{font-family:"Arch";src:url("fonts/Archivo-VF.ttf");font-weight:100 900;font-stretch:62% 125%}
 @font-face{font-family:"Inter";src:url("fonts/Inter-VF.ttf");font-weight:100 900}
-:root{--ink:#08090b;--paper:#ecede8;--fit:#8bd346;--mute:#8b9099}
+:root{--ink:#08090b;--paper:#ecede8;--fit:#8bd346;--fit2:#c6ff5e;--mute:#8b9099}
 html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--ink)}
 canvas{position:absolute;inset:0}
+#scrim{position:absolute;left:0;right:0;top:0;height:980px;background:linear-gradient(#08090bd9 0%,#08090b99 45%,#08090b00 100%)}
+#glow{position:absolute;inset:0;mix-blend-mode:screen;opacity:0;
+  background:radial-gradient(60% 38% at 50% 58%,#8bd34666 0%,#8bd34622 45%,#0000 75%)}
+#flash{position:absolute;inset:0;background:#f4ffe6;opacity:0}
+#grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay}
 .o{position:absolute;left:0;right:0;text-align:center;font-family:"Arch";font-stretch:125%;font-weight:900;
-   color:var(--paper);letter-spacing:-1px;opacity:0}
-.big{font-size:118px;line-height:1.0}
-.w{display:inline-block;opacity:0;margin:0 10px}
-.mute{color:var(--mute)}
-.fit{color:var(--fit)}
-.tilt{display:inline-block;transform:rotate(-14deg) translateY(10px);color:var(--fit)}
-#clock{position:absolute;left:64px;top:150px;font:500 34px "Inter";color:var(--mute);letter-spacing:2px}
-#clockbig{top:260px}
-#clockbig .lbl{font-size:44px;font-weight:600;color:var(--mute);letter-spacing:1px}
-#clockbig .num{font-size:300px;color:var(--fit);line-height:1}
-#credit{position:absolute;left:0;right:0;top:1640px;text-align:center;font:500 30px "Inter";color:var(--mute);opacity:0}
-#mark{top:1180px;font-size:150px}
-#tag{top:1380px;font-size:46px;font-weight:600}
-#cta{top:1540px}
-#cta .pill{display:inline-block;background:var(--fit);color:var(--ink);font-size:52px;padding:26px 54px;border-radius:999px}
-#cta .url{display:block;margin-top:28px;font:500 34px "Inter";color:var(--mute);letter-spacing:1px}
+   color:var(--paper);letter-spacing:-3px;opacity:0}
+.big{font-size:136px;line-height:.98}
+.w{display:inline-block;opacity:0;margin:0 12px;
+   background:linear-gradient(180deg,#ffffff 20%,#c9cbc4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+   filter:drop-shadow(0 6px 24px #000c)}
+.w.fit,.fit{background:linear-gradient(180deg,var(--fit2) 0%,var(--fit) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;
+   filter:drop-shadow(0 0 22px #8bd346aa) drop-shadow(0 0 60px #8bd34666)}
+.w.out{background:none;color:transparent;-webkit-text-stroke:4px var(--paper);filter:drop-shadow(0 0 18px #ffffff40)}
+.w.mute{background:linear-gradient(180deg,#a3a8b0,#6f747c);-webkit-background-clip:text;background-clip:text}
+.tilt{display:inline-block;transform:rotate(-14deg) translateY(10px);background:linear-gradient(180deg,var(--fit2),var(--fit));-webkit-background-clip:text;background-clip:text;color:transparent}
+#clock{position:absolute;left:64px;top:140px;font:700 38px "Inter";color:var(--paper);letter-spacing:3px;font-variant-numeric:tabular-nums}
+#clock b{display:inline-block;width:20px;height:20px;border-radius:50%;background:#ff3b30;margin-right:14px;box-shadow:0 0 18px #ff3b30}
+#clockbig{top:250px}
+#clockbig .lbl{font-size:50px;font-weight:800;letter-spacing:0;color:var(--paper)}
+#clockbig .num{font-size:330px;line-height:1;letter-spacing:-10px}
+#mark{top:1170px;font-size:156px}
+#mark .fit{display:inline-block}
+#tag{top:1378px;font-size:48px;font-weight:700;letter-spacing:0;
+   background:linear-gradient(180deg,#fff,#b9bbb4);-webkit-background-clip:text;background-clip:text;color:transparent}
+#cta{top:1530px;letter-spacing:0}
+#cta .pill{display:inline-block;background:linear-gradient(180deg,var(--fit2),var(--fit));color:var(--ink);font-size:56px;padding:28px 60px;border-radius:999px;
+   box-shadow:0 0 40px #8bd34699,0 0 120px #8bd34655,inset 0 2px 0 #ffffff80}
+#cta .url{display:block;margin-top:30px;font:600 36px "Inter";color:var(--mute);letter-spacing:1px}
 </style></head><body>
-<div id="clock">00:00</div>
-<div class="o big" id="t1" style="top:250px"><span class="w">EVERY</span><span class="w">AD</span><br><span class="w">LOOKS</span><span class="w">THE</span><br><span class="w fit">SAME.</span></div>
-<div class="o big" id="t2" style="top:250px"><span class="w">SAME&nbsp;LOOK.</span><br><span class="w">SAME&nbsp;OFFER.</span><br><span class="w mute">SAME&nbsp;FLICK.</span></div>
-<div class="o big" id="t3" style="top:250px"><span class="w">THEN&nbsp;ONE</span><br><span class="w">DOESN’T</span><br><span class="w">F<span class="tilt">I</span>T&nbsp;IN.</span></div>
-<div class="o" id="clockbig"><div class="lbl">YOU JUST WATCHED THIS FOR</div><div class="num">0:08</div></div>
-<div class="o big" id="t5" style="top:230px"><span class="w">IMAGINE</span><span class="w">IT&nbsp;WAS</span><br><span class="w fit">YOUR</span><br><span class="w fit">PRODUCT.</span></div>
-<div id="credit">Client work · Spraymax</div>
-<div class="o" id="mark">MISF<span class="tilt">I</span>TS</div>
+<div id="scrim"></div><div id="glow"></div>
+<div id="clock"><b></b>00:00</div>
+<div class="o big" id="t1" style="top:230px"><span class="w">EVERY</span><span class="w">AD</span><br><span class="w">LOOKS</span><span class="w">THE</span><br><span class="w fit">SAME.</span></div>
+<div class="o big" id="t2" style="top:230px"><span class="w out">SAME</span><span class="w">LOOK.</span><br><span class="w out">SAME</span><span class="w">OFFER.</span><br><span class="w out">SAME</span><span class="w mute">FLICK.</span></div>
+<div class="o big" id="t3" style="top:230px"><span class="w">THEN&nbsp;ONE</span><br><span class="w">DOESN’T</span><br><span class="w fit">F<span class="tilt">I</span>T&nbsp;IN.</span></div>
+<div class="o" id="clockbig"><div class="lbl">YOU JUST WATCHED THIS FOR</div><div class="num fit">0:08</div></div>
+<div class="o big" id="t5" style="top:210px"><span class="w">IMAGINE</span><span class="w">IT&nbsp;WAS</span><br><span class="w fit">YOUR</span><br><span class="w fit">PRODUCT.</span></div>
+<div class="o" id="mark"><span class="w" style="opacity:1;margin:0">MISF</span><span class="fit tilt">I</span><span class="w" style="opacity:1;margin:0">TS</span></div>
 <div class="o" id="tag">ADS THAT DON’T FIT IN.</div>
 <div class="o" id="cta"><span class="pill">COMMENT “FILM”</span><span class="url">misfitsagency.in</span></div>
+<canvas id="grain" width="540" height="960"></canvas>
+<div id="flash"></div>
 <script type="module">
-import * as THREE from "./three.module.js";
-const W=1080,H=1920, C={ink:0x08090b,paper:0xecede8,fit:0x8bd346,mute:0x8b9099,card:0x16181d};
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+const W=1080,H=1920, C={ink:0x08090b,paper:0xecede8,fit:0x8bd346,mute:0x8b9099,card:0x15171c};
 await document.fonts.load('900 60px "Arch"'); await document.fonts.load('500 30px "Inter"');
 
 const R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
-R.setSize(W,H); R.setPixelRatio(1); R.outputColorSpace=THREE.SRGBColorSpace; R.shadowMap.enabled=true;
+R.setSize(W,H); R.setPixelRatio(1); R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFSoftShadowMap;
+R.toneMapping=THREE.NeutralToneMapping; R.toneMappingExposure=1.0;
 document.body.prepend(R.domElement);
-const S=new THREE.Scene(); S.background=new THREE.Color(C.ink); S.fog=new THREE.Fog(C.ink,9,30);
-const cam=new THREE.PerspectiveCamera(40,W/H,0.1,100);
-S.add(new THREE.HemisphereLight(0xffffff,0x111111,1.4));
-const key=new THREE.DirectionalLight(0xffffff,2.2); key.position.set(-4,-6,12); key.castShadow=true;
-key.shadow.mapSize.set(2048,2048); Object.assign(key.shadow.camera,{left:-6,right:6,top:6,bottom:-6,near:1,far:40});
-S.add(key,key.target);
+const S=new THREE.Scene(); S.fog=new THREE.Fog(0x0a0c0d,8,30);
+// gradient sky: deep ink with a lime horizon glow (screen-space background)
+{const c=document.createElement("canvas");c.width=270;c.height=480;const g=c.getContext("2d");
+  const l=g.createLinearGradient(0,0,0,480);l.addColorStop(0,"#050607");l.addColorStop(.55,"#0b0e0c");l.addColorStop(1,"#07080a");g.fillStyle=l;g.fillRect(0,0,270,480);
+  const r=g.createRadialGradient(135,170,0,135,170,220);r.addColorStop(0,"#26401a");r.addColorStop(.5,"#11180e");r.addColorStop(1,"#0000");g.fillStyle=r;g.fillRect(0,0,270,480);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;S.background=t;}
+const cam=new THREE.PerspectiveCamera(40,W/H,0.1,120);
+const hemi=new THREE.HemisphereLight(0xdfe8ff,0x0b0c0a,1.1); S.add(hemi);
+const key=new THREE.DirectionalLight(0xffffff,2.0); key.position.set(-4,-6,12); key.castShadow=true;
+key.shadow.mapSize.set(2048,2048); key.shadow.radius=4; Object.assign(key.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:1,far:40});
+const rim=new THREE.DirectionalLight(0x9fdcff,0.9); rim.position.set(6,30,4);
+S.add(key,key.target,rim);
+const limeL=new THREE.PointLight(C.fit,0,7,1.6); S.add(limeL);           // the misfit lights up its neighbours
+const scanL=new THREE.PointLight(C.fit,0,5,1.8); S.add(scanL);
+
+const comp=new EffectComposer(R,new THREE.WebGLRenderTarget(W,H,{type:THREE.HalfFloatType,samples:4}));
+comp.addPass(new RenderPass(S,cam));
+const bloom=new UnrealBloomPass(new THREE.Vector2(W,H),0.6,0.5,0.72); comp.addPass(bloom);
+comp.addPass(new OutputPass());
 
 // ---------- textures ----------
 function rr(g,x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);}
 const HEAD=["New collection is here","SALE · up to 20% off","Limited time offer","Shop now, pay later",
   "Quality you can trust","Free shipping today","Upgrade your routine","Don’t miss out"];
 const BR=["brandname.co","shop_official","the_store","bestdeals.in","yourbrand","officialstore","brand.world","shopnow"];
+function tex(c){const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
 function cardTex(i){const c=document.createElement("canvas");c.width=c.height=512;const g=c.getContext("2d");
-  g.fillStyle="#16181d";rr(g,0,0,512,512,56);g.fill();
+  g.fillStyle="#15171c";rr(g,0,0,512,512,56);g.fill();
   g.fillStyle="#2a2e36";g.beginPath();g.arc(58,56,22,0,7);g.fill();
   g.fillStyle="#9a9fa8";g.font='600 24px Inter';g.fillText(BR[i%8],94,52);
   g.fillStyle="#5d626b";g.font='500 18px Inter';g.fillText("Sponsored",94,76);
-  const gr=g.createLinearGradient(0,100,0,360);gr.addColorStop(0,"#23262d");gr.addColorStop(1,"#1c1f25");
+  const gr=g.createLinearGradient(0,100,0,360);gr.addColorStop(0,"#252830");gr.addColorStop(1,"#1b1e24");
   g.fillStyle=gr;rr(g,28,100,456,250,18);g.fill();
-  g.fillStyle="#2f333b";rr(g,186,170,140,110,14);g.fill();           // generic product block
+  g.fillStyle="#30343c";rr(g,186,170,140,110,14);g.fill();
   g.fillStyle="#b9bdc4";g.font='700 30px Inter';g.fillText(HEAD[(i*3)%8],32,400);
   g.strokeStyle="#4a4f58";g.lineWidth=3;rr(g,32,428,160,52,26);g.stroke();
   g.fillStyle="#9a9fa8";g.font='600 22px Inter';g.fillText("Shop now",64,462);
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
-function solidTex(col){const c=document.createElement("canvas");c.width=c.height=512;const g=c.getContext("2d");
-  g.fillStyle=col;rr(g,0,0,512,512,56);g.fill();const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
-async function imgTex(url){const im=new Image();im.src=url;await im.decode();
-  const c=document.createElement("canvas");c.width=c.height=1024;const g=c.getContext("2d");
-  g.fillStyle="#8bd346";rr(g,0,0,1024,1024,112);g.fill();
-  g.save();rr(g,28,28,968,968,90);g.clip();const s=im.width, y0=(im.height-s)*0.5;g.drawImage(im,0,y0,s,s,28,28,968,968);g.restore();
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
-const cardT=[...Array(8)].map((_,i)=>cardTex(i)), fitT=solidTex("#8bd346"), paperT=solidTex("#ecede8");
-const prodT=await imgTex("product.jpg");
+  return tex(c);}
+function solidTex(a,b){const c=document.createElement("canvas");c.width=c.height=512;const g=c.getContext("2d");
+  const l=g.createLinearGradient(0,0,512,512);l.addColorStop(0,a);l.addColorStop(1,b);g.fillStyle=l;rr(g,0,0,512,512,56);g.fill();return tex(c);}
+// vector product silhouettes on the lime face (generic shapes: "your product")
+function silTex(kind){const c=document.createElement("canvas");c.width=c.height=1024;const g=c.getContext("2d");
+  const l=g.createLinearGradient(0,0,1024,1024);l.addColorStop(0,"#c6ff5e");l.addColorStop(1,"#7cc23c");g.fillStyle=l;rr(g,0,0,1024,1024,112);g.fill();
+  g.save();g.translate(512,520);g.scale(1.3,1.3);g.fillStyle="#08090b";
+  const hi=(x,y,w,h,r)=>{g.save();g.fillStyle="rgba(198,255,94,.22)";rr(g,x,y,w,h,r);g.fill();g.restore();};
+  if(kind==="spray"){rr(g,-125,-80,250,460,48);g.fill();
+    g.beginPath();g.moveTo(-125,-20);g.bezierCurveTo(-125,-110,-60,-140,-40,-142);g.lineTo(40,-142);g.bezierCurveTo(60,-140,125,-110,125,-20);g.fill();
+    rr(g,-50,-200,100,64,10);g.fill(); rr(g,-66,-232,132,40,12);g.fill(); rr(g,-42,-330,84,104,16);g.fill(); rr(g,38,-312,80,28,9);g.fill();
+    hi(-92,-40,24,380,12); g.fillStyle="rgba(198,255,94,.14)";g.fillRect(-125,60,250,150);}
+  if(kind==="perfume"){rr(g,-185,-90,370,440,70);g.fill(); rr(g,-36,-140,72,56,8);g.fill(); rr(g,-80,-300,160,166,22);g.fill();
+    hi(-140,-50,26,360,13); g.fillStyle="rgba(198,255,94,.16)";rr(g,-110,70,220,120,10);g.fill();}
+  if(kind==="can"){rr(g,-130,-300,260,640,46);g.fill(); g.fillStyle="rgba(198,255,94,.2)";g.fillRect(-130,-250,260,6);g.fillRect(-130,280,260,6);
+    hi(-96,-230,24,500,12); g.fillStyle="rgba(198,255,94,.14)";g.fillRect(-130,-40,260,140);}
+  g.restore();return tex(c);}
+const cardT=[...Array(8)].map((_,i)=>cardTex(i)), fitT=solidTex("#c6ff5e","#7cc23c"), paperT=solidTex("#f4f5f0","#d6d7d1");
+const silT=["spray","perfume","can"].map(silTex);
+// grain overlay (static, keeps the gradient from banding)
+{const g=document.getElementById("grain").getContext("2d");const d=g.createImageData(540,960);
+  let s=7;for(let i=0;i<d.data.length;i+=4){s=(s*16807)%2147483647;const v=s%255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255;}g.putImageData(d,0,0);}
 
 // ---------- tiles ----------
-const shape=new THREE.Shape();{const s=0.5,r=0.11;shape.moveTo(-s+r,-s);shape.lineTo(s-r,-s);shape.quadraticCurveTo(s,-s,s,-s+r);
+const shape=new THREE.Shape();{const s=0.47,r=0.1;shape.moveTo(-s+r,-s);shape.lineTo(s-r,-s);shape.quadraticCurveTo(s,-s,s,-s+r);
   shape.lineTo(s,s-r);shape.quadraticCurveTo(s,s,s-r,s);shape.lineTo(-s+r,s);shape.quadraticCurveTo(-s,s,-s,s-r);
   shape.lineTo(-s,-s+r);shape.quadraticCurveTo(-s,-s,-s+r,-s);}
-const body=new THREE.ExtrudeGeometry(shape,{depth:0.08,bevelEnabled:false}); body.translate(0,0,-0.08);
-const face=new THREE.PlaneGeometry(1,1); face.translate(0,0,0.002);
+const body=new THREE.ExtrudeGeometry(shape,{depth:0.12,bevelEnabled:true,bevelThickness:0.03,bevelSize:0.03,bevelSegments:4,curveSegments:8});
+body.translate(0,0,-0.15);
+const face=new THREE.PlaneGeometry(1,1); face.translate(0,0,0.004);
 function tile(tex,bodyCol=C.card){const g=new THREE.Group();
-  const b=new THREE.Mesh(body,new THREE.MeshStandardMaterial({color:bodyCol,roughness:0.6}));b.castShadow=b.receiveShadow=true;
-  const f=new THREE.Mesh(face,new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:0.55}));f.receiveShadow=true;
+  const b=new THREE.Mesh(body,new THREE.MeshStandardMaterial({color:bodyCol,roughness:0.35,metalness:0.25}));b.castShadow=b.receiveShadow=true;
+  const f=new THREE.Mesh(face,new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:0.4,metalness:0.1}));f.receiveShadow=true;
   g.add(b,f);g.userData.face=f;g.userData.body=b;return g;}
-const P=1.12, COLS=5, ROWS=34, HERO={c:2,r:20};          // hero card sits in the centre column
+const P=1.12, COLS=5, ROWS=34, HERO={c:2,r:20};
 const tiles=[];
 for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
   const isHero=(c===HERO.c&&r===HERO.r); const t=tile(cardT[(r*7+c*3)%8]);
-  t.position.set((c-2)*P,(r-4)*P,0); t.userData.home=t.position.clone();
-  // fall order: distance from hero, plus a little hash jitter
+  t.position.set((c-2)*P,(r-4)*P,0); t.userData.home=t.position.clone(); t.userData.r=r;
   const d=Math.hypot(c-HERO.c,r-HERO.r); t.userData.delay=d*0.07+((r*13+c*7)%5)*0.04; t.userData.spin=((r*5+c*11)%7-3)*0.25;
+  t.userData.wake=r*0.045+((r*3+c*5)%4)*0.03;
   if(isHero) continue; S.add(t); tiles.push(t);}
 const heroHome=new THREE.Vector3((HERO.c-2)*P,(HERO.r-4)*P,0);
 const hero=tile(cardT[0]); hero.position.copy(heroHome); S.add(hero);
-const fitF=new THREE.Mesh(face,new THREE.MeshStandardMaterial({map:fitT,transparent:true,opacity:0,roughness:0.45}));fitF.position.z=0.004;
-const prodF=new THREE.Mesh(face,new THREE.MeshBasicMaterial({map:prodT,transparent:true,opacity:0}));prodF.position.z=0.006;
-hero.add(fitF,prodF);
-// the three paper tiles that complete the symbol
-const U=100/90*0+1.222, SYM=[[-0.611,0.611],[-0.611,-0.611],[0.611,-0.611]].map(([x,y])=>[x*1.0,y*1.0]);
-const symC=heroHome.clone().add(new THREE.Vector3(-0.689,-0.689,1.2));   // hero becomes the top-right misfit
-const mates=SYM.map(([x,y],i)=>{const t=tile(paperT,C.paper);t.userData.face.material=new THREE.MeshBasicMaterial({map:paperT,transparent:true});t.userData.target=new THREE.Vector3(symC.x+x,symC.y+y,symC.z);
+const heroBody=hero.userData.body.material;
+const fitF=new THREE.Mesh(face,new THREE.MeshStandardMaterial({map:fitT,emissive:0xffffff,emissiveMap:fitT,emissiveIntensity:0,transparent:true,opacity:0,roughness:0.3}));fitF.position.z=0.006;
+const silF=silT.map((m,i)=>{const f=new THREE.Mesh(face,new THREE.MeshBasicMaterial({map:m,transparent:true,opacity:0}));f.position.z=0.008+i*0.001;hero.add(f);return f;});
+hero.add(fitF);
+const symC=heroHome.clone().add(new THREE.Vector3(-0.689,-0.689,1.2));
+const SYM=[[-0.611,0.611],[-0.611,-0.611],[0.611,-0.611]];
+const mates=SYM.map(([x,y])=>{const t=tile(paperT,0xd9dad4);t.userData.face.material=new THREE.MeshBasicMaterial({map:paperT,transparent:true,color:0xcfd0cb});
+  t.userData.target=new THREE.Vector3(symC.x+x,symC.y+y,symC.z);
   t.userData.from=new THREE.Vector3(symC.x+x*6,symC.y+y*6-3,symC.z+9);t.visible=false;S.add(t);return t;});
+
+// scan line that wakes the feed at the start
+const scan=new THREE.Mesh(new THREE.PlaneGeometry(9,0.05),new THREE.MeshBasicMaterial({color:0xd8ff9a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+const scanHalo=new THREE.Mesh(new THREE.PlaneGeometry(9,0.9),new THREE.MeshBasicMaterial({color:C.fit,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,
+  alphaMap:(()=>{const c=document.createElement("canvas");c.width=4;c.height=64;const g=c.getContext("2d");const l=g.createLinearGradient(0,0,0,64);
+  l.addColorStop(0,"#000");l.addColorStop(.5,"#fff");l.addColorStop(1,"#000");g.fillStyle=l;g.fillRect(0,0,4,64);return new THREE.CanvasTexture(c);})()}));
+S.add(scan,scanHalo);
+
+// floating particles (dust in the light)
+const NP=700, pg=new THREE.BufferGeometry(), pp=new Float32Array(NP*3), pc=new Float32Array(NP*3), seed=[];
+let rs=11;const rnd=()=>(rs=(rs*16807)%2147483647)/2147483647;
+for(let i=0;i<NP;i++){seed.push([rnd()*10-5,rnd()*36-6,0.2+rnd()*7,rnd()*6.28,0.2+rnd()*0.5]);
+  const lime=rnd()<0.45;pc.set(lime?[0.55,0.83,0.27]:[0.8,0.82,0.8],i*3);}
+pg.setAttribute("position",new THREE.BufferAttribute(pp,3));pg.setAttribute("color",new THREE.BufferAttribute(pc,3));
+const dot=(()=>{const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d");const r=g.createRadialGradient(32,32,0,32,32,32);
+  r.addColorStop(0,"#fff");r.addColorStop(.35,"#ffffff80");r.addColorStop(1,"#0000");g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+const parts=new THREE.Points(pg,new THREE.PointsMaterial({size:0.07,map:dot,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+S.add(parts);
 
 // ---------- timing helpers ----------
 const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), seg=(t,a,b)=>cl((t-a)/(b-a));
-const ss=x=>x*x*(3-2*x), sm=x=>x*x*x*(x*(x*6-15)+10), eo=x=>1-Math.pow(1-x,3);
+const ss=x=>x*x*(3-2*x), sm=x=>x*x*x*(x*(x*6-15)+10), eo=x=>1-Math.pow(1-x,3), eo5=x=>1-Math.pow(1-x,5);
 const back=x=>{const s=1.9;x-=1;return x*x*((s+1)*x+s)+1;};
 const lerp=(a,b,x)=>a+(b-a)*x;
 
-// camera: Catmull-Rom through keyframes with tangents scaled by real time gaps (C1-smooth, one continuous move)
+// camera: Hermite spline through keyframes, tangents scaled by real time gaps (C1-smooth, one continuous move).
+// The open is a fast low dive that decelerates into the glide.
 const KF=[ // t, pos, target, upBlend(0=z-up oblique, 1=y-up top-down)
- [0.0,[0,-1.5,8.2],[0,5.5,0],0],
- [3.0,[0,6.8,8.0],[0,14.0,0],0],
+ [0.0,[0.9,-6.5,2.2],[0,2.0,0.4],0],
+ [1.1,[0.2,-1.0,6.6],[0,6.5,0],0],
+ [3.0,[0,6.0,8.0],[0,13.4,0],0],
  [5.6,[0,12.4,7.2],[0,19.6,0.3],0],
  [7.6,[1.6,14.8,4.6],[0,heroHome.y,1.0],0],
  [10.4,[1.4,15.0,5.4],[0,heroHome.y+0.9,1.2],0],
@@ -126,53 +196,78 @@ const KF=[ // t, pos, target, upBlend(0=z-up oblique, 1=y-up top-down)
  [18.6,[0,symC.y-1.9,17.0],[0,symC.y-1.9,1.2],1]];
 function herm(i,k,t){const n=KF.length;const g=j=>KF[Math.max(0,Math.min(n-1,j))];
   const [t0]=g(i),[t1]=g(i+1),p0=g(i)[k],p1=g(i+1)[k];
-  const tan=j=>{if(j===0)return[0,0,0];if(j===n-1)return[0,0,0];const a=g(j-1),b=g(j+1);return a[k].map((v,q)=>(b[k][q]-v)/(b[0]-a[0]));};
+  const tan=j=>{if(j===n-1)return[0,0,0];if(j===0){const b=g(1);return b[k].map((v,q)=>(v-g(0)[k][q])/b[0]*1.6);}
+    const a=g(j-1),b=g(j+1);return a[k].map((v,q)=>(b[k][q]-v)/(b[0]-a[0]));};
   const m0=tan(i),m1=tan(i+1),h=t1-t0,u=(t-t0)/h,u2=u*u,u3=u2*u;
   return p0.map((v,q)=>(2*u3-3*u2+1)*v+(u3-2*u2+u)*h*m0[q]+(-2*u3+3*u2)*p1[q]+(u3-u2)*h*m1[q]);}
 function camAt(t){let i=0;while(i<KF.length-2&&t>KF[i+1][0])i++;
   const p=herm(i,1,t),q=herm(i,2,t);const ub=lerp(KF[i][3],KF[i+1][3],ss(seg(t,KF[i][0],KF[i+1][0])));
+  // handheld micro-drift + punch-ins on the beats
+  const dr=0.04*(1-seg(t,13,14.5));p[0]+=dr*Math.sin(t*1.3);p[2]+=dr*Math.sin(t*0.9+1);
+  cam.fov=lerp(68,40,eo5(seg(t,0,1.3)))-3*Math.exp(-((t-5.65)**2)/0.02)-2*Math.exp(-((t-13.95)**2)/0.02);
+  cam.updateProjectionMatrix();
   cam.position.set(...p);cam.up.set(0,ub,1-ub).normalize();cam.lookAt(...q);}
 
 const $=id=>document.getElementById(id);
 function words(id,t,t0,step,dur){const el=$(id);const ws=el.querySelectorAll(".w");
   const vis=t>=t0-0.05&&t<t0+dur;el.style.opacity=vis?1:0;
-  const out=seg(t,t0+dur-0.25,t0+dur);
-  ws.forEach((w,i)=>{const a=seg(t,t0+i*step,t0+i*step+0.22);w.style.opacity=Math.min(eo(a),1-out);
-    w.style.transform=`translateY(${(1-back(a))*40-out*30}px) scale(${0.9+0.1*eo(a)})`;});}
-function fade(id,t,a,b,dy=30){const el=$(id);const i=eo(seg(t,a,a+0.35)),o=seg(t,b-0.3,b);el.style.opacity=i*(1-o);
-  el.style.transform=`translateY(${(1-i)*dy}px)`;}
+  const out=seg(t,t0+dur-0.22,t0+dur);
+  ws.forEach((w,i)=>{const a=seg(t,t0+i*step,t0+i*step+0.2);w.style.opacity=Math.min(cl(a*2.5),1-out);
+    const sc=lerp(1.7,1,eo5(a)), bl=(1-eo(a))*14;
+    w.style.transform=`translateY(${-out*40}px) scale(${sc+out*0.06})`;w.style.filter=(w.classList.contains("fit")?
+      `drop-shadow(0 0 22px #8bd346aa) drop-shadow(0 0 60px #8bd34666)`:`drop-shadow(0 6px 24px #000c)`)+(bl>0.3?` blur(${bl.toFixed(1)}px)`:"");});}
+function fade(id,t,a,b,dy=30,s0=1){const el=$(id);const i=eo5(seg(t,a,a+0.35)),o=seg(t,b-0.3,b);el.style.opacity=i*(1-o);
+  el.style.transform=`translateY(${(1-i)*dy}px) scale(${lerp(s0,1,i)})`;}
 
+const v=new THREE.Vector3();
 window.renderAt=function(t){
   camAt(t);
-  {const k=sm(seg(t,12.4,14.6));S.fog.near=9+60*k;S.fog.far=30+80*k;}
-  // feed is static; camera glides over it. Hero: lime + rise + tilt off-axis at 5.6s
-  const lift=back(seg(t,5.55,6.35)), turn=fitF.material;
-  turn.opacity=eo(seg(t,5.55,5.8));
-  const toSym=sm(seg(t,12.6,14.0));
-  const rise=new THREE.Vector3(heroHome.x+0.12*lift,heroHome.y+0.08*lift,1.2*lift + 0.06*Math.sin(t*1.7)*seg(t,6,8)*(1-toSym));
+  {const k=sm(seg(t,12.4,14.6));S.fog.near=8+60*k;S.fog.far=30+80*k;}
+  // --- open: scan line sweeps the feed, cards pop up in its wake ---
+  const sy=lerp(-6,30,seg(t,0.05,2.6)), sOn=seg(t,0.05,0.2)*(1-seg(t,2.3,2.6));
+  scan.position.set(0,sy,0.25);scanHalo.position.set(0,sy,0.22);scan.material.opacity=sOn;scanHalo.material.opacity=0.55*sOn;
+  scanL.position.set(0,sy,0.8);scanL.intensity=6*sOn;
+  // --- hero ---
+  const lift=back(seg(t,5.55,6.35)), on=eo(seg(t,5.55,5.8));
+  fitF.material.opacity=on; const toSym=sm(seg(t,12.6,14.0));
+  fitF.material.emissiveIntensity=on*(0.12+0.3*Math.exp(-((t-5.7)**2)/0.05)+0.05*Math.sin(t*3)*seg(t,6,12))*(1-0.3*toSym);
+  heroBody.color.lerpColors(new THREE.Color(C.card),new THREE.Color(0x5d9a2c),on);heroBody.emissive.set(C.fit);heroBody.emissiveIntensity=0.12*on;
+  const rise=new THREE.Vector3(heroHome.x+0.12*lift,heroHome.y+0.08*lift,1.2*lift+0.06*Math.sin(t*1.7)*seg(t,6,8)*(1-toSym));
   const symPos=new THREE.Vector3(symC.x+0.689,symC.y+0.689,symC.z);
   hero.position.lerpVectors(rise,symPos,toSym);
-  hero.rotation.set(lerp(0.32*lift,0,sm(seg(t,9.6,10.6))),lerp(-0.18*lift,0,sm(seg(t,9.6,10.6))),lerp(-0.244*lift,-0.279,toSym));
-  // client work on the misfit tile
-  fitF.material.emissive.set(C.fit);fitF.material.emissiveMap=fitT;fitF.material.emissiveIntensity=0.15+0.75*toSym;
-  prodF.material.opacity=eo(seg(t,10.5,10.9))*(1-seg(t,12.5,12.9));
-  // the rest of the feed falls away, nearest first
-  for(const m of tiles){const f=Math.max(0,t-6.9-m.userData.delay);
-    m.position.set(m.userData.home.x,m.userData.home.y,-2.2*f*f);m.rotation.set(m.userData.spin*f*0.6,m.userData.spin*f*0.4,0);
-    m.visible=m.position.z>-25;}
-  // symbol mates fly in
+  // silhouette swaps get a small snap of rotation
+  const snap=[11.2,11.8].reduce((a,ts)=>a+0.07*Math.exp(-((t-ts)**2)/0.004)*Math.sign(ts-11.5),0);
+  hero.rotation.set(lerp(0.32*lift,0,sm(seg(t,9.6,10.6))),lerp(-0.18*lift,0,sm(seg(t,9.6,10.6))),lerp(-0.244*lift,-0.279,toSym)+snap);
+  const sw=[[10.5,11.2],[11.2,11.8],[11.8,12.6]];
+  silF.forEach((f,i)=>{const [a,b]=sw[i];f.material.opacity=(i===0?eo(seg(t,a,a+0.25)):cl((t-a)/0.06))*(i===2?1-seg(t,b-0.1,b+0.25):(t<b?1:0));});
+  limeL.position.set(hero.position.x,hero.position.y-0.2,hero.position.z+0.9);
+  limeL.intensity=on*(4+6*Math.exp(-((t-5.7)**2)/0.06))*(1-toSym*0.8);
+  // --- feed: wakes with the scan, falls away after the misfit ---
+  for(const m of tiles){const u=m.userData, w=back(seg(t,u.wake*0.55,u.wake*0.55+0.45));
+    const f=Math.max(0,t-6.9-u.delay);
+    const near=Math.exp(-((u.home.y-sy)**2)/0.7)*sOn*0.18;
+    m.position.set(u.home.x,u.home.y,-1.6*(1-w)+near-2.2*f*f);
+    m.rotation.set(u.spin*f*0.6+(1-w)*0.6,u.spin*f*0.4,0);m.visible=m.position.z>-25&&w>0.001;}
   mates.forEach((m,i)=>{const a=sm(seg(t,12.75+i*0.12,13.75+i*0.12));m.visible=a>0;
     m.position.lerpVectors(m.userData.from,m.userData.target,a);m.rotation.set((1-a)*1.2,(1-a)*-0.8,(1-a)*0.9);});
   key.target.position.copy(hero.position);key.position.set(hero.position.x-4,hero.position.y-6,12);
-  R.render(S,cam);
-  // ---- type ----
-  const s=Math.floor(t);$("clock").textContent=`00:${String(s).padStart(2,"0")}`;
-  $("clock").style.opacity=(t<7.9||t>10.3&&t<12.9)?1:0;
-  words("t1",t,0.3,0.36,2.2); words("t2",t,2.7,0.75,2.55); words("t3",t,5.6,0.38,1.85);
-  fade("clockbig",t,8.0,10.35,0); $("clockbig").querySelector(".num").textContent=`0:${String(s).padStart(2,"0")}`;
-  words("t5",t,10.6,0.33,2.1); fade("credit",t,10.8,12.5,10);
-  fade("mark",t,13.4,99); fade("tag",t,14.0,99); fade("cta",t,15.6,99);
-  const p=eo(seg(t,15.6,16.0));$("cta").querySelector(".pill").style.transform=`scale(${0.8+0.2*back(seg(t,15.6,16.0))})`;
+  // particles drift upward and sway
+  for(let i=0;i<NP;i++){const [x,y,z,ph,sp]=seed[i];pp[i*3]=x+0.25*Math.sin(t*sp+ph);pp[i*3+1]=y+0.15*Math.cos(t*sp*0.7+ph);pp[i*3+2]=z+((t*sp*0.35)%3);}
+  pg.attributes.position.needsUpdate=true; parts.material.opacity=0.8*(1-0.6*sm(seg(t,13,14.5)));
+  bloom.strength=0.55+0.45*Math.exp(-((t-5.7)**2)/0.08)+0.3*Math.exp(-((t-13.95)**2)/0.08)+0.25*sOn;
+  comp.render();
+  // ---- overlays ----
+  $("flash").style.opacity=0.5*Math.exp(-t/0.07)+0.22*Math.exp(-((t-5.6)**2)/0.004)+0.15*Math.exp(-((t-13.95)**2)/0.004);
+  $("glow").style.opacity=Math.min(1,0.7*on*(1-seg(t,12.4,13))+0.45*seg(t,13.6,14.4)+0.4*Math.exp(-((t-5.7)**2)/0.1));
+  $("scrim").style.opacity=1-sm(seg(t,12.6,13.6));
+  const s=Math.floor(t);$("clock").lastChild.textContent=`00:${String(s).padStart(2,"0")}`;
+  $("clock").style.opacity=(t<7.9||t>10.3&&t<12.9)?1:0; $("clock").firstChild.style.opacity=(t%1<0.6)?1:0.25;
+  words("t1",t,0.0,0.34,2.5); words("t2",t,2.7,0.37,2.55); words("t3",t,5.6,0.38,1.85);
+  fade("clockbig",t,8.0,10.35,0,1.4); $("clockbig").querySelector(".num").textContent=`0:${String(s).padStart(2,"0")}`;
+  $("clockbig").querySelector(".num").style.transform=`scale(${1+0.06*Math.exp(-((t%1)**2)/0.01)})`;
+  words("t5",t,10.6,0.33,2.1);
+  fade("mark",t,13.4,99,0,1.25); fade("tag",t,14.0,99); fade("cta",t,15.6,99);
+  $("cta").querySelector(".pill").style.transform=`scale(${(0.8+0.2*back(seg(t,15.6,16.0)))*(1+0.025*Math.sin((t-16)*5)*seg(t,16,16.4))})`;
 };
 window.ready=true;
 </script></body></html>

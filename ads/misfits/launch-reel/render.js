@@ -6,7 +6,6 @@ const [threePath, out, fpsArg, flag, list] = process.argv.slice(2);
 const fps = +fpsArg || 30, DUR = 18.6, here = __dirname, repo = path.resolve(here, '../../..');
 const files = {
   'three.module.js': threePath,
-  'product.jpg': path.join(here, 'product.jpg'),
   'fonts/Archivo-VF.ttf': path.join(repo, 'brand/misfits/fonts/Archivo-VF.ttf'),
   'fonts/Inter-VF.ttf': path.join(repo, 'brand/misfits/fonts/Inter-VF.ttf'),
   'scene.html': path.join(here, 'scene.html'),
@@ -17,7 +16,8 @@ const files = {
   p.on('console', m => m.type() === 'error' && console.error('page:', m.text()));
   p.on('pageerror', e => console.error('pageerror:', e.message));
   await p.route('http://reel.local/**', r => {
-    const f = files[new URL(r.request().url()).pathname.slice(1)];
+    const rel = new URL(r.request().url()).pathname.slice(1);
+    const f = files[rel] || (rel.startsWith('addons/') ? path.join(path.dirname(threePath), '../examples/jsm', rel.slice(7)) : null);
     if (!f) return r.fulfill({ status: 404 });
     const ct = { '.js': 'text/javascript', '.html': 'text/html', '.jpg': 'image/jpeg', '.ttf': 'font/ttf' }[path.extname(f)];
     r.fulfill({ body: fs.readFileSync(f), contentType: ct });
