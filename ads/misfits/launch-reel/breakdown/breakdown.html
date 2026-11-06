@@ -1,0 +1,107 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Misfits "breakdown" carousel: 5 slides, 1080x1350. Reuses real frames from misfits-launch-reel.mp4 to show
+     how the reel holds attention. Render: node render_breakdown.js -> slide-1.png ... slide-5.png -->
+<style>
+@font-face{font-family:"Arch";src:url("../../../../brand/misfits/fonts/Archivo-VF.ttf");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:"Inter";src:url("../../../../brand/misfits/fonts/Inter-VF.ttf");font-weight:100 900}
+@font-face{font-family:"Serif";src:url("../../../../brand/misfits/fonts/InstrumentSerif-Italic.ttf");font-style:italic}
+@font-face{font-family:"Mono";src:url("../../../../brand/misfits/fonts/JetBrainsMono-Bold.ttf");font-weight:700}
+:root{--ink:#08090b;--paper:#ecede8;--fit:#8bd346;--fit2:#c6ff5e;--mute:#8b9099}
+body{margin:0;background:#222}
+.s{position:relative;width:1080px;height:1350px;overflow:hidden;font-family:"Inter";color:var(--paper);
+  background:radial-gradient(70% 45% at 70% 62%,#1d3112 0%,#0d140b 45%,#08090b 80%)}
+.s::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,#ffffff05 0 1px,#0000 1px 72px),repeating-linear-gradient(0deg,#ffffff05 0 1px,#0000 1px 72px)}
+.top{position:absolute;left:64px;right:64px;top:56px;display:flex;justify-content:space-between;align-items:center;
+  font:800 30px "Arch";font-stretch:125%;letter-spacing:1px;z-index:2}
+.top .n{font:700 24px "Mono";color:var(--mute);letter-spacing:3px}
+.i{display:inline-block;transform:rotate(-14deg) translateY(4px)}
+.h{font-family:"Arch";font-stretch:125%;font-weight:900;letter-spacing:-3px;line-height:.98;margin:0}
+.wh{background:linear-gradient(180deg,#fff 20%,#c9cbc4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fit{background:linear-gradient(180deg,var(--fit2),var(--fit) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px #8bd346aa) drop-shadow(0 0 60px #8bd34655)}
+.sf{font-family:"Serif";font-style:italic;font-weight:400;font-stretch:100%;letter-spacing:-2px;font-size:1.2em;line-height:.85}
+.body{font:500 34px/1.4 "Inter";color:#c9ccd2;margin:0}
+.chip{display:inline-block;font:700 24px "Mono";letter-spacing:2px;color:var(--ink);background:var(--fit);padding:10px 18px;border-radius:10px;
+  box-shadow:0 0 24px #8bd34688}
+.num{font:700 26px "Mono";color:var(--fit);letter-spacing:3px}
+.ph{position:absolute;border-radius:40px;overflow:hidden;background:#000 center/cover;border:3px solid #ecede833;
+  box-shadow:0 40px 90px #000c,0 0 0 10px #101216,0 0 0 12px #ecede822}
+.ph.glow{border-color:var(--fit);box-shadow:0 40px 90px #000c,0 0 60px #8bd34677,0 0 0 10px #101216,0 0 0 12px #8bd34655}
+.ph .t{position:absolute;left:18px;bottom:18px}
+.arrow{position:absolute;font:900 90px "Arch";color:var(--fit);filter:drop-shadow(0 0 20px #8bd346aa)}
+.swipe{position:absolute;right:64px;bottom:60px;font:700 28px "Mono";color:var(--fit);letter-spacing:2px}
+.pill{display:inline-block;background:linear-gradient(180deg,var(--fit2),var(--fit));color:var(--ink);font:900 50px "Arch";font-stretch:125%;
+  padding:28px 56px;border-radius:999px;box-shadow:0 0 40px #8bd34699,0 0 120px #8bd34655,inset 0 2px 0 #ffffff80}
+</style></head><body>
+
+<!-- 1 · cover -->
+<section class="s" id="s1">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">01 / 05</span></div>
+  <div style="position:absolute;left:64px;top:160px;width:470px;z-index:2">
+    <p class="h" style="font-size:66px"><span class="wh">WE MADE YOU WATCH A TILE.</span></p>
+    <p class="h fit sf" style="font-size:80px;margin-top:18px">Here’s how.</p>
+    <p class="body" style="margin-top:40px;max-width:440px;font-size:30px">The 18-second reel, broken down: what happens in each second, and why it holds the scroll.</p>
+  </div>
+  <div class="ph glow" style="right:70px;top:330px;width:450px;height:800px;transform:rotate(5deg);background-image:url(frames/f-6.2.jpg)"></div>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 2 · the hook -->
+<section class="s" id="s2">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">02 / 05</span></div>
+  <div class="ph glow" style="left:70px;top:190px;width:500px;height:889px;transform:rotate(-4deg);background-image:url(frames/f-0.7.jpg)">
+    <span class="t chip">0:00 – 0:02</span></div>
+  <div style="position:absolute;left:620px;right:64px;top:250px">
+    <div class="num">01 · THE HOOK</div>
+    <p class="h" style="font-size:72px;margin-top:22px"><span class="wh">MOVE IN THE</span><br><span class="fit sf">first second.</span></p>
+    <p class="body" style="margin-top:36px">A fast camera dive, a line of light sweeping the feed, and the first words on screen at frame one.</p>
+    <p class="body" style="margin-top:24px;color:var(--mute)">No logo intro. Nothing to skip.</p>
+  </div>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 3 · pattern then break -->
+<section class="s" id="s3">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">03 / 05</span></div>
+  <div style="position:absolute;left:64px;right:64px;top:150px">
+    <div class="num">02 · THE BREAK</div>
+    <p class="h" style="font-size:72px;margin-top:20px"><span class="wh">SHOW THE SAMENESS.</span><br><span class="fit sf">Then break it.</span></p>
+  </div>
+  <div class="ph" style="left:110px;top:430px;width:370px;height:658px;transform:rotate(-3deg);background-image:url(frames/f-4.8.jpg)">
+    <span class="t chip" style="background:#ecede8;box-shadow:none">0:02 – 0:05</span></div>
+  <div class="arrow" style="left:497px;top:700px">→</div>
+  <div class="ph glow" style="right:100px;top:420px;width:370px;height:658px;transform:rotate(3deg);background-image:url(frames/f-6.2.jpg)">
+    <span class="t chip">0:05.6</span></div>
+  <p class="body" style="position:absolute;left:64px;right:64px;bottom:120px;font-size:30px;text-align:center">Grey, identical cards make the problem obvious. Then one card changes colour, angle and light.</p>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 4 · call it out, pay it off -->
+<section class="s" id="s4">
+  <div class="top"><span>MISF<span class="i fit">I</span>TS</span><span class="n">04 / 05</span></div>
+  <div style="position:absolute;left:64px;right:64px;top:150px">
+    <div class="num">03 · THE PAYOFF</div>
+    <p class="h" style="font-size:72px;margin-top:20px"><span class="wh">NAME THE ATTENTION.</span><br><span class="fit sf">Then spend it.</span></p>
+  </div>
+  <div class="ph glow" style="left:110px;top:430px;width:370px;height:658px;transform:rotate(-3deg);background-image:url(frames/f-9.3.jpg)">
+    <span class="t chip">0:08</span></div>
+  <div class="arrow" style="left:497px;top:700px">→</div>
+  <div class="ph glow" style="right:100px;top:420px;width:370px;height:658px;transform:rotate(3deg);background-image:url(frames/f-12.2.jpg)">
+    <span class="t chip">0:10.6</span></div>
+  <p class="body" style="position:absolute;left:64px;right:64px;bottom:120px;font-size:30px;text-align:center">A live timer shows how long you’ve watched. Then the product drops into the spot that attention bought.</p>
+  <div class="swipe">SWIPE →</div>
+</section>
+
+<!-- 5 · CTA -->
+<section class="s" id="s5">
+  <div class="top"><span></span><span class="n">05 / 05</span></div>
+  <div class="ph glow" style="left:50%;top:130px;width:360px;height:640px;margin-left:-180px;background-image:url(frames/f-17.5.jpg)"></div>
+  <div style="position:absolute;left:0;right:0;top:830px;text-align:center">
+    <p class="h" style="font-size:84px"><span class="wh">YOUR PRODUCT,</span><br><span class="fit sf">in the tile.</span></p>
+    <div style="margin-top:48px"><span class="pill">COMMENT “FILM”</span></div>
+    <p style="margin-top:30px;font:700 28px Mono;color:var(--mute);letter-spacing:1px">or book a call · misfitsagency.in</p>
+  </div>
+</section>
+</body></html>

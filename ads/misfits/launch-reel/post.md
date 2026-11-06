@@ -80,3 +80,33 @@ Swipe to see how, and what it did for Spraymax →
 ```
 Post the reel first, then the album a day or two later (or the same day if you want both on the grid at launch).
 Before posting slide 4, re-check the Spraymax counts on their profile and update them if they've grown.
+
+---
+
+# Breakdown carousel (reuses the reel) — 5 photos, 1080×1350
+
+Files: `breakdown/slide-1.png` … `slide-5.png` (rebuild: `node breakdown/render_breakdown.js`). Every phone screen is a
+real frame from `misfits-launch-reel.mp4`. Post it 2–3 days after the reel, so people who saw the reel get the
+"how", and new people get sent back to watch it.
+
+1. **Cover:** WE MADE YOU WATCH A TILE. *Here's how.*
+2. **01 · The hook (0:00–0:02):** move in the first second; no logo intro.
+3. **02 · The break (0:02 → 0:05.6):** show the sameness, then break it.
+4. **03 · The payoff (0:08 → 0:10.6):** name the attention, then spend it on the product.
+5. **CTA:** YOUR PRODUCT, *in the tile.* Comment "FILM".
+
+Caption:
+```
+We made you watch a tile for 18 seconds. Here's how 👇
+
+01 · Move in the first second. No logo intro, nothing to skip.
+02 · Show the sameness, then break it.
+03 · Name the attention you earned, then spend it on the product.
+
+Same playbook, built around your product.
+
+💬 Comment FILM and we'll DM you to start yours.
+🎬 Watch the reel on our profile.
+
+#misfits #adbreakdown #hooks #aiads #motiondesign #creativeagency #reelsmarketing #d2cindia
+```
