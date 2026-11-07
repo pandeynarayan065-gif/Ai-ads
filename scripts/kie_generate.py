@@ -111,17 +111,26 @@ def cmd_credits(_args):
 def cmd_image(args):
     prompt = Path(args.prompt_file).read_text(encoding="utf-8").strip()
     refs = args.ref or []
-    body = {
-        "model": args.model,
-        "input": {
-            "prompt": prompt,
-            "image_input": refs,
-            "aspect_ratio": args.aspect,
-            "resolution": args.resolution,
-            "output_format": "png",
-        },
-    }
-    print(f"Model: {args.model} | aspect {args.aspect} | resolution {args.resolution}")
+    gpt = args.model.startswith("gpt-image")
+    if gpt:  # GPT Image 2.6 (Flare): text-to-image, or image-to-image when refs are given (docs.kie.ai/market/gpt)
+        args.model = args.model.replace("text-to-image", "image-to-image") if refs else args.model
+        body = {"model": args.model, "input": {"prompt": prompt, "aspect_ratio": args.aspect,
+                "resolution": args.resolution, "quality": args.quality, "output_format": "png"}}
+        if refs:
+            body["input"]["input_urls"] = refs
+    else:
+        body = {
+            "model": args.model,
+            "input": {
+                "prompt": prompt,
+                "image_input": refs,
+                "aspect_ratio": args.aspect,
+                "resolution": args.resolution,
+                "output_format": "png",
+            },
+        }
+    print(f"Model: {args.model} | aspect {args.aspect} | resolution {args.resolution}"
+          + (f" | quality {args.quality} (billed by tokens; see kie.ai/pricing)" if gpt else ""))
     print(f"References: {refs or 'none'}")
     print(f"Prompt ({len(prompt)} chars):\n{prompt}\n")
     if not args.yes:
@@ -131,7 +140,7 @@ def cmd_image(args):
     before = credits()
     print(f"Credits before: {before}")
     uploaded = [upload(Path(r)) if not r.startswith("http") else r for r in refs]
-    body["input"]["image_input"] = uploaded
+    body["input"]["input_urls" if gpt else "image_input"] = uploaded
     task_id = request("POST", f"{API}/api/v1/jobs/createTask", body)["taskId"]
     print(f"Task: {task_id}")
     urls = wait_for(task_id)
@@ -227,9 +236,16 @@ def cmd_seedance(args):
            "generate_audio": args.audio}
     if args.draft:
         inp["draft"] = True
-    body = {"model": "bytedance/seedance-2-5", "input": inp}
-    cost = SEEDANCE_RATE[res] * args.duration
-    print(f"Model: bytedance/seedance-2-5 | {res}{' draft' if args.draft else ''} | {args.aspect} | "
+    model = "bytedance/seedance-2" if args.version == "2.0" else "bytedance/seedance-2-5"
+    body = {"model": model, "input": inp}
+    if args.version == "2.0":
+        # kie lists Seedance 2.0 "from 11.5 credits per second" (kie.ai/pricing, 7 Nov 2026); the per-resolution
+        # rate isn't published in the docs, so this is a floor. The real charge is printed after the run.
+        cost = 11.5 * args.duration
+        print("Seedance 2.0: estimate below is kie's 'from' price (a floor); the actual charge shows after the run.")
+    else:
+        cost = SEEDANCE_RATE[res] * args.duration
+    print(f"Model: {model} | {res}{' draft' if args.draft else ''} | {args.aspect} | "
           f"{args.duration}s | audio {'on' if args.audio else 'off'}")
     print(f"Estimated cost: {cost} credits (${cost * 0.005:.2f})")
     print(f"References (Image 1, 2, ... in this order): {refs or 'none'}")
@@ -309,6 +325,8 @@ def main():
     img.add_argument("--model", default="nano-banana-pro")
     img.add_argument("--aspect", default="4:5")
     img.add_argument("--resolution", default="2K", choices=["1K", "2K", "4K"])
+    img.add_argument("--quality", default="high", choices=["low", "medium", "high", "xhigh", "max", "auto"],
+                     help="GPT Image only")
     img.add_argument("--ref", action="append", help="reference image path or URL (max 8)")
     img.add_argument("--yes", action="store_true", help="actually generate and spend credits")
     img.set_defaults(func=cmd_image)
@@ -335,6 +353,7 @@ def main():
     sd.add_argument("--duration", type=int, default=12, help="4-30 s")
     sd.add_argument("--audio", action="store_true", help="generate audio (off by default; we add sound in post)")
     sd.add_argument("--draft", action="store_true", help="480p draft; finish it with seedance-final at 1080p")
+    sd.add_argument("--version", default="2.5", choices=["2.5", "2.0"], help="Seedance 2.5 (default) or 2.0")
     sd.add_argument("--yes", action="store_true", help="actually generate and spend credits")
     sd.set_defaults(func=cmd_seedance)
     sf = sub.add_parser("seedance-final")

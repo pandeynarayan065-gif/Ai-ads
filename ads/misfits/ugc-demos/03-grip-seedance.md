@@ -1,4 +1,4 @@
-Image 1 is the creator: use it only for her face, hair, glasses, clothes and the desk setting. Image 2 is the product: use it only for the grip's shape, colour and the CLASP wordmark. Define the woman in Image 1 as <Creator> and the grip in Image 2 as <Product>. Both are identical in every shot.
+Reference Image1 for the character only: her face, hair, glasses, clothes and the desk setting. Reference Image2 for the product only: the grip's shape, colour and the CLASP wordmark. This stops either image from pulling in the other's background, light or composition. Define the woman in Image 1 as <Creator> and the grip in Image 2 as <Product>. Both are identical in every shot.
 
 A 12-second vertical UGC demo at a home desk: <Creator> shows three ways she uses <Product>, talking to the front camera, with hard-cut rear-camera b-roll of each use. Hard cuts only; no transitions.
 

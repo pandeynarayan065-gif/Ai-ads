@@ -1,4 +1,4 @@
-Image 1 is the creator: use it only for her face, hair, clothes and the car she sits in. Image 2 is the product: use it only for the can's shape, colours and the MOSSO wordmark. Define the woman in Image 1 as <Creator> and the can in Image 2 as <Product>. Both are identical in every shot.
+Reference Image1 for the character only: her face, hair, clothes and the car she sits in. Reference Image2 for the product only: the can's shape, colours and the MOSSO wordmark. This stops either image from pulling in the other's background, light or composition. Define the woman in Image 1 as <Creator> and the can in Image 2 as <Product>. Both are identical in every shot.
 
 A 12-second vertical UGC review in a parked car: <Creator> talks to her phone's front camera about <Product>, with three short hard-cut b-roll shots of the can in between. Hard cuts only; no transitions.
 

@@ -1,4 +1,4 @@
-Image 1 is the creator: use it only for his face, hair, clothes and the bathroom. Image 2 is the product: use it only for the bottle's shape, colours and the DEWLAB wordmark. Define the man in Image 1 as <Creator> and the bottle in Image 2 as <Product>. Both are identical in every shot.
+Reference Image1 for the character only: his face, hair, clothes and the bathroom. Reference Image2 for the product only: the bottle's shape, colours and the DEWLAB wordmark. This stops either image from pulling in the other's background, light or composition. Define the man in Image 1 as <Creator> and the bottle in Image 2 as <Product>. Both are identical in every shot.
 
 A 12-second vertical UGC how-to in a morning bathroom: <Creator> shows his one-step routine with <Product>, talking to the front camera, with hard-cut rear-camera b-roll of each step. Hard cuts only; no transitions.
 
