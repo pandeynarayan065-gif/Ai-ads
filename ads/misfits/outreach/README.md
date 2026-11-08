@@ -15,11 +15,16 @@ python3 leads.py search --pages 2 --max-credits 60        # 30 keywords x 2 page
 python3 leads.py enrich --max-credits 200                 # contacts for the best brands
 python3 leads.py export                                   # data/leads.csv, data/outreach.csv, data/tracker.csv
 ```
+**US (8 Nov):** `search --country US`, `enrich --country US`, `export --country US` -> `data/*-us.csv`. US pitch is
+email + IG DM (no WhatsApp), $299 Ad Sprint, and a CAN-SPAM footer: a real postal address (fill in `US_ADDRESS` in
+`leads.py` before sending) and an opt-out line; honour every "no thanks". First US run: 10 keywords + 20 profiles =
+30 credits -> 11 brands with email (Respected Roots, Brickell Men's Products, Joah Brown, Kitsch, Hygiene Hero, ...).
+Creator, media and agency pages are skipped automatically (the ad ran on a creator's page, not the brand's).
 - Cost: ScrapeCreators, 1 credit per call, cached. First run (8 keywords, 1 page + 18 profiles) = 26 credits ->
   13 brands with contact details: **~2 credits per contactable lead**, so 1,000 leads ≈ 2,000–2,500 credits.
 - Add keywords to `KEYWORDS` for new categories. Edit `status`, `last_contact`, `next_followup`, `notes` in
   `data/tracker.csv`; `export` keeps your edits.
-- `data/outreach.csv` has, per brand: WhatsApp message + one-tap `wa.me` link, email subject/body + `mailto:` link,
+- `data/outreach-<cc>.csv` has, per brand: WhatsApp message + one-tap `wa.me` link, email subject/body + `mailto:` link,
   IG DM. **A person sends each one.** No auto-sending: WhatsApp bans bulk unsolicited messages (number gets banned) and
   bulk cold email from a new domain lands in spam.
 - The pitch says only what we know: we saw their Meta ads (never a count: the search sees a sample), Spraymax 121K

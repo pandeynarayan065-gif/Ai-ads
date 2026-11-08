@@ -29,11 +29,11 @@ KEYWORDS = ["hair spray", "hair wax", "beard oil", "face wash", "sunscreen", "se
 # marketplaces, apps and giants: not a brand we can pitch, or one with an in-house team
 SKIP_DOMAINS = {"amazon.in", "amazon.com", "flipkart.com", "myntra.com", "nykaa.com", "blinkit.com", "zeptonow.com",
                 "swiggy.com", "play.google.com", "apps.apple.com", "meesho.com", "ajio.com", "jiomart.com",
-                "walmart.com", "walmart.ca", "bigbasket.com", "tatacliq.com", "firstcry.com", "purplle.com",
+                "walmart.com", "walmart.ca", "target.com", "etsy.com", "ebay.com", "bestbuy.com", "costco.com", "sephora.com", "ulta.com", "tiktok.com", "shop.app", "bigbasket.com", "tatacliq.com", "firstcry.com", "purplle.com",
                 "instagram.com", "facebook.com", "fb.com", "google.com", "forms.gle", "shopify.com", "wa.me", "whatsapp.com", "youtube.com", "linktr.ee", "bit.ly"}
 MAX_LIKES = 1_000_000      # bigger pages almost always have an agency already
 MIN_ADS = 2                # one ad is a test; two or more means a budget
-BIG = re.compile(r"nestl|starbucks|unilever|hindustan|tata |reliance|itc |amazon|samsung|apple|loreal|l'oreal|nivea|dabur|marico|emami|godrej|himalaya|colgate|p&g|procter", re.I)
+BIG = re.compile(r"nestl|starbucks|unilever|hindustan|tata |reliance|itc |amazon|samsung|apple|loreal|l'oreal|nivea|dabur|marico|emami|godrej|himalaya|colgate|p&g|procter|walmart|target|nike|adidas|coca|pepsi|kraft|johnson|gillette|dove|axe|old spice|oldspice|meta |google", re.I)
 
 
 def call(path, **params):
@@ -65,7 +65,7 @@ def load_ads():
     for f in CACHE.glob("*.json"):
         d = json.loads(f.read_text())
         for a in d.get("searchResults") or []:
-            a["_kw"] = d.get("_kw", "")
+            a["_kw"] = d.get("_kw", ""); a["_country"] = d.get("_country", "IN")
             ads.append(a)
     return ads
 
@@ -76,14 +76,14 @@ def cmd_search(a):
     for kw in kws:
         cursor = None
         for page in range(a.pages):
-            params = {"query": kw, "country": "IN", "status": "ACTIVE"}
+            params = {"query": kw, "country": a.country, "status": "ACTIVE"}
             if cursor:
                 params["cursor"] = cursor
             d, fresh = call("/v1/facebook/adLibrary/search/ads", **params)
             spent += fresh
             # remember which keyword found these ads
             f = CACHE / (hashlib.sha1(f"/v1/facebook/adLibrary/search/ads?{urllib.parse.urlencode(params)}".encode()).hexdigest() + ".json")
-            d["_kw"] = kw; f.write_text(json.dumps(d))
+            d["_kw"] = kw; d["_country"] = a.country; f.write_text(json.dumps(d))
             n = len(d.get("searchResults") or [])
             print(f"{kw!r} p{page + 1}: {n} ads{' (cached)' if not fresh else ''}  credits left {d.get('credits_remaining')}")
             cursor = d.get("cursor")
@@ -96,7 +96,8 @@ def cmd_search(a):
 def brands():
     """Group ads by the brand behind them: the landing-page domain (creators' branded posts point to the brand)."""
     b = defaultdict(lambda: {"ads": 0, "pages": defaultdict(int), "likes": 0, "formats": defaultdict(int),
-                             "ctas": defaultdict(int), "kw": set(), "sample": "", "first": None, "page_urls": {}})
+                             "ctas": defaultdict(int), "kw": set(), "sample": "", "first": None, "page_urls": {},
+                             "country": defaultdict(int)})
     for ad in load_ads():
         s = ad.get("snapshot") or {}
         dom = domain(s.get("link_url"))
@@ -110,7 +111,7 @@ def brands():
         r["likes"] = max(r["likes"], s.get("page_like_count") or 0)
         r["formats"][s.get("display_format") or "?"] += 1
         r["ctas"][s.get("cta_text") or "?"] += 1
-        r["kw"].add(ad.get("_kw", ""))
+        r["kw"].add(ad.get("_kw", "")); r["country"][ad.get("_country", "IN")] += 1
         body = ((s.get("body") or {}).get("text") or "").strip()
         if body and len(body) > len(r["sample"]):
             r["sample"] = body[:300]
@@ -123,10 +124,10 @@ def brands():
         fmt = dict(r["formats"])
         video = fmt.get("VIDEO", 0) / max(1, r["ads"])
         score = min(r["ads"], 20) * 3 + (15 if r["likes"] < 300_000 else 5) + (10 if video < 0.5 else 0) \
-            + (5 if dom.endswith(".in") else 0)
+            + (5 if dom.endswith(".in") or dom.endswith(".com") else 0)
         if r["likes"] > MAX_LIKES or r["ads"] < MIN_ADS or BIG.search(page) or BIG.search(dom):
             score -= 100
-        out.append({"domain": dom, "brand": page, "page_url": r["page_urls"].get(page, ""), "active_ads": r["ads"],
+        out.append({"country": max(r["country"], key=r["country"].get), "domain": dom, "brand": page, "page_url": r["page_urls"].get(page, ""), "active_ads": r["ads"],
                     "page_likes": r["likes"], "video_share": round(video, 2), "formats": fmt,
                     "keywords": ",".join(sorted(r["kw"])), "sample_ad": r["sample"], "score": score,
                     "running_since": dt.date.fromtimestamp(r["first"]).isoformat() if r["first"] else ""})
@@ -143,6 +144,8 @@ def cmd_enrich(a):
     for b in brands():
         if b["score"] < 0 or not b["page_url"] or "facebook.com/" not in b["page_url"]:
             continue
+        if a.country and b["country"] != a.country:
+            continue
         if profile_for(b["page_url"]) is not None:
             continue
         if spent >= a.max_credits:
@@ -155,6 +158,25 @@ def cmd_enrich(a):
 
 def first_name_greeting(brand):
     return f"Hi {brand} team"
+
+
+US_ADDRESS = "[VERIFY: Misfits business postal address, required by CAN-SPAM]"
+
+
+def messages_us(b, p):
+    video = b["video_share"]
+    angle = ("saw your Meta ads, and the ones we found are mostly static images" if video < 0.5
+             else "saw your video ads on Meta")
+    subj = f"Video ad concept for {b['brand']}"
+    email = (f"Hi {b['brand']} team,\n\nI run Misfits (misfitsagency.in), a creative studio that makes AI product films "
+             f"and UGC-style video ads for DTC brands. I {angle}.\n\nOne offer: an Ad Sprint, 3 video ads + 2 statics "
+             f"in 5 days for $299, fixed. Two reels we made for Spraymax have 121K views on their Instagram (public counts).\n\n"
+             f"I'd like to make one concept ad of your product first, free, so you can judge the quality. Worth a look?\n\n"
+             f"Book 15 min: calendly.com/misfitsagency-in/30min\n\nMisfits\nmisfitsagency.in\n{US_ADDRESS}\n"
+             f"Not interested? Reply \"no thanks\" and I won't email again.")
+    dm = (f"Hey! Big fan of what {b['brand']} is doing. We're Misfits, we make AI product films + UGC-style ads for DTC "
+          f"brands (our Spraymax reels: 121K views). Mind if I send a free concept ad for you here?")
+    return "", subj, email, dm
 
 
 def messages(b, p):
@@ -182,12 +204,12 @@ def cmd_export(a):
     DATA.mkdir(exist_ok=True)
     rows, out = [], []
     tracker = {}
-    tf = DATA / "tracker.csv"
+    tf = DATA / f"tracker{('-' + a.country.lower()) if a.country else ''}.csv"
     if tf.exists():
         tracker = {r["domain"]: r for r in csv.DictReader(tf.open())}
     for b in brands():
         p = profile_for(b["page_url"]) if b["page_url"] else None
-        row = {k: b[k] for k in ("score", "brand", "domain", "active_ads", "page_likes", "video_share", "running_since",
+        row = {k: b[k] for k in ("country", "score", "brand", "domain", "active_ads", "page_likes", "video_share", "running_since",
                                  "keywords", "page_url")}
         row.update({"email": (p or {}).get("email") or "", "phone": (p or {}).get("phone") or "",
                     "website": (p or {}).get("website") or "", "category": (p or {}).get("category") or "",
@@ -195,23 +217,33 @@ def cmd_export(a):
         rows.append(row)
         if b["score"] < 0 or not (row["email"] or row["phone"]):
             continue
-        if row["phone"].startswith("+") and not row["phone"].startswith("+91"):
-            continue           # outside India
-        wa, subj, email, dm = messages(b, p)
+        cc = b["country"]
+        if re.search(r"creator|public figure|media|news|blogger|trainer|tour|agency|influencer", row["category"], re.I):
+            continue           # a creator's or publisher's page, not the brand: find the brand by hand
+        if a.country and cc != a.country:
+            continue
+        if cc == "IN" and row["phone"].startswith("+") and not row["phone"].startswith("+91"):
+            continue           # not an Indian business
+        if cc == "US" and row["phone"].startswith("+") and not row["phone"].startswith("+1"):
+            continue           # not a US business
+        if cc == "US" and not row["email"]:
+            continue           # US outreach is email + DM
+        wa, subj, email, dm = (messages_us if cc == "US" else messages)(b, p)
         digits = re.sub(r"\D", "", row["phone"])
         if digits.startswith("911800") or digits.startswith("1800"):
             digits = ""       # toll-free: not on WhatsApp
         t = tracker.get(b["domain"], {})
-        out.append({"brand": b["brand"], "domain": b["domain"], "score": b["score"], "email": row["email"],
+        out.append({"country": cc, "brand": b["brand"], "domain": b["domain"], "score": b["score"], "email": row["email"],
                     "phone": row["phone"],
-                    "whatsapp_link": f"https://wa.me/{digits}?text={urllib.parse.quote(wa)}" if digits else "",
+                    "whatsapp_link": f"https://wa.me/{digits}?text={urllib.parse.quote(wa)}" if digits and wa else "",
                     "mailto_link": f"mailto:{row['email']}?subject={urllib.parse.quote(subj)}&body={urllib.parse.quote(email)}" if row["email"] else "",
                     "whatsapp_msg": wa, "email_subject": subj, "email_body": email, "ig_dm": dm,
                     "status": t.get("status", "new"), "last_contact": t.get("last_contact", ""),
                     "next_followup": t.get("next_followup", ""), "notes": t.get("notes", "")})
-    with (DATA / "leads.csv").open("w", newline="") as f:
+    sfx = f"-{a.country.lower()}" if a.country else ""
+    with (DATA / f"leads{sfx}.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
-    with (DATA / "outreach.csv").open("w", newline="") as f:
+    with (DATA / f"outreach{sfx}.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(out[0].keys()) if out else ["brand"]); w.writeheader(); w.writerows(out)
     with tf.open("w", newline="") as f:     # tracker keeps your status edits across exports
         keys = ["domain", "brand", "status", "last_contact", "next_followup", "notes"]
@@ -219,7 +251,7 @@ def cmd_export(a):
         for r in out:
             w.writerow({k: r.get(k, "") for k in keys})
     good = [r for r in rows if int(r["score"]) >= 0]
-    print(f"brands: {len(rows)} | pitchable: {len(good)} | with contact: {len(out)} -> data/leads.csv, data/outreach.csv, data/tracker.csv")
+    print(f"brands: {len(rows)} | pitchable: {len(good)} | with contact: {len(out)} -> data/leads{sfx}.csv, data/outreach{sfx}.csv, {tf.name}")
 
 
 def cmd_status(a):
@@ -236,9 +268,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     s = sp.add_parser("search"); s.add_argument("--pages", type=int, default=2); s.add_argument("--keywords")
+    s.add_argument("--country", default="IN", help="2-letter country code, e.g. IN, US")
     s.add_argument("--max-credits", type=int, default=60); s.set_defaults(f=cmd_search)
-    e = sp.add_parser("enrich"); e.add_argument("--max-credits", type=int, default=30); e.set_defaults(f=cmd_enrich)
-    sp.add_parser("export").set_defaults(f=cmd_export)
+    e = sp.add_parser("enrich"); e.add_argument("--max-credits", type=int, default=30)
+    e.add_argument("--country", default="", help="only brands from this country"); e.set_defaults(f=cmd_enrich)
+    x = sp.add_parser("export"); x.add_argument("--country", default="", help="only this country (IN, US); default all")
+    x.set_defaults(f=cmd_export)
     sp.add_parser("status").set_defaults(f=cmd_status)
     a = ap.parse_args(); a.f(a)
 
