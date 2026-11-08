@@ -30,7 +30,7 @@ KEYWORDS = ["hair spray", "hair wax", "beard oil", "face wash", "sunscreen", "se
 SKIP_DOMAINS = {"amazon.in", "amazon.com", "flipkart.com", "myntra.com", "nykaa.com", "blinkit.com", "zeptonow.com",
                 "swiggy.com", "play.google.com", "apps.apple.com", "meesho.com", "ajio.com", "jiomart.com",
                 "walmart.com", "walmart.ca", "target.com", "etsy.com", "ebay.com", "bestbuy.com", "costco.com", "sephora.com", "ulta.com", "tiktok.com", "shop.app", "bigbasket.com", "tatacliq.com", "firstcry.com", "purplle.com",
-                "instagram.com", "facebook.com", "fb.com", "google.com", "forms.gle", "shopify.com", "wa.me", "whatsapp.com", "youtube.com", "linktr.ee", "bit.ly"}
+                "instagram.com", "facebook.com", "fb.com", "google.com", "forms.gle", "shopify.com", "wa.me", "whatsapp.com", "youtube.com", "linktr.ee", "bit.ly", "instacart.com", "urlgeni.us", "amzlink.to", "amzn.to", "geni.us", "beacons.ai", "stan.store"}
 MAX_LIKES = 1_000_000      # bigger pages almost always have an agency already
 MIN_ADS = 2                # one ad is a test; two or more means a budget
 BIG = re.compile(r"nestl|starbucks|unilever|hindustan|tata |reliance|itc |amazon|samsung|apple|loreal|l'oreal|nivea|dabur|marico|emami|godrej|himalaya|colgate|p&g|procter|walmart|target|nike|adidas|coca|pepsi|kraft|johnson|gillette|dove|axe|old spice|oldspice|meta |google", re.I)

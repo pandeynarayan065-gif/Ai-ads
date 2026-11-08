@@ -1,0 +1,291 @@
+<title>Misfits Lead Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a sticky filter bar over a pipeline strip, then one column of lead rows that open into ready-to-send messages. */
+:root{
+  --bg:#f1f1ec; --surface:#ffffff; --sunk:#e7e8e1; --ink:#0d0f0c; --muted:#5e645b; --line:#d6d8cf;
+  --fit:#4f8f1d; --fit-soft:#e3f2d2; --on-fit:#ffffff;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b3261e; --bad-soft:#fbe3e1; --good:#2e7d32; --good-soft:#dff0df; --info:#2f5aa8; --info-soft:#e2eafa;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif; --body:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b0c0a; --surface:#141612; --sunk:#1b1e18; --ink:#ecede8; --muted:#9aa093; --line:#2a2e26;
+  --fit:#9ad85a; --fit-soft:#1f2c15; --on-fit:#0b0c0a;
+  --warn:#f0b65a; --warn-soft:#2d2210; --bad:#ff8a80; --bad-soft:#331614; --good:#86d48a; --good-soft:#15291a; --info:#9db8f2; --info-soft:#18223a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0c0a; --surface:#141612; --sunk:#1b1e18; --ink:#ecede8; --muted:#9aa093; --line:#2a2e26;
+  --fit:#9ad85a; --fit-soft:#1f2c15; --on-fit:#0b0c0a;
+  --warn:#f0b65a; --warn-soft:#2d2210; --bad:#ff8a80; --bad-soft:#331614; --good:#86d48a; --good-soft:#15291a; --info:#9db8f2; --info-soft:#18223a;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--fit);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* header */
+header{padding-block:28px 8px}
+.brandline{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font:900 clamp(30px,5vw,46px)/1 var(--display);font-stretch:125%;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 .i{display:inline-block;transform:rotate(-14deg) translateY(2px);color:var(--fit)}
+.sub{color:var(--muted);margin:10px 0 0;max-width:70ch}
+.sub b{color:var(--ink);font-weight:600}
+
+/* sticky bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-block:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+input[type=search],select,input[type=date],textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input[type=search]{flex:1 1 200px;min-width:0}
+label.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
+
+/* pipeline strip */
+.pipe{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:18px 0 6px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.stage[aria-pressed="true"]{border-color:var(--fit);box-shadow:0 0 0 1px var(--fit) inset}
+.stage .n{font:800 26px/1 var(--display);font-stretch:110%;font-variant-numeric:tabular-nums}
+.stage .l{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px;display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+@media (max-width:760px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:420px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.notes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.note{font-size:13px;border-radius:8px;padding:7px 11px;background:var(--warn-soft);color:var(--warn)}
+.note b{font-weight:600}
+
+/* list */
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 8px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+.list{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}
+.lead{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);border-left:4px solid var(--stripe,var(--line))}
+.lead[data-status="contacted"]{--stripe:var(--info)} .lead[data-status="followup"]{--stripe:var(--warn)}
+.lead[data-status="replied"],.lead[data-status="call"]{--stripe:var(--fit)} .lead[data-status="won"]{--stripe:var(--good)} .lead[data-status="no"]{--stripe:var(--bad);opacity:.7}
+.row{display:grid;grid-template-columns:52px minmax(0,1.5fr) minmax(0,1.3fr) minmax(0,1.2fr) 168px;gap:14px;align-items:center;padding:12px 14px}
+@media (max-width:900px){.row{grid-template-columns:52px minmax(0,1fr) 150px}.row .sig{grid-column:2/4}.row .con{grid-column:2/4}}
+@media (max-width:520px){.row{grid-template-columns:44px minmax(0,1fr)}.row .act{grid-column:1/3}}
+.score{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font:800 17px var(--display);font-stretch:110%;background:var(--sunk)}
+.score.hot{background:var(--fit);color:var(--on-fit)}
+.name{font:800 18px/1.15 var(--display);font-stretch:105%;margin:0;overflow-wrap:anywhere}
+.dom{font:500 12px var(--mono);color:var(--muted);text-decoration:none;overflow-wrap:anywhere}
+.dom:hover{text-decoration:underline}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{font:700 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;background:var(--sunk);color:var(--muted)}
+.tag.cc{background:var(--ink);color:var(--bg)}
+.sig{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;font-size:12.5px}
+.sig dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.sig dd{margin:0 0 4px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.bar-mini{display:inline-block;width:48px;height:6px;border-radius:3px;background:var(--sunk);vertical-align:middle;margin-left:6px;overflow:hidden}
+.bar-mini i{display:block;height:100%;background:var(--fit)}
+.con{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:13px}
+.cline{display:flex;align-items:center;gap:6px;min-width:0}
+.cline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:12.5px}
+.missing{color:var(--warn);font-size:12.5px}
+.icon-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;font:600 11px var(--body);padding:2px 7px;cursor:pointer;flex:none}
+.icon-btn:hover{color:var(--ink);border-color:var(--ink)}
+.act{display:flex;flex-direction:column;gap:6px}
+.act select{width:100%}
+.open{border:0;background:none;color:var(--fit);font:600 13px var(--body);cursor:pointer;padding:0;text-align:left}
+.who{font-size:11.5px;color:var(--muted);min-height:1em}
+
+/* drawer */
+.drawer{border-top:1px dashed var(--line);padding:14px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+@media (max-width:820px){.drawer{grid-template-columns:minmax(0,1fr)}}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;font:600 12.5px var(--body);padding:5px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--fit-soft);border-color:var(--fit);color:var(--ink)}
+.msg{background:var(--sunk);border-radius:8px;padding:12px 14px;white-space:pre-wrap;font-size:14px;line-height:1.55;max-height:340px;overflow:auto}
+.msg .subj{display:block;font:600 12px var(--mono);color:var(--muted);margin-bottom:8px}
+.msgact{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:8px;font:600 13px var(--body);padding:7px 13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.fit{background:var(--fit);border-color:var(--fit);color:var(--on-fit)}
+.side h4{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.side .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.side textarea{min-height:84px;resize:vertical;width:100%}
+.ad{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin:0 0 12px;overflow-wrap:anywhere}
+.links{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+
+/* playbook */
+.playbook{border-top:1px solid var(--line);padding-block:26px 48px}
+.playbook h2{font:900 24px var(--display);font-stretch:120%;margin:0 0 4px}
+.seq{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+@media (max-width:760px){.seq{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.step .d{font:700 12px var(--mono);color:var(--fit);letter-spacing:.06em}
+.step p{margin:6px 0 0;font-size:13.5px}
+.rules{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:13.5px;max-width:80ch}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font:800 18px var(--display);margin-bottom:6px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:20}
+@media (prefers-reduced-motion:no-preference){.lead{transition:border-color .2s}}
+</style>
+
+<header class="wrap">
+  <div class="brandline"><h1>MISF<span class="i">I</span>TS LEAD BOARD</h1></div>
+  <p class="sub">Brands running Meta ads right now, scraped from the Meta Ad Library on 8 Nov 2026. <b>Pick a lead, open it, copy the message, send it yourself, then set its status.</b> Status, follow-up date and notes are shared with everyone on the team.</p>
+</header>
+
+<div class="bar"><div class="wrap" role="toolbar" aria-label="Filters">
+  <div class="seg" id="cc" aria-label="Country">
+    <button aria-pressed="true" data-v="">All</button><button aria-pressed="false" data-v="IN">India</button><button aria-pressed="false" data-v="US">US</button>
+  </div>
+  <input type="search" id="q" placeholder="Search brand, domain, category, notes" aria-label="Search">
+  <label class="chk"><input type="checkbox" id="contactOnly"> Has email or phone</label>
+  <label class="chk"><input type="checkbox" id="dueOnly"> Follow-up due</label>
+  <select id="sort" aria-label="Sort"><option value="score">Best fit first</option><option value="follow">Follow-up date</option><option value="brand">Brand A–Z</option></select>
+</div></div>
+
+<main class="wrap">
+  <div class="pipe" id="pipe" aria-label="Pipeline"></div>
+  <div class="notes">
+    <div class="note"><b>US emails:</b> add your business postal address where the email says [VERIFY] before sending (US anti-spam law). Honour every “no thanks”.</div>
+    <div class="note"><b>Spraymax 121K views:</b> check the public count on their Instagram before each batch.</div>
+  </div>
+  <div class="meta"><span id="count">Loading leads…</span><span id="sync"></span></div>
+  <div class="list" id="list"><div class="empty"><b>Loading the lead list</b>It comes from the team’s shared board and takes a moment.</div></div>
+
+  <section class="playbook" aria-labelledby="pb">
+    <h2 id="pb">The sequence</h2>
+    <p class="sub">One message per step, 10am–6pm Mon–Sat, stop at the first no. Offer: the Ad Sprint, 3 video ads + 2 statics in 5 days ($299 US / fixed price India), 50% upfront.</p>
+    <div class="seq">
+      <div class="step"><div class="d">DAY 0</div><p>First message on WhatsApp (India) or email (US), plus an IG DM if they post often. Set status to <b>Contacted</b> and the follow-up to day 3.</p></div>
+      <div class="step"><div class="d">DAY 3</div><p>One nudge on the same channel: “Hi, just following up on this. Happy to send the concept.” Status <b>Follow-up</b>.</p></div>
+      <div class="step"><div class="d">DAY 5</div><p>Top 10 of the week only: send the free concept ad of their real product (6–10 s, about $1 to make). This is the message that gets replies.</p></div>
+      <div class="step"><div class="d">DAY 10</div><p>Polite close by email: “Closing the loop. If ads aren’t a priority now, no worries, the concept’s yours.” Then <b>No</b> or park it.</p></div>
+    </div>
+    <ul class="rules">
+      <li>Send every message by hand. Bulk WhatsApp gets the number banned; bulk cold email from a new inbox lands in spam.</li>
+      <li>The messages only state what we know. “Ads seen” is what our search found, not their total, so never quote it to them.</li>
+      <li>Leads marked “Find contact” have no public email or phone on their Facebook page: try their website footer, Instagram bio or a DM.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+const STAGES=[["new","New","var(--muted)"],["contacted","Contacted","var(--info)"],["followup","Follow-up","var(--warn)"],["replied","Replied","var(--fit)"],["call","Call booked","var(--fit)"],["won","Won","var(--good)"],["no","No","var(--bad)"]];
+const LABEL=Object.fromEntries(STAGES.map(s=>[s[0],s[1]]));
+const S={cc:"",q:"",contactOnly:false,dueOnly:false,sort:"score",stage:"",open:new Set(),tab:{}};
+let LEADS=[], db=null, user=null, names={}, myId=null, pending=false;
+try{const v=JSON.parse(localStorage.getItem("mf-board")||"{}");Object.assign(S,{cc:v.cc||"",sort:v.sort||"score",contactOnly:!!v.contactOnly})}catch(e){}
+function remember(){try{localStorage.setItem("mf-board",JSON.stringify({cc:S.cc,sort:S.sort,contactOnly:S.contactOnly}))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":String(n);
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+async function copy(text,el){try{await navigator.clipboard.writeText(text);toast("Copied")}catch(e){if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Selected: press Ctrl/Cmd+C")}}}
+
+function filtered(){
+  const q=S.q.toLowerCase();
+  let r=LEADS.filter(l=>(!S.cc||l.country===S.cc)&&(!S.stage||l.status===S.stage)&&(!S.contactOnly||l.has_contact)
+    &&(!S.dueOnly||(l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status)))
+    &&(!q||[l.brand,l.domain,l.category,l.notes,l.searched].join(" ").toLowerCase().includes(q)));
+  const by={score:(a,b)=>b.score-a.score,brand:(a,b)=>a.brand.localeCompare(b.brand),
+    follow:(a,b)=>(a.next_followup||"9999").localeCompare(b.next_followup||"9999")||b.score-a.score};
+  return r.sort(by[S.sort]);
+}
+function renderPipe(){
+  const base=LEADS.filter(l=>!S.cc||l.country===S.cc);
+  $("#pipe").innerHTML=STAGES.map(([k,l,c])=>`<button class="stage" aria-pressed="${S.stage===k}" data-k="${k}"><div class="n">${base.filter(x=>x.status===k).length}</div><div class="l"><span class="dot" style="color:${c}"></span>${l}</div></button>`).join("");
+}
+function leadHTML(l){
+  const open=S.open.has(l.id), tab=S.tab[l.id]||(l.country==="IN"&&l.msg_whatsapp?"wa":"email");
+  const due=l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status);
+  const con=l.has_contact?`${l.email?`<div class="cline"><span title="${esc(l.email)}">${esc(l.email)}</span><button class="icon-btn" data-copy="${esc(l.email)}">Copy</button></div>`:""}${l.phone?`<div class="cline"><span>${esc(l.phone)}</span><button class="icon-btn" data-copy="${esc(l.phone)}">Copy</button></div>`:""}`
+    :`<div class="missing">Find contact: website footer, IG bio or DM</div>`;
+  const who=l.updatedBy?`${names[l.updatedBy]||"Someone"} · ${new Date(l.updatedAt||0).toLocaleDateString(undefined,{day:"numeric",month:"short"})}`:"";
+  let msg="";
+  if(open){
+    const tabs=[l.msg_whatsapp?["wa","WhatsApp"]:null,["email","Email"],["dm","Instagram DM"]].filter(Boolean);
+    const body=tab==="wa"?esc(l.msg_whatsapp):tab==="dm"?esc(l.msg_dm):`<span class="subj">Subject: ${esc(l.email_subject)}</span>${esc(l.msg_email)}`;
+    const raw=tab==="wa"?l.msg_whatsapp:tab==="dm"?l.msg_dm:l.msg_email;
+    msg=`<div class="drawer"><div><div class="tabs" role="tablist">${tabs.map(([k,t])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}" data-id="${l.id}">${t}</button>`).join("")}</div>
+      <div class="msg" id="m-${l.id}">${body}</div>
+      <div class="msgact"><button class="btn" data-copymsg="${l.id}" data-which="${tab}">Copy message</button>
+      ${tab==="email"?`<button class="btn ghost" data-copy="${esc(l.email_subject)}">Copy subject</button>`:""}
+      ${tab==="wa"&&l.wa_link?`<a class="btn fit" href="${esc(l.wa_link)}" target="_blank" rel="noopener">Open in WhatsApp ↗</a>`:""}
+      ${l.status==="new"?`<button class="btn ghost" data-mark="${l.id}">Mark contacted, follow up in 3 days</button>`:""}</div></div>
+      <div class="side"><h4>Their ad (sample)</h4><p class="ad">${esc(l.sample_ad||"No ad text captured.")}</p>
+      <div class="fld"><h4><label for="f-${l.id}">Next follow-up</label></h4><input type="date" id="f-${l.id}" data-field="next_followup" data-id="${l.id}" value="${esc(l.next_followup)}"></div>
+      <div class="fld"><h4><label for="n-${l.id}">Notes</label></h4><textarea id="n-${l.id}" data-field="notes" data-id="${l.id}" placeholder="Who replied, what they said, next step">${esc(l.notes)}</textarea></div>
+      <div class="links"><a href="${esc(l.website)}" target="_blank" rel="noopener">Website ↗</a>${l.fb_page?`<a href="${esc(l.fb_page)}" target="_blank" rel="noopener">Facebook page ↗</a>`:""}<a href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=${l.country}&q=${encodeURIComponent(l.brand)}" target="_blank" rel="noopener">Their ads ↗</a></div></div></div>`;
+  }
+  return `<article class="lead" data-status="${l.status}" id="lead-${l.id}">
+  <div class="row"><div class="score ${l.score>=40?"hot":""}" title="Fit score">${l.score}</div>
+    <div style="min-width:0"><h3 class="name">${esc(l.brand)}</h3><a class="dom" href="https://${esc(l.domain)}" target="_blank" rel="noopener">${esc(l.domain)}</a>
+      <div class="tags"><span class="tag cc">${l.country}</span><span class="tag">${esc(l.category)}</span>${due?`<span class="tag" style="background:var(--warn-soft);color:var(--warn)">Follow-up due</span>`:""}</div></div>
+    <dl class="sig"><div><dt>Ads seen</dt><dd>${l.ads_seen}</dd></div><div><dt>Page likes</dt><dd>${fmt(l.page_likes)}</dd></div>
+      <div><dt>Video share</dt><dd>${Math.round(l.video_share*100)}%<span class="bar-mini"><i style="width:${Math.round(l.video_share*100)}%"></i></span></dd></div><div><dt>Ads since</dt><dd>${esc(l.running_since||"–")}</dd></div></dl>
+    <div class="con">${con}</div>
+    <div class="act"><select aria-label="Status for ${esc(l.brand)}" data-field="status" data-id="${l.id}" id="s-${l.id}">${STAGES.map(([k,t])=>`<option value="${k}" ${l.status===k?"selected":""}>${t}</option>`).join("")}</select>
+      <button class="open" data-open="${l.id}" aria-expanded="${open}">${open?"Hide messages ▴":"Messages & notes ▾"}</button><div class="who">${esc(who)}</div></div>
+  </div>${msg}</article>`;
+}
+function render(){
+  document.querySelectorAll("#cc button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===S.cc)));
+  $("#sort").value=S.sort;$("#contactOnly").checked=S.contactOnly;
+  if(!LEADS.length)return;
+  renderPipe();
+  const r=filtered(), withC=r.filter(l=>l.has_contact).length;
+  $("#count").textContent=`${r.length} leads shown · ${withC} with email or phone · ${LEADS.length} total`;
+  $("#list").innerHTML=r.length?r.map(leadHTML).join(""):`<div class="empty"><b>No leads match</b>Clear a filter or the search.</div>`;
+}
+async function save(id,patch){
+  const l=LEADS.find(x=>x.id===id); if(!l)return;
+  Object.assign(l,patch); render();
+  if(!db){toast("Not saved: open the board signed in to share changes");return}
+  try{const extra={updatedAt:Date.now()}; if(myId)extra.updatedBy=myId;
+    await db.collection("leads").doc(id).update({...patch,...extra}); toast("Saved")}
+  catch(e){toast(e&&e.code==="permission_denied"?"You have view-only access: ask for edit access to save":"Couldn’t save: "+(e&&e.message||"try again"))}
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,a"); if(!t)return;
+  if(t.closest("#cc")){S.cc=t.dataset.v;S.stage="";remember();render();return}
+  if(t.classList.contains("stage")){S.stage=S.stage===t.dataset.k?"":t.dataset.k;render();return}
+  if(t.dataset.open){S.open.has(t.dataset.open)?S.open.delete(t.dataset.open):S.open.add(t.dataset.open);render();return}
+  if(t.dataset.tab){S.tab[t.dataset.id]=t.dataset.tab;render();return}
+  if(t.dataset.copy!==undefined){copy(t.dataset.copy);return}
+  if(t.dataset.copymsg){const l=LEADS.find(x=>x.id===t.dataset.copymsg),w=t.dataset.which;
+    copy(w==="wa"?l.msg_whatsapp:w==="dm"?l.msg_dm:l.msg_email,document.getElementById("m-"+l.id));return}
+  if(t.dataset.mark){const d=new Date();d.setDate(d.getDate()+3);save(t.dataset.mark,{status:"contacted",next_followup:d.toISOString().slice(0,10)});return}
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.field){save(t.dataset.id,{[t.dataset.field]:t.value});return}
+  if(t.id==="contactOnly"){S.contactOnly=t.checked;remember();render()}
+  if(t.id==="dueOnly"){S.dueOnly=t.checked;render()}
+  if(t.id==="sort"){S.sort=t.value;remember();render()}
+});
+$("#q").addEventListener("input",e=>{S.q=e.target.value;render()});
+document.addEventListener("focusout",e=>{if(pending&&e.target.tagName==="TEXTAREA"){pending=false;setTimeout(render,0)}});
+render();
+
+(async()=>{
+  const timer=setTimeout(()=>{if(!LEADS.length)$("#list").innerHTML=`<div class="empty"><b>The board didn’t load</b>Check your connection and that you’re signed in to claude.ai, then reopen the page.</div>`},10000);
+  try{db=await claude.use("db")}catch(e){db=null}
+  try{user=await claude.use("user");if(user)myId=await user.id()}catch(e){user=null}
+  if(!db){clearTimeout(timer);$("#count").textContent="";$("#list").innerHTML=`<div class="empty"><b>Sign in to see the leads</b>The lead list lives in the team’s shared board, which needs a claude.ai sign-in with access to this page.</div>`;return}
+  db.collection("leads").onSnapshot(async snap=>{
+    clearTimeout(timer);
+    LEADS=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));
+    if(!LEADS.length){$("#count").textContent="";$("#list").innerHTML=`<div class="empty"><b>No leads yet</b>Ask Claude to load the latest scrape into this board.</div>`;renderPipe&&($("#pipe").innerHTML="");return}
+    const ids=[...new Set(LEADS.map(l=>l.updatedBy).filter(Boolean))];
+    if(user&&ids.length){try{const ps=await user.profiles(ids);for(const id of ids)names[id]=(ps[id]&&ps[id].name)||"Someone"}catch(e){}}
+    $("#sync").textContent="Live · changes sync for the whole team";
+    const ae=document.activeElement;
+    if(ae&&ae.tagName==="TEXTAREA"&&ae.closest("#list")){pending=true;return}   // don't wipe a note being typed
+    const a=document.activeElement, keep=a&&a.id&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")?{id:a.id,s:a.selectionStart}:null;
+    render();
+    if(keep){const el=document.getElementById(keep.id);if(el){el.focus();try{el.setSelectionRange(keep.s,keep.s)}catch(e){}}}
+  },err=>{clearTimeout(timer);$("#list").innerHTML=`<div class="empty"><b>The board couldn’t load</b>${esc(err&&err.message||"Try reopening the page.")}</div>`});
+})();
+</script>
