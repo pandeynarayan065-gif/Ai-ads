@@ -40,6 +40,26 @@ h1 .i{display:inline-block;transform:rotate(-14deg) translateY(2px);color:var(--
 .sub{color:var(--muted);margin:10px 0 0;max-width:70ch}
 .sub b{color:var(--ink);font-weight:600}
 
+.brandline{justify-content:space-between;align-items:center}
+.hdr-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn.sm{padding:5px 11px;font-size:12.5px}
+@media (max-width:640px){header{padding-block:16px 4px}h1{font-size:26px}h1 .lb{display:block;font-size:15px;letter-spacing:.12em;font-stretch:125%;color:var(--muted);margin-top:4px}.sub{font-size:13.5px;margin-top:8px}.hdr-r{width:100%}}
+.today{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+.tchip{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px 8px 8px;cursor:pointer;font:inherit;color:inherit;text-align:left}
+.tchip .big{font:800 22px/1 var(--display);font-stretch:110%;min-width:38px;height:38px;border-radius:9px;display:grid;place-items:center;background:var(--sunk);font-variant-numeric:tabular-nums}
+.tchip.hot .big{background:var(--fit);color:var(--on-fit)} .tchip.due .big{background:var(--warn-soft);color:var(--warn)}
+.tchip small{display:block;color:var(--muted);font-size:12px} .tchip b{font-size:13.5px}
+.tchip[aria-pressed="true"]{border-color:var(--fit);box-shadow:0 0 0 1px var(--fit) inset}
+.before{margin:10px 0 2px;font-size:13.5px;background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 12px}
+.before summary{cursor:pointer} .before ul{margin:8px 0 2px;padding-left:18px;color:var(--ink)} .before li{margin:3px 0}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font:800 11px var(--body);background:var(--ink);color:var(--bg);flex:none}
+.holder{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600}
+.holder.other{color:var(--bad)} .holder.other .av{background:var(--bad);color:#fff}
+.holder.mine .av{background:var(--fit);color:var(--on-fit)}
+.act .claim{background:var(--ink);border:1px solid var(--ink);color:var(--bg);font-size:13.5px;padding:8px 12px}
+.claim:hover{filter:brightness(1.15)}
+.act .claim.mine{background:transparent;color:var(--ink);border:1px solid var(--line);font-size:12px;padding:4px 9px}
+.lead.nocontact .con{opacity:.85}
 /* sticky bar */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .bar .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-block:12px}
@@ -58,7 +78,7 @@ label.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:va
 .stage .l{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px;display:flex;gap:6px;align-items:center}
 .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
 @media (max-width:760px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media (max-width:420px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.pipe{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;padding-bottom:4px;margin-top:12px}.stage{flex:0 0 auto;min-width:92px;scroll-snap-align:start;padding:8px 10px}.stage .n{font-size:20px}.bar .wrap{flex-wrap:nowrap;overflow-x:auto}.bar input[type=search]{flex:0 0 170px}.bar label.chk,.bar select,.seg{flex:none}}
 
 .notes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
 .note{font-size:13px;border-radius:8px;padding:7px 11px;background:var(--warn-soft);color:var(--warn)}
@@ -147,8 +167,9 @@ label.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:va
 
 </head><body>
 <header class="wrap">
-  <div class="brandline"><h1>MISF<span class="i">I</span>TS LEAD BOARD</h1></div>
-  <p class="sub">Brands running Meta ads right now, scraped from the Meta Ad Library on 8 Nov 2026. <b>Pick a lead, open it, copy the message, send it yourself, then set its status.</b> <b>Claim a lead before you message it</b>: once it’s yours, nobody else on the team can contact or change it. Status, notes and claims sync for the whole team.</p>
+  <div class="brandline"><h1>MISF<span class="i">I</span>TS <span class="lb">LEAD BOARD</span></h1>
+    <div class="hdr-r"><span class="me" id="me"></span><span class="syncpill" id="sync"></span><button class="btn ghost sm" id="export" type="button">Export CSV</button></div></div>
+  <p class="sub">Indian and US brands running Meta ads now (Meta Ad Library, 8 Nov). <b>Claim</b> a lead, send the message yourself, then update its status. Everything syncs for the team.</p>
 </header>
 
 <div class="bar"><div class="wrap" role="toolbar" aria-label="Filters">
@@ -159,17 +180,17 @@ label.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:va
   <label class="chk"><input type="checkbox" id="contactOnly"> Has email or phone</label>
   <label class="chk"><input type="checkbox" id="dueOnly"> Follow-up due</label>
   <label class="chk"><input type="checkbox" id="mineOnly"> My leads</label>
-  <button class="btn ghost" id="export" type="button">Export CSV</button>
-  <select id="sort" aria-label="Sort"><option value="score">Best fit first</option><option value="follow">Follow-up date</option><option value="brand">Brand A–Z</option></select>
+  <select id="sort" aria-label="Sort"><option value="score">Ready to contact, best fit</option><option value="follow">Follow-up date</option><option value="brand">Brand A–Z</option></select>
 </div></div>
 
 <main class="wrap">
   <div class="pipe" id="pipe" aria-label="Pipeline"></div>
-  <div class="notes">
-    <div class="note"><b>US emails:</b> add your business postal address where the email says [VERIFY] before sending (US anti-spam law). Honour every “no thanks”.</div>
-    <div class="note"><b>Spraymax 121K views:</b> check the public count on their Instagram before each batch.</div>
-  </div>
-  <div class="meta"><span id="count">Loading leads…</span><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="me" id="me"></span><span class="syncpill" id="sync"></span></span></div>
+  <div class="today" id="today"></div>
+  <details class="before"><summary><b>Before you send</b> · 2 checks</summary>
+    <ul><li><b>US emails:</b> add your business postal address where the email says [VERIFY] (US anti-spam law). Honour every “no thanks”.</li>
+    <li><b>Spraymax 121K views:</b> check the public count on their Instagram before each batch.</li>
+    <li>Leads marked <b>Find contact</b> have no public email or phone: try the website footer, Instagram bio or a DM.</li></ul></details>
+  <div class="meta"><span id="count">Loading leads…</span></div>
   <div class="list" id="list"></div>
 
   <section class="playbook" aria-labelledby="pb">
@@ -203,6 +224,7 @@ let LEADS=[];
 try{const v=JSON.parse(localStorage.getItem("mf-board")||"{}");Object.assign(S,{cc:v.cc||"",sort:v.sort||"score",contactOnly:!!v.contactOnly})}catch(e){}
 function remember(){try{localStorage.setItem("mf-board",JSON.stringify({cc:S.cc,sort:S.sort,contactOnly:S.contactOnly}))}catch(e){}}
 const $=s=>document.querySelector(s);
+const ini=n=>String(n||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const today=()=>new Date().toISOString().slice(0,10);
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":String(n);
@@ -212,11 +234,22 @@ async function copy(text,el){try{await navigator.clipboard.writeText(text);toast
 function filtered(){
   const q=S.q.toLowerCase();
   let r=LEADS.filter(l=>(!S.cc||l.country===S.cc)&&(!S.stage||l.status===S.stage)&&(!S.contactOnly||l.has_contact)
-    &&(!S.mineOnly||(l.claim&&l.claim.by===ME))&&(!S.dueOnly||(l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status)))
+    &&(!S.mineOnly||(l.claim&&l.claim.by===ME))&&(S.todayF!=="ready"||(l.has_contact&&!l.claim&&l.status==="new"))&&(S.todayF!=="due"||(l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status)))&&(S.todayF!=="mine"||(l.claim&&l.claim.by===ME))&&(!S.dueOnly||(l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status)))
     &&(!q||[l.brand,l.domain,l.category,l.notes,l.searched].join(" ").toLowerCase().includes(q)));
-  const by={score:(a,b)=>b.score-a.score,brand:(a,b)=>a.brand.localeCompare(b.brand),
+  const by={score:(a,b)=>(b.has_contact-a.has_contact)||b.score-a.score,brand:(a,b)=>a.brand.localeCompare(b.brand),
     follow:(a,b)=>(a.next_followup||"9999").localeCompare(b.next_followup||"9999")||b.score-a.score};
   return r.sort(by[S.sort]);
+}
+function renderToday(){
+  const base=LEADS.filter(l=>!S.cc||l.country===S.cc);
+  const mine=base.filter(l=>l.claim&&l.claim.by===ME).length;
+  const due=base.filter(l=>l.next_followup&&l.next_followup<=today()&&!["won","no"].includes(l.status)&&(!l.claim||l.claim.by===ME)).length;
+  const ready=base.filter(l=>l.has_contact&&!l.claim&&l.status==="new").length;
+  $("#today").innerHTML=[
+    ["ready","hot",ready,"Ready to claim","have contact, nobody on them"],
+    ["due","due",due,"Follow-ups due","today or overdue"],
+    ["mine","",mine,ME?"My leads":"Your leads","claimed by you"]]
+   .map(([k,c,n,t,sm])=>`<button class="tchip ${c}" data-today="${k}" aria-pressed="${S.todayF===k}"><span class="big">${n}</span><span><b>${t}</b><small>${sm}</small></span></button>`).join("");
 }
 function renderPipe(){
   const base=LEADS.filter(l=>!S.cc||l.country===S.cc);
@@ -246,15 +279,15 @@ function leadHTML(l){
       <div class="fld"><h4><label for="n-${l.id}">Notes</label></h4><textarea id="n-${l.id}" data-field="notes" data-id="${l.id}" placeholder="Who replied, what they said, next step" ${lockedBy?"disabled":""}>${esc(l.notes)}</textarea></div>
       <div class="links"><a href="${esc(l.website)}" target="_blank" rel="noopener">Website ↗</a>${l.fb_page?`<a href="${esc(l.fb_page)}" target="_blank" rel="noopener">Facebook page ↗</a>`:""}<a href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=${l.country}&q=${encodeURIComponent(l.brand)}" target="_blank" rel="noopener">Their ads ↗</a></div></div></div>`;
   }
-  return `<article class="lead ${lockedBy?"locked":""}" data-status="${l.status}" id="lead-${l.id}">
+  return `<article class="lead ${lockedBy?"locked":""} ${l.has_contact?"":"nocontact"}" data-status="${l.status}" id="lead-${l.id}">
   <div class="row"><div class="score ${l.score>=40?"hot":""}" title="Fit score">${l.score}</div>
     <div style="min-width:0"><h3 class="name">${esc(l.brand)}</h3><a class="dom" href="https://${esc(l.domain)}" target="_blank" rel="noopener">${esc(l.domain)}</a>
       <div class="tags"><span class="tag cc">${l.country}</span><span class="tag">${esc(l.category)}</span>${due?`<span class="tag" style="background:var(--warn-soft);color:var(--warn)">Follow-up due</span>`:""}</div></div>
     <dl class="sig"><div><dt>Ads seen</dt><dd>${l.ads_seen}</dd></div><div><dt>Page likes</dt><dd>${fmt(l.page_likes)}</dd></div>
       <div><dt>Video share</dt><dd>${Math.round(l.video_share*100)}%<span class="bar-mini"><i style="width:${Math.round(l.video_share*100)}%"></i></span></dd></div><div><dt>Ads since</dt><dd>${esc(l.running_since||"–")}</dd></div></dl>
     <div class="con">${con}</div>
-    <div class="act"><select aria-label="Status for ${esc(l.brand)}" data-field="status" data-id="${l.id}" id="s-${l.id}" ${lockedBy?"disabled":""}>${STAGES.map(([k,t])=>`<option value="${k}" ${l.status===k?"selected":""}>${t}</option>`).join("")}</select>
-      ${lockedBy?`<span class="lockd">🔒 ${esc(lockedBy)}</span>`:mineC?`<button class="claim mine" data-release="${l.id}" title="Release this lead">Yours · release</button>`:`<button class="claim" data-claim="${l.id}">Claim</button>`}
+    <div class="act">${lockedBy?`<div class="holder other"><span class="av">${esc(ini(lockedBy))}</span>${esc(lockedBy)} has it</div>`:mineC?`<div class="holder mine"><span class="av">${esc(ini(ME))}</span>Yours <button class="claim mine" data-release="${l.id}">Release</button></div>`:`<button class="claim" data-claim="${l.id}">Claim lead</button>`}
+      <select aria-label="Status for ${esc(l.brand)}" data-field="status" data-id="${l.id}" id="s-${l.id}" ${lockedBy?"disabled":""}>${STAGES.map(([k,t])=>`<option value="${k}" ${l.status===k?"selected":""}>${t}</option>`).join("")}</select>
       <button class="open" data-open="${l.id}" aria-expanded="${open}">${open?"Hide messages ▴":"Messages & notes ▾"}</button><div class="who">${esc(who)}</div></div>
   </div>${msg}</article>`;
 }
@@ -262,7 +295,7 @@ function render(){
   document.querySelectorAll("#cc button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===S.cc)));
   $("#sort").value=S.sort;$("#contactOnly").checked=S.contactOnly;
   if(!LEADS.length)return;
-  renderPipe();
+  renderPipe(); renderToday();
   const r=filtered(), withC=r.filter(l=>l.has_contact).length;
   $("#count").textContent=`${r.length} leads shown · ${withC} with email or phone · ${LEADS.length} total`;
   $("#list").innerHTML=r.length?r.map(leadHTML).join(""):`<div class="empty"><b>No leads match</b>Clear a filter or the search.</div>`;
@@ -312,6 +345,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.copy!==undefined){copy(t.dataset.copy);return}
   if(t.dataset.copymsg){const l=LEADS.find(x=>x.id===t.dataset.copymsg),w=t.dataset.which;
     copy(w==="wa"?l.msg_whatsapp:w==="dm"?l.msg_dm:l.msg_email,document.getElementById("m-"+l.id));return}
+  if(t.dataset.today){S.todayF=S.todayF===t.dataset.today?"":t.dataset.today;render();return}
   if(t.dataset.claim){claim(t.dataset.claim);return}
   if(t.dataset.release){release(t.dataset.release);return}
   if(t.id==="meChange"){openGate();return}
