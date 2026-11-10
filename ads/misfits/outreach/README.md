@@ -30,6 +30,13 @@ Creator, media and agency pages are skipped automatically (the ad ran on a creat
 - The pitch says only what we know: we saw their Meta ads (never a count: the search sees a sample), Spraymax 121K
   views (re-check the public count before a batch), the sprint offer, a free concept.
 
+**Free contacts (10 Nov):** `python3 webcontacts.py` reads each brand's own site (home, contact page, Shopify
+contact-information policy) for a public email, phone, WhatsApp and Instagram, so credits go only on searches
+(1 credit = 30 ads). 36 searches -> 331 new brands, ~270 with a contact: about 7 contactable leads per credit.
+Update the live board: `python3 build_board.py && python3 update_site.py && ./deploy_vercel.sh` (keeps every lead
+already on the board, and the team's claims/statuses, which live in Redis by lead id). Lead data (data/, and the
+DATA line in site/index.html) stays out of git; the live site is the copy of record.
+
 ## 2. Sequence (per brand)
 | Day | Channel | Message |
 |---|---|---|

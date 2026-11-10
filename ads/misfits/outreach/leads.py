@@ -30,10 +30,10 @@ KEYWORDS = ["hair spray", "hair wax", "beard oil", "face wash", "sunscreen", "se
 SKIP_DOMAINS = {"amazon.in", "amazon.com", "flipkart.com", "myntra.com", "nykaa.com", "blinkit.com", "zeptonow.com",
                 "swiggy.com", "play.google.com", "apps.apple.com", "meesho.com", "ajio.com", "jiomart.com",
                 "walmart.com", "walmart.ca", "target.com", "etsy.com", "ebay.com", "bestbuy.com", "costco.com", "sephora.com", "ulta.com", "tiktok.com", "shop.app", "bigbasket.com", "tatacliq.com", "firstcry.com", "purplle.com",
-                "instagram.com", "facebook.com", "fb.com", "google.com", "forms.gle", "shopify.com", "wa.me", "whatsapp.com", "youtube.com", "linktr.ee", "bit.ly", "instacart.com", "urlgeni.us", "amzlink.to", "amzn.to", "geni.us", "beacons.ai", "stan.store"}
+                "instagram.com", "facebook.com", "fb.com", "google.com", "forms.gle", "shopify.com", "wa.me", "whatsapp.com", "youtube.com", "linktr.ee", "bit.ly", "instacart.com", "urlgeni.us", "amzlink.to", "amzn.to", "geni.us", "beacons.ai", "stan.store", "maps.app.goo.gl", "goo.gl", "g.page", "maps.google.com", "forms.office.com", "calendly.com", "wa.link"}
 MAX_LIKES = 1_000_000      # bigger pages almost always have an agency already
 MIN_ADS = 2                # one ad is a test; two or more means a budget
-BIG = re.compile(r"nestl|starbucks|unilever|hindustan|tata |reliance|itc |amazon|samsung|apple|loreal|l'oreal|nivea|dabur|marico|emami|godrej|himalaya|colgate|p&g|procter|walmart|target|nike|adidas|coca|pepsi|kraft|johnson|gillette|dove|axe|old spice|oldspice|meta |google", re.I)
+BIG = re.compile(r"nestl|starbucks|unilever|hindustan|tata |reliance|itc |amazon|samsung|apple|loreal|l'oreal|nivea|dabur|marico|emami|godrej|himalaya|colgate|p&g|procter|walmart|target|nike|nykaa|myntra|ajio|tata|adidas|coca|pepsi|kraft|johnson|gillette|dove|axe|old spice|oldspice|meta |google", re.I)
 
 
 def call(path, **params):
@@ -93,6 +93,12 @@ def cmd_search(a):
                 sys.exit(f"stopped at --max-credits {a.max_credits}")
 
 
+def brand_from_domain(dom):
+    parts = [x for x in dom.split(".") if x not in ("www", "shop", "store", "order", "buy", "get", "try", "in", "com", "co", "us", "io", "net")]
+    name = parts[0] if parts else dom
+    return re.sub(r"[-_]+", " ", name).title()
+
+
 def brands():
     """Group ads by the brand behind them: the landing-page domain (creators' branded posts point to the brand)."""
     b = defaultdict(lambda: {"ads": 0, "pages": defaultdict(int), "likes": 0, "formats": defaultdict(int),
@@ -125,8 +131,13 @@ def brands():
         video = fmt.get("VIDEO", 0) / max(1, r["ads"])
         score = min(r["ads"], 20) * 3 + (15 if r["likes"] < 300_000 else 5) + (10 if video < 0.5 else 0) \
             + (5 if dom.endswith(".in") or dom.endswith(".com") else 0)
-        if r["likes"] > MAX_LIKES or r["ads"] < MIN_ADS or BIG.search(page) or BIG.search(dom):
+        if r["likes"] > MAX_LIKES or BIG.search(page) or BIG.search(dom) or "--" in dom \
+                or re.match(r"^(go|programs|apps?|link|l|click|track|lp)\.", dom):
             score -= 100
+        elif r["ads"] < MIN_ADS:
+            score -= 10        # seen once in our sample: still a live advertiser, just less proof of budget
+        if re.fullmatch(r"[a-z0-9._]+", page or ""):
+            page = brand_from_domain(dom)   # the ad ran on a creator's handle: name the brand from its domain
         out.append({"country": max(r["country"], key=r["country"].get), "domain": dom, "brand": page, "page_url": r["page_urls"].get(page, ""), "active_ads": r["ads"],
                     "page_likes": r["likes"], "video_share": round(video, 2), "formats": fmt,
                     "keywords": ",".join(sorted(r["kw"])), "sample_ad": r["sample"], "score": score,
