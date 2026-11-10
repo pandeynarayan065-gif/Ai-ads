@@ -10,6 +10,10 @@ prev = json.loads(m.group(1).replace("<\\/", "</"))
 old = {d["id"]: d.get("added", "2026-11-08") for d in prev}
 today = dt.date.today().isoformat()
 rows = json.load(open(here / "data/board.json"))
+shop = here / "data/shopify_leads.json"          # small stores from the public Shopify list (shopify_leads.py)
+if shop.exists():
+    seen = {r["id"] for r in rows}
+    rows += [r for r in json.load(open(shop)) if r["id"] not in seen]
 ids = {r["id"] for r in rows}
 rows += [d for d in prev if d["id"] not in ids]   # never drop a lead the team may already be working
 for r in rows:
