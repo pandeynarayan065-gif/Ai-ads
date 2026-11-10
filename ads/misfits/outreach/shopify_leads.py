@@ -72,17 +72,24 @@ def work(c):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cands"); ap.add_argument("--max", type=int, default=700); ap.add_argument("--workers", type=int, default=14)
+    ap.add_argument("--skip-first", type=int, default=0, help="mark the first N stores of the fixed order as already visited")
     a = ap.parse_args()
     have = set()
     if (leads.DATA / "board.json").exists():
         have = {r["domain"] for r in json.load(open(leads.DATA / "board.json"))}
     done = json.loads(OUT.read_text()) if OUT.exists() else []
     have |= {r["domain"] for r in done}
-    cands = [c for c in json.load(open(a.cands)) if c["domain"] not in have]
-    ind = [c for c in cands if c["domain"].endswith(".in")]
-    rest = [c for c in cands if c["domain"].endswith((".com", ".us", ".co", ".shop", ".store"))]
+    board = {r["domain"] for r in json.load(open(leads.DATA / "board.json"))} if (leads.DATA / "board.json").exists() else set()
+    allc = [c for c in json.load(open(a.cands)) if c["domain"] not in board]
+    ind = [c for c in allc if c["domain"].endswith(".in")]
+    rest = [c for c in allc if c["domain"].endswith((".com", ".us", ".co", ".shop", ".store"))]
     random.Random(7).shuffle(rest)
-    todo = (ind + rest)[: a.max]
+    order = ind + rest                               # same order every run
+    chk_f = leads.DATA / "shopify_checked.json"     # every store already visited, kept or not
+    checked = set(json.loads(chk_f.read_text())) if chk_f.exists() else set()
+    if a.skip_first:
+        checked |= {c["domain"] for c in order[: a.skip_first]}
+    todo = [c for c in order if c["domain"] not in have and c["domain"] not in checked][: a.max]
     print(f"checking {len(todo)} stores ({len(ind)} .in first)", flush=True)
     n = 0
     with ThreadPoolExecutor(a.workers) as ex:
@@ -112,11 +119,13 @@ def main():
                     "msg_whatsapp": wa, "email_subject": subj, "msg_email": email, "msg_dm": dm,
                     "sample_ad": "", "status": "new", "next_followup": "", "notes": "",
                 })
+            checked.add(todo[n - 1]["domain"])
             if n % 25 == 0:
+                chk_f.write_text(json.dumps(sorted(checked)))
                 OUT.write_text(json.dumps(done, indent=1, ensure_ascii=False))
                 print(f"{n}/{len(todo)} checked, {len(done)} India/US leads, "
                       f"{sum(1 for d in done if d['has_contact'])} with contact", flush=True)
-    OUT.write_text(json.dumps(done, indent=1, ensure_ascii=False))
+    OUT.write_text(json.dumps(done, indent=1, ensure_ascii=False)); chk_f.write_text(json.dumps(sorted(checked)))
     print(f"done: {len(done)} leads ({sum(1 for d in done if d['country']=='IN')} IN, "
           f"{sum(1 for d in done if d['country']=='US')} US), {sum(1 for d in done if d['has_contact'])} with contact")
 
