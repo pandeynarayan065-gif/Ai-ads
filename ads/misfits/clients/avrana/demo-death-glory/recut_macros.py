@@ -43,25 +43,35 @@ SWAP = {
 }
 PAINT = [(17, 24, (0.2060, 0.1055, 0.7060, 0.1771))]  # first frame, last frame, box (x0, y0, x1, y1) 0..1
 
-EDL = [
-    ("take", 0, 24),                                                # the screen lifts off the print
-    ("freeze", 20, 14, (0.50, 0.42, 0.56), (0.50, 0.42, 0.48)),     # macro: the ink of the skull, slow push
-    ("freeze", 22, 11, (0.68, 0.37, 0.48), (0.74, 0.35, 0.48)),     # macro: along the antler, slow slide
-    ("take", 25, 45),                                               # platform, from behind
-    ("take", 46, 64),                                               # platform, front
-    ("take", 65, 76),                                               # emblem macro
-    ("punch", 77, 88, (0.50, 0.535, 0.64), (0.50, 0.535, 0.58)),    # macro: the script
-    ("take", 89, 108),                                              # glass walkway
-    ("take", 109, 136),                                             # fire field
-    ("take", 137, 152),                                             # embers macro
-    ("punch", 153, 168, (0.50, 0.56, 0.56), (0.50, 0.57, 0.50)),    # macro: embers across the skull
-    ("take", 169, 192),                                             # crew of five
-    ("take", 193, 204),                                             # tracking close
-    ("punch", 205, 215, (0.50, 0.52, 0.56), (0.50, 0.53, 0.54)),    # macro: the print moving with his steps
-    ("take", 216, 229),                                             # ash lifts off the shoulders
-    ("punch", 230, 240, (0.40, 0.50, 0.56), (0.41, 0.50, 0.52)),    # macro: ash across the antlers
-    ("take", 241, 287),                                             # ridge at sunrise
-]
+SHOTS = {
+    "reveal":   ("take", 0, 24),                                                # the screen lifts off the print
+    "INK":      ("freeze", 20, 14, (0.50, 0.42, 0.56), (0.50, 0.42, 0.48)),     # macro: the ink of the skull, slow push
+    "ANTLER":   ("freeze", 22, 11, (0.68, 0.37, 0.48), (0.74, 0.35, 0.48)),     # macro: along the antler, slow slide
+    "back":     ("take", 25, 45),                                               # platform, from behind
+    "front":    ("take", 46, 64),                                               # platform, front
+    "EMBLEM":   ("take", 65, 76),                                               # emblem macro
+    "SCRIPT":   ("punch", 77, 88, (0.50, 0.535, 0.64), (0.50, 0.535, 0.58)),    # macro: the script
+    "walkway":  ("take", 89, 108),                                              # glass walkway
+    "fire":     ("take", 109, 136),                                             # fire field
+    "EMBERS":   ("take", 137, 152),                                             # embers macro
+    "EMBERS2":  ("punch", 153, 168, (0.50, 0.56, 0.56), (0.50, 0.57, 0.50)),    # macro: embers across the skull
+    "crew":     ("take", 169, 192),                                             # crew of five
+    "tracking": ("take", 193, 204),                                             # tracking close
+    "PRINT":    ("punch", 205, 215, (0.50, 0.52, 0.56), (0.50, 0.53, 0.54)),    # macro: the print moving with his steps
+    "ash":      ("take", 216, 229),                                             # ash lifts off the shoulders
+    "ASH":      ("punch", 230, 240, (0.40, 0.50, 0.56), (0.41, 0.50, 0.52)),    # macro: ash across the antlers
+    "ridge":    ("take", 241, 287),                                             # ridge at sunrise
+}
+ORDERS = {
+    # the story in order: made, worn, through fire, reborn; every macro follows its own wide shot
+    "linear": ["reveal", "INK", "ANTLER", "back", "front", "EMBLEM", "SCRIPT", "walkway", "fire", "EMBERS", "EMBERS2",
+               "crew", "tracking", "PRINT", "ash", "ASH", "ridge"],
+    # Narayan, 11 Nov: "Mix up the clips order". Scenes intercut, a macro between every two wides, cold shots
+    # against fire and dawn; still opens on the print being made and ends on the ridge.
+    "mixed": ["reveal", "EMBERS2", "back", "INK", "fire", "EMBLEM", "crew", "ASH", "front", "EMBERS", "walkway",
+              "ANTLER", "tracking", "SCRIPT", "ash", "PRINT", "ridge"],
+}
+EDL = [SHOTS[k] for k in ORDERS["mixed"]]
 
 
 def ease(x):
@@ -130,10 +140,10 @@ def load_audio(path):
     return np.frombuffer(raw, np.float32).reshape(-1, 2).copy()
 
 
-def build_audio(pieces, take, tone, tone_start, tone_gain=1.0):
+def build_audio(pieces, take, tone, tone_start, tone_gain=1.0, fade_s=0.008):
     """Concatenate the pieces; contiguous stretches of the take stay unbroken, real joins get 8 ms fades."""
     out, prev_end, tone_pos, prev_tone = [], None, int(tone_start * SR), False
-    fade = int(0.008 * SR)
+    fade = int(fade_s * SR)
     ramp = np.linspace(0, 1, fade, dtype=np.float32)[:, None]
     for src, start, n in pieces:
         if src == "take":
@@ -163,9 +173,12 @@ def main():
     ap.add_argument("--tone-gain", type=float, default=1.0)
     ap.add_argument("--size", default="1080x1920")
     ap.add_argument("--crf", type=int, default=12)
+    ap.add_argument("--order", default="mixed", choices=list(ORDERS), help="which cut to build")
+    ap.add_argument("--fade", type=float, default=0.03, help="audio fade at each join, seconds")
     args = ap.parse_args()
     size = tuple(int(v) for v in args.size.split("x"))
-    video, audio = plan(EDL)
+    edl = [SHOTS[k] for k in ORDERS[args.order]]
+    video, audio = plan(edl)
     uses = defaultdict(list)
     for j, (key, box) in enumerate(video):
         uses[key].append((j, box))
@@ -205,14 +218,14 @@ def main():
         enc.stdin.close()
         enc.wait()
         del frames
-    a = build_audio(audio, load_audio(args.take_audio), load_audio(args.tone), args.tone_start, args.tone_gain)
+    a = build_audio(audio, load_audio(args.take_audio), load_audio(args.tone), args.tone_start, args.tone_gain, args.fade)
     with wave.open(args.out + ".wav", "wb") as wv:
         wv.setnchannels(2)
         wv.setsampwidth(2)
         wv.setframerate(SR)
         wv.writeframes((np.clip(a, -1, 1) * 32767).astype(np.int16).tobytes())
-    macros = sum(1 for s in EDL if s[0] != "take")
-    print(f"Saved {args.out}.mp4 + .wav: {n} frames ({n / FPS:.2f} s), {len(EDL)} shots, {macros} new macro shots")
+    macros = sum(1 for s in edl if s[0] != "take")
+    print(f"Saved {args.out}.mp4 + .wav: {n} frames ({n / FPS:.2f} s), {len(edl)} shots, {macros} new macro shots, order: {args.order}")
 
 
 if __name__ == "__main__":
