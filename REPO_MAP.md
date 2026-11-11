@@ -54,9 +54,10 @@ flowchart LR
 - `prompt-seedance-12s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-4s-front-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-4s-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- media: 1 .mp4
 
 ## ads/misfits/clients/avrana/demo-death-glory/takes
-- media: 2 .mp4
+- media: 3 .mp4
 
 ## ads/misfits/clients/avrana/product-images
 - media: 1 .png

@@ -116,7 +116,7 @@ def main():
               f"[2:a]adelay={int(T * 1000)}:all=1,apad=whole_dur={T + C}[a1];"
               f"[a0][a1]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample={SR},atrim=0:{T + C}[a]")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", args.take, "-i", str(card), "-i", str(hit),
-                        "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "16",
+                        "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "19",
                         "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "256k", "-movflags",
                         "+faststart", args.out], check=True)
     print(f"Saved {args.out}: {T:.2f} s film + {C:.1f} s card at {W}x{H}")
