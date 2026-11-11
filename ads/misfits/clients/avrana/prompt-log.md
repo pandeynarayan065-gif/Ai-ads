@@ -1,0 +1,12 @@
+# Avrana prompt log
+
+Every take for Avrana (client of Misfits), what happened, and the rule it gave us. Newest first. Scored with
+`reference/ai-video-qa.md`. Takes live in `demo-death-glory/takes/` next to their `.json`.
+
+## Video takes
+
+| Shot | Model / mode | Lint | Verdict | What happened | Rule it gave us |
+|---|---|---|---|---|---|
+| Death & Glory 12 s v6 (print made, platform back + front, walkway, fire, crew, ash, ridge) | Seedance 2.5 on kie, reference-to-video, 720p, 9:16, 12 s, audio, 756 cr; Image 1 official back photo (`04.jpg`), Image 2 official front photo (`03.jpg`) | PASS: 1327 words | _pending QA_ | | |
+| Front test 4 s (platform front, chest macro, crew of five toward camera) | Seedance 2.5, reference-to-video, 480p, 4 s, audio, 112 cr; `04.jpg` + `03.jpg` | PASS: 646 words | **Pass**, front approved for the film | The ornate emblem and the "Avrana" script came out right in the medium shot and the macro (frame, scrolls, spelling). Shot 1 ran to ~2.2 s. The crew came backlit at dawn even though we asked for front light; their five emblems are too small to judge at 480p | Seedance spells a big script wordmark in an ornate frame right from the official front photo. Keep front shots to one wearer, emblem large; skip rows of small emblems |
+| Risk test 4 s (screen lift reveal, platform from behind, crew of five walking away) | Seedance 2.5, reference-to-video, 480p, 4 s, audio, 112 cr; `04.jpg` | PASS: 728 words | **Pass** | Skull and antlers exact after the screen lift; plain train and platform with no signs; five people, hoods up, five correct prints, backlit at dawn with long shadows (we asked for overcast). The reveal ran ~2.3 s, so the next two shots got squeezed. The static frame after the lift showed the inside neck label with tiny garbled text | Frame the print reveal so the hood and collar stay out of shot. The model prefers a low dawn sun behind the crew, so write it that way |

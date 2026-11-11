@@ -37,6 +37,160 @@ flowchart LR
 ## ads/jpg-spec/ultra-male-12s/takes
 - media: 9 .mp4
 
+## ads/misfits/clients/avrana
+- `deploy_site.py`: Deploy the Avrana pitch site folder to https://misfits-avrana.vercel.app (Vercel token injected by the session proxy;
+- `fetch_images.py`: Download every product image from avrana.co (Shopify products.json) into product-images/<product>/NN.jpg at
+- `call-prep.md`: Avrana — call prep (Jose, Discord, Wed 11 Nov 2026, 11:00 AM CST = 10:30 PM IST)
+- `prompt-log.md`: Avrana prompt log
+- media: 1 .jpg
+
+## ads/misfits/clients/avrana/demo-death-glory
+- `finish_film.py`: Finish the Death & Glory demo film for Avrana: a 1080x1920 master with an end card.
+- `prompt-seedance-12s-v2.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-12s-v3.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-12s-v4.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-12s-v5.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-12s-v6.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-12s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-4s-front-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-4s-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+
+## ads/misfits/clients/avrana/demo-death-glory/takes
+- media: 2 .mp4
+
+## ads/misfits/clients/avrana/product-images
+- media: 1 .png
+
+## ads/misfits/clients/avrana/product-images/apex
+- media: 13 .jpg
+
+## ads/misfits/clients/avrana/product-images/apex-long-sleeve
+- media: 8 .jpg
+
+## ads/misfits/clients/avrana/product-images/apex-t-shirt
+- media: 7 .jpg
+
+## ads/misfits/clients/avrana/product-images/death-amp-glory
+- media: 10 .jpg
+
+## ads/misfits/clients/avrana/product-images/death-amp-glory-hoodie
+- media: 10 .jpg
+
+## ads/misfits/clients/avrana/product-images/death-amp-glory-long-sleeve
+- media: 8 .jpg
+
+## ads/misfits/clients/avrana/product-images/eternal-grace
+- media: 6 .jpg
+
+## ads/misfits/clients/avrana/product-images/eternal-grace-hoodie
+- media: 10 .jpg
+
+## ads/misfits/clients/avrana/product-images/eternal-grace-t-shirt
+- media: 7 .jpg
+
+## ads/misfits/clients/avrana/product-images/hoodie-blank
+- media: 10 .jpg
+
+## ads/misfits/clients/avrana/product-images/house-of-grace
+- media: 14 .jpg
+
+## ads/misfits/clients/avrana/product-images/house-of-grace-long-sleeve
+- media: 8 .jpg
+
+## ads/misfits/clients/avrana/product-images/house-of-grace-t-shirt
+- media: 7 .jpg
+
+## ads/misfits/clients/avrana/product-images/instinct
+- media: 6 .jpg
+
+## ads/misfits/clients/avrana/product-images/instinct-hoodie
+- media: 9 .jpg
+
+## ads/misfits/clients/avrana/product-images/instinct-t-shirt
+- media: 7 .jpg
+
+## ads/misfits/clients/avrana/product-images/screens
+- media: 2 .png
+
+## ads/misfits/clients/avrana/product-images/sweatshirt-blank
+- media: 5 .jpg
+
+## ads/misfits/clients/avrana/product-images/t-shirt-blank
+- media: 16 .jpg
+
+## ads/misfits/clients/avrana/product-images/untamed
+- media: 9 .jpg
+
+## ads/misfits/clients/avrana/product-images/untamed-hoodie
+- media: 10 .jpg
+
+## ads/misfits/clients/avrana/product-images/untamed-long-sleeve
+- media: 5 .jpg
+
+## ads/misfits/faq-album
+- `render_faq.js`: Render faq.html slides to slide-1.png ... slide-5.png (1080x1350). Usage: node render_faq.js
+- `post.md`: Misfits — FAQ album (5 photos, 1080×1350)
+- media: 5 .png
+
+## ads/misfits/last-one-reel
+- `post.py`: Post for "The last one doesn't fit": sound design + text overlays + final encode.
+- `scene.py`: Misfits reel #2, "The last one doesn't fit" — Blender scene, built and rendered from this script.
+- media: 1 .wav
+
+## ads/misfits/last-one-reel/overlays
+- `make.js`: 
+- media: 2 .png
+
+## ads/misfits/launch-reel
+- `mix.py`: Sound design + voiceover mix for the Misfits launch reel (all generated here, no licensed audio).
+- `render.js`: Render scene.html frame by frame (deterministic, no dropped frames) and pipe to ffmpeg.
+- `vo.py`: Misfits launch reel voiceover with Kokoro (free, open-source, runs locally).
+- `post.md`: Misfits — first post: launch reel
+- media: 1 .jpg, 1 .mp4, 1 .wav; deliverables: `misfits-launch-reel.mp4`
+
+## ads/misfits/launch-reel/breakdown
+- `render_breakdown.js`: Render breakdown.html slides to slide-1.png ... slide-5.png (1080x1350). Usage: node render_breakdown.js
+- media: 5 .png
+
+## ads/misfits/launch-reel/breakdown/frames
+- media: 6 .jpg
+
+## ads/misfits/launch-reel/carousel
+- `render_carousel.js`: Render carousel.html slides to slide-1.png ... slide-5.png (1080x1350). Usage: node render_carousel.js
+- media: 5 .png
+
+## ads/misfits/launch-reel/carousel/bg
+- media: 5 .jpg
+
+## ads/misfits/launch-reel/vo
+- media: 7 .wav
+
+## ads/misfits/outreach
+- `build_board.py`: Build data/board.json: every pitchable brand from the cache, with contacts, signals and ready messages, for the
+- `leads.py`: Misfits lead engine: find Indian D2C brands that are running Meta ads right now, enrich them with their public
+- `shopify_leads.py`: Small-brand leads from a public Shopify store list (growthenginenowoslawski/shopify-master-list on GitHub, a
+- `update_site.py`: Build site/dist/index.html from the site/index.html template + data/board.json (keeps each lead's first-seen date for the New tag).
+- `webcontacts.py`: Free contact enrichment: read each brand's own website (home, contact page, Shopify contact-information policy)
+- `README.md`: Misfits outreach engine
+
+## ads/misfits/outreach/site
+- `robots.txt`: User-agent: *
+
+## ads/misfits/outreach/site/api
+- `state.js`: Shared state for the Misfits lead board (Vercel serverless function, no dependencies).
+
+## ads/misfits/ugc-demos
+- `01-coldbrew-seedance.md`: Reference Image1 for the character only: her face, hair, clothes and the car she sits in. Reference Image2 for
+- `01-coldbrew-still-creator.md`: A candid vertical iPhone front-camera selfie frame of a 26-year-old Indian woman sitting in the driver's seat 
+- `01-coldbrew-still-product.md`: A product photo of a slim 250 ml aluminium can of cold brew coffee standing on a light concrete surface in sof
+- `02-gel-seedance.md`: Reference Image1 for the character only: his face, hair, clothes and the bathroom. Reference Image2 for the pr
+- `02-gel-still-creator.md`: A candid vertical iPhone front-camera selfie frame of a 24-year-old Indian man standing in a small, bright hom
+- `02-gel-still-product.md`: A product photo of a 50 ml frosted glass pump bottle of face gel moisturiser on a white bathroom shelf in soft
+- `03-grip-seedance.md`: Reference Image1 for the character only: her face, hair, glasses, clothes and the desk setting. Reference Imag
+- `03-grip-still-creator.md`: A candid vertical iPhone front-camera selfie frame of a 28-year-old Indian woman at a home work desk in the af
+- `03-grip-still-product.md`: A product photo of a thin circular magnetic phone grip, about the size of a coin stack, lying on a light woode
+- `plan.md`: Misfits: 3 talking-head UGC demo ads (portfolio, invented products)
+
 ## ads/redbull-spec/cinematic-12s
 - `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
 - `edit_redbull.py`: Red Bull spec edit: the cleaned take minus the cliff dive (Narayan, 4 Nov: "Remove this shot from redbull").
@@ -317,6 +471,12 @@ flowchart LR
 ## ads/spraymax/two-intros
 - `concept.md`: Spraymax: two intros, one shared product half
 
+## ads/spraymax/ugc-demos
+- `plan.md`: Spraymax: 3 UGC demo ads (0xROAS techniques, our rules)
+- `prompt-seedance-01-demo.md`: Image 1 shows the real Spraymax bottle: a low-light photo of its front, and close-ups of its pump from the sid
+- `prompt-seedance-02-montage.md`: Image 1 shows the real Spraymax bottle: a low-light photo of its front, and close-ups of its pump from the sid
+- `prompt-seedance-03-whiteboard.md`: Image 1 shows the real Spraymax bottle: a low-light photo of its front, and close-ups of its pump from the sid
+
 ## brand
 - `_template.md`: Brand: <Name>
 - `misfits.md`: Brand: Misfits
@@ -326,11 +486,17 @@ flowchart LR
 - `build_brand.py`: Misfits brand kit: logo (SVG), social and web assets (HTML -> PNG via render.js), palette.
 - `render.js`: Renders the HTML pages written by build_brand.py to PNG with the pre-installed Chromium.
 
+## brand/misfits/highlights
+- media: 2 .png
+
 ## brand/misfits/midnight-volt/logo
 - media: 6 .png
 
 ## brand/misfits/midnight-volt/social
 - media: 5 .png
+
+## brand/misfits/noir-acid
+- media: 1 .png
 
 ## brand/misfits/noir-acid/logo
 - media: 6 .png

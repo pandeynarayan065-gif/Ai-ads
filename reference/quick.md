@@ -48,6 +48,8 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 - **Seedance stands the product upright** whatever the text says. Give a reference photographed lying down
   (`brand/spraymax/assets/bottle-real-lying-capleft.jpg`), or a first frame where it already lies.
 - **Seedance spells the wordmark right**; the small lines ("Instant Hair...", "100ml/...") come out garbled.
+  It also got a script wordmark inside an ornate filigree frame right (Avrana hoodie front, 11 Nov), from the
+  official front photo as Image 2, in a medium shot and a macro. Keep it to one large emblem per shot.
 - **A Nano Banana edit of our own render keeps the layout pixel-true.** Fix the small lines there by band position
   (`ads/spraymax/shelf-still/fix_labels.py`). Upscale first, then lay in the text.
 - **Full label replacement on a moving AI bottle was rejected** (morphs, lighting reads as pasted). Don't repeat it.
