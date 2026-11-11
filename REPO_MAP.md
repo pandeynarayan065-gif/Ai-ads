@@ -48,6 +48,7 @@ flowchart LR
 - `deflicker_subject.py`: Take the glow flashes off the print in a Seedance take, shot by shot.
 - `finish_film.py`: Finish the Death & Glory demo film for Avrana: a 1080x1920 master with an end card.
 - `patch_frames.py`: Replace frames of a video with copies of other frames (same length, audio untouched).
+- `recut_macros.py`: Recut the Death & Glory film with more macro shots, at no generation cost.
 - `prompt-seedance-12s-v2.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-12s-v3.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-12s-v4.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
@@ -56,6 +57,7 @@ flowchart LR
 - `prompt-seedance-12s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-4s-front-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-4s-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
+- `prompt-seedance-6s-macros.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - media: 1 .mp4
 
 ## ads/misfits/clients/avrana/demo-death-glory/takes

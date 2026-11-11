@@ -104,6 +104,7 @@ def main():
     ap.add_argument("--audio", help="take the sound from this file instead of <take> (e.g. after an upscale)")
     ap.add_argument("--sharpen", type=float, default=0.45, help="unsharp amount; 0 for an upscaled source")
     ap.add_argument("--grain", type=float, default=3, help="film grain strength")
+    ap.add_argument("--crf", type=int, default=19, help="x264 CRF of the master (use ~23 for 4K to keep the file small)")
     args = ap.parse_args()
     global W, H
     W, H = (int(v) for v in args.size.split("x"))
@@ -128,7 +129,7 @@ def main():
               f"[a0][a1]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample={SR},atrim=0:{T + C}[a]")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", args.take, "-i", str(card), "-i", str(hit),
                         *(["-i", args.audio] if args.audio else []),
-                        "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "19",
+                        "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", str(args.crf),
                         "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "256k", "-movflags",
                         "+faststart", args.out], check=True)
     print(f"Saved {args.out}: {T:.2f} s film + {C:.1f} s card at {W}x{H}")
