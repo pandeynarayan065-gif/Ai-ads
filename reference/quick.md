@@ -54,6 +54,9 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
   (`ads/spraymax/shelf-still/fix_labels.py`). Upscale first, then lay in the text.
 - **Full label replacement on a moving AI bottle was rejected** (morphs, lighting reads as pasted). Don't repeat it.
 - **Watch the nozzle:** models draw it facing front. The real hole faces the back-label side.
+- **"Lit windows strobe across the print" came back as the print flashing bright for ~5 frames** (Avrana platform
+  shots, 11 Nov; Narayan: "what's that bump glow"). Light the print steadily and let the moving light play on the
+  background only. Fix in post on locked-off shots: `ads/misfits/clients/avrana/demo-death-glory/deflicker_subject.py`.
 - **Seedance writes fake text on anything that would carry print in life:** a chip lid ("SALOXY SNMAD"), a glove (a
   real brand's star logo), a wingsuit (pseudo-letters). Say "blank" for those surfaces. If it still prints, remake the
   shot from a first frame with the surface wiped blank (`ads/samsung-spec/fold8-ultra-12s/`).

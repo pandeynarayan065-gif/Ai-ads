@@ -7,6 +7,10 @@
 - sound: the take's own location sound, faded under the card, a low hit on the card, loudness to -14 LUFS.
 
   python3 ads/misfits/clients/avrana/demo-death-glory/finish_film.py <take.mp4> <out.mp4> [--trim 12.0] [--card 2.6]
+         [--size 2160x3840] [--audio <take with the sound>] [--sharpen 0.45] [--grain 3]
+
+For a Real-ESRGAN upscale (scripts/esrgan_upscale.py, video only) pass the original take as --audio and
+--sharpen 0: the upscale is already sharp. The end card scales with --size.
 
 The logo lives in the gitignored client folder (product-images/avrana-logo-white.png); it is Avrana's artwork.
 """
@@ -59,10 +63,11 @@ def with_alpha(layer, a):
 def card_frames(seconds):
     logo = Image.open(LOGO).convert("RGBA")
     logo = logo.crop(logo.getbbox())
-    lh = 360
+    k = W / 1080  # the card is laid out for 1080x1920 and scales with --size
+    lh = round(360 * k)
     logo = logo.resize((round(logo.width * lh / logo.height), lh), Image.LANCZOS)
-    tag = tracked("REBORN. NEVER DEFEATED.", ImageFont.truetype(str(FONTS / "InstrumentSerif-Regular.ttf"), 66), 7)
-    url = tracked("avrana.co", ImageFont.truetype(str(FONTS / "JetBrainsMono-Regular.ttf"), 30), 3)
+    tag = tracked("REBORN. NEVER DEFEATED.", ImageFont.truetype(str(FONTS / "InstrumentSerif-Regular.ttf"), round(66 * k)), 7 * k)
+    url = tracked("avrana.co", ImageFont.truetype(str(FONTS / "JetBrainsMono-Regular.ttf"), round(30 * k)), 3 * k)
     url = with_alpha(url, 0.62)
     for i in range(round(seconds * FPS)):
         t = i / FPS
@@ -70,9 +75,9 @@ def card_frames(seconds):
         a = ease((t - 0.10) / 0.70)
         s = 0.965 + 0.035 * ease(t / seconds)  # the monogram settles in very slowly
         lg = logo.resize((round(logo.width * s), round(logo.height * s)), Image.LANCZOS)
-        frame.alpha_composite(with_alpha(lg, a), ((W - lg.width) // 2, 700 - lg.height // 2))
-        frame.alpha_composite(with_alpha(tag, ease((t - 0.45) / 0.70)), ((W - tag.width) // 2, 1010))
-        frame.alpha_composite(with_alpha(url, ease((t - 0.85) / 0.60)), ((W - url.width) // 2, 1690))
+        frame.alpha_composite(with_alpha(lg, a), ((W - lg.width) // 2, round(700 * k) - lg.height // 2))
+        frame.alpha_composite(with_alpha(tag, ease((t - 0.45) / 0.70)), ((W - tag.width) // 2, round(1010 * k)))
+        frame.alpha_composite(with_alpha(url, ease((t - 0.85) / 0.60)), ((W - url.width) // 2, round(1690 * k)))
         yield frame.convert("RGB").tobytes()
 
 
@@ -95,7 +100,13 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--trim", type=float, help="end of the film part in seconds (default: the whole take)")
     ap.add_argument("--card", type=float, default=2.6, help="end card length in seconds")
+    ap.add_argument("--size", default="1080x1920", help="output WxH (the end card scales with it)")
+    ap.add_argument("--audio", help="take the sound from this file instead of <take> (e.g. after an upscale)")
+    ap.add_argument("--sharpen", type=float, default=0.45, help="unsharp amount; 0 for an upscaled source")
+    ap.add_argument("--grain", type=float, default=3, help="film grain strength")
     args = ap.parse_args()
+    global W, H
+    W, H = (int(v) for v in args.size.split("x"))
     T = args.trim or duration(args.take)
     C = args.card
     with tempfile.TemporaryDirectory() as tmp:
@@ -108,14 +119,15 @@ def main():
         enc.stdin.close()
         enc.wait()
         boom(hit, C)
-        fc = (f"[0:v]trim=0:{T},setpts=PTS-STARTPTS,fps={FPS},scale={W}:{H}:flags=lanczos,unsharp=5:5:0.45,"
-              f"noise=alls=3:allf=t,format=yuv420p,setsar=1[v0];"
+        fc = (f"[0:v]trim=0:{T},setpts=PTS-STARTPTS,fps={FPS},scale={W}:{H}:flags=lanczos,"
+              f"{f'unsharp=5:5:{args.sharpen},' if args.sharpen else ''}noise=alls={args.grain:g}:allf=t,format=yuv420p,setsar=1[v0];"
               f"[1:v]fps={FPS},format=yuv420p,setsar=1[v1];[v0][v1]concat=n=2:v=1:a=0[v];"
-              f"[0:a]atrim=0:{T},asetpts=PTS-STARTPTS,aresample={SR},aformat=channel_layouts=stereo,"
+              f"[{3 if args.audio else 0}:a]atrim=0:{T},asetpts=PTS-STARTPTS,aresample={SR},aformat=channel_layouts=stereo,"
               f"apad=whole_dur={T + C},afade=t=out:st={T - 0.15}:d=1.4[a0];"
               f"[2:a]adelay={int(T * 1000)}:all=1,apad=whole_dur={T + C}[a1];"
               f"[a0][a1]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample={SR},atrim=0:{T + C}[a]")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", args.take, "-i", str(card), "-i", str(hit),
+                        *(["-i", args.audio] if args.audio else []),
                         "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "19",
                         "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "256k", "-movflags",
                         "+faststart", args.out], check=True)

@@ -53,6 +53,7 @@ def main():
     src, dst = a[0], a[1]
     weights = a[a.index("--weights") + 1]
     ow, oh = (int(v) for v in (a[a.index("--size") + 1] if "--size" in a else "2160x3840").split("x"))
+    first, last = (int(v) for v in a[a.index("--frames") + 1].split("-")) if "--frames" in a else (0, 10 ** 9)
     torch.set_num_threads(max(1, torch.get_num_threads()))
     net = SRVGGNetCompact()
     sd = torch.load(weights, map_location="cpu")
@@ -64,12 +65,17 @@ def main():
     enc = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{ow}x{oh}",
                             "-r", rate, "-i", "-", "-c:v", "libx264", "-crf", "12", "-preset", "slow", "-pix_fmt", "yuv420p",
                             dst], stdin=subprocess.PIPE)
-    n, t0 = 0, time.time()
+    n, t0, idx = 0, time.time(), -1
     fsize = w * h * 3
     with torch.inference_mode():
         while True:
             buf = dec.stdout.read(fsize)
             if len(buf) < fsize:
+                break
+            idx += 1
+            if idx < first:
+                continue
+            if idx > last:
                 break
             x = torch.from_numpy(np.frombuffer(buf, np.uint8).reshape(h, w, 3).copy()).permute(2, 0, 1)[None].float() / 255
             y = net(x).clamp(0, 1)
@@ -80,6 +86,7 @@ def main():
                 print(f"{n} frames, {(time.time() - t0) / n:.1f} s/frame", flush=True)
     enc.stdin.close()
     enc.wait()
+    dec.kill()  # stops the decoder if we left the loop early (--frames)
     dec.wait()
     print(f"wrote {dst}: {n} frames in {time.time() - t0:.0f} s")
 
