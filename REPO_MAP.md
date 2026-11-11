@@ -45,8 +45,9 @@ flowchart LR
 - media: 1 .jpg
 
 ## ads/misfits/clients/avrana/demo-death-glory
-- `deflicker_subject.py`: Hold the light steady on a still subject in locked-off shots of a Seedance take.
+- `deflicker_subject.py`: Take the glow flashes off the print in a Seedance take, shot by shot.
 - `finish_film.py`: Finish the Death & Glory demo film for Avrana: a 1080x1920 master with an end card.
+- `patch_frames.py`: Replace frames of a video with copies of other frames (same length, audio untouched).
 - `prompt-seedance-12s-v2.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-12s-v3.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-12s-v4.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
