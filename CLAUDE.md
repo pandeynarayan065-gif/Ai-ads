@@ -58,6 +58,8 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
   the user to paste the key in chat, never print it, never commit it.
 - Credits are scarce. Always run `credits` first, then a dry run (no `--yes`) and show the user
   the final prompt. Only add `--yes` after the user approves that exact prompt.
+- That includes test runs: never spend credits on a test (even a 4 s one) without asking first. Narayan, 13 Nov:
+  "do not do any tests before asking me". Propose the test with its cost and wait for a yes.
 - Save prompts to `ads/<brand>/<campaign>/prompt-<n>.md` and images to `ads/<brand>/<campaign>/images/`.
 - Ad text in images: keep it short (headline + CTA, ideally under ~8 words) and spell it out in
   quotes in the prompt. Use real product/logo photos as `--ref` images whenever available.
