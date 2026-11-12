@@ -37,6 +37,9 @@ flowchart LR
 ## ads/jpg-spec/ultra-male-12s/takes
 - media: 9 .mp4
 
+## ads/misfits
+- `prompt-log.md`: Misfits prompt log (own demos and spec work)
+
 ## ads/misfits/clients/avrana
 - `deploy_site.py`: Deploy the Avrana pitch site folder to https://misfits-avrana.vercel.app (Vercel token injected by the session proxy;
 - `fetch_images.py`: Download every product image from avrana.co (Shopify products.json) into product-images/<product>/NN.jpg at
@@ -142,12 +145,13 @@ flowchart LR
 - `finish_film.py`: Finish the jewellery demo film for showing to shop owners: 1080x1920 with a sound bed and an end card.
 - `prompt-seedance-12s.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
 - `prompt-seedance-4s-test.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
+- media: 1 .mp4; deliverables: `misfits-jewellery-demo.mp4`
 
 ## ads/misfits/jewellery-demo/refs
 - media: 2 .jpg
 
 ## ads/misfits/jewellery-demo/takes
-- media: 1 .mp4
+- media: 2 .mp4
 
 ## ads/misfits/last-one-reel
 - `post.py`: Post for "The last one doesn't fit": sound design + text overlays + final encode.
