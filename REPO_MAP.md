@@ -138,6 +138,17 @@ flowchart LR
 - `post.md`: Misfits — FAQ album (5 photos, 1080×1350)
 - media: 5 .png
 
+## ads/misfits/jewellery-demo
+- `finish_film.py`: Finish the jewellery demo film for showing to shop owners: 1080x1920 with a sound bed and an end card.
+- `prompt-seedance-12s.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
+- `prompt-seedance-4s-test.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
+
+## ads/misfits/jewellery-demo/refs
+- media: 2 .jpg
+
+## ads/misfits/jewellery-demo/takes
+- media: 1 .mp4
+
 ## ads/misfits/last-one-reel
 - `post.py`: Post for "The last one doesn't fit": sound design + text overlays + final encode.
 - `scene.py`: Misfits reel #2, "The last one doesn't fit" — Blender scene, built and rendered from this script.
@@ -540,6 +551,7 @@ flowchart LR
 - `README.md`: Creator studies
 - `higgsfield-seedance-ex-nihilo.md`: Higgsfield: Seedance 2.5 luxury product film (Ex Nihilo "Blue Talisman")
 - `prada-green-glass-reflections.md`: "Even glass reflections can look this real" — Prada green-glass perfume breakdown (Instagram reel)
+- `seedance-jewelry-snake-bracelet.md`: Seedance 2.5 jewelry film: gold snake bracelet (reel "Comment SNAKE…", creator not named in the file)
 
 ## scripts
 - `check_limits.py`: Check ad copy files against platform character limits.
