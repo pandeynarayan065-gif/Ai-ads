@@ -103,6 +103,26 @@ img,video{max-width:100%;display:block}
 .demo{display:grid;grid-template-columns:360px 1fr;gap:56px;align-items:start;margin-top:44px}
 .film{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:9/16;background:var(--panel);border:1px solid var(--line)}
 .film img,.film video{width:100%;height:100%;object-fit:cover}
+.player video{display:block;cursor:pointer}
+.player .big{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(11,12,10,0) 40%,rgba(11,12,10,.55));border:0;cursor:pointer;color:var(--paper);transition:opacity .25s}
+.player .big span{width:84px;height:84px;border-radius:50%;background:var(--fit);color:var(--on-fit);display:grid;place-items:center;box-shadow:0 0 0 10px rgba(139,211,70,.18),0 10px 40px rgba(0,0,0,.5);transition:transform .2s}
+.player .big:hover span{transform:scale(1.07)}
+.player .big svg{width:30px;height:30px;margin-left:5px}
+.player .label{position:absolute;left:16px;top:16px;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;background:rgba(11,12,10,.7);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--paper)}
+.player .bar{position:absolute;left:10px;right:10px;bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(11,12,10,.72);backdrop-filter:blur(10px);border:1px solid var(--line);opacity:0;transform:translateY(6px);transition:.25s}
+.player.on .bar,.player:hover .bar,.player:focus-within .bar{opacity:1;transform:none}
+.player.on .big{opacity:0;pointer-events:none}
+.player .bar button{flex:none;width:34px;height:34px;border-radius:10px;border:0;background:transparent;color:var(--paper);display:grid;place-items:center;cursor:pointer}
+.player .bar button:hover{background:var(--panel2)}
+.player .bar svg{width:18px;height:18px}
+.player .track{flex:1;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.player .track i{display:block;position:relative;width:100%;height:4px;border-radius:4px;background:rgba(236,237,232,.22)}
+.player .track b{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;background:var(--fit)}
+.player .time{font:600 11px var(--mono);color:var(--soft);min-width:58px;text-align:right}
+.player .q{font:700 10px var(--mono);letter-spacing:.08em;color:var(--fit)!important;width:auto!important;padding:0 6px}
+.dl{display:inline-flex;align-items:center;gap:8px;margin:14px 0 0;color:var(--soft);font:600 13px var(--mono);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px}
+.dl:hover{color:var(--fit)}
+.player:fullscreen{border-radius:0;border:0;aspect-ratio:auto;background:#000}.player:fullscreen video{object-fit:contain}
 .film .soon{position:absolute;inset:auto 14px 14px;background:rgba(11,12,10,.82);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
 .film .soon b{color:var(--fit);font:700 12px var(--mono);letter-spacing:.12em;text-transform:uppercase}
 .film .soon p{margin:4px 0 0;font-size:15px}
@@ -253,7 +273,22 @@ footer .end{font:400 clamp(30px,4.4vw,52px)/1.05 var(--serif);font-style:italic;
   <h2>From what remains</h2>
   <p class="lead">Fifteen seconds built on the meaning you wrote for the design: destruction, then rebirth. Made from the product photos on your site: no samples, no studio, no shoot. Every frame looks like a real crew filmed it, and your hoodie is the hero of every one.</p>
   <div class="demo">
-    <div class="film" id="filmBox"><video src="media/death-glory-film.mp4" poster="media/death-glory-poster.jpg" controls playsinline preload="metadata" aria-label="Death &amp; Glory film for Avrana, 15 seconds, with sound"></video></div>
+    <div>
+      <div class="film player" id="filmBox">
+        <video src="media/death-glory-film.mp4" data-hd="media/death-glory-film.mp4" data-uhd="media/avrana-death-glory-4k.mp4" poster="media/death-glory-poster.jpg" playsinline preload="metadata" aria-label="Death &amp; Glory film for Avrana, 15 seconds, with sound"></video>
+        <span class="label">Death &amp; Glory · 0:15</span>
+        <button class="big" type="button" aria-label="Play the film with sound"><span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg></span></button>
+        <div class="bar">
+          <button class="pp" type="button" aria-label="Play or pause"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+          <div class="track" role="slider" aria-label="Seek" tabindex="0"><i><b></b></i></div>
+          <span class="time">0:00 / 0:15</span>
+          <button class="mute" type="button" aria-label="Mute or unmute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+          <button class="q" type="button" aria-label="Switch quality">HD</button>
+          <button class="fs" type="button" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+        </div>
+      </div>
+      <a class="dl" href="media/avrana-death-glory-4k.mp4" download>↓ Download in 4K (2160×3840)</a>
+    </div>
     <div>
       <div class="beats">
         <div class="beat"><span class="t">0:00</span><p>The print being made: the screen lifts and the skull is there, ink still wet. Cut straight to embers crossing it. <i>The hook: nobody scrolls past it.</i></p></div>
@@ -367,5 +402,36 @@ footer .end{font:400 clamp(30px,4.4vw,52px)/1.05 var(--serif);font-style:italic;
   }
   window.addEventListener('scroll',check,{passive:true});
   setTimeout(function(){if(!done){check()}},1000);
+})();
+</script>
+<script>
+(function(){
+  var box=document.getElementById('filmBox'); if(!box) return;
+  var v=box.querySelector('video'), big=box.querySelector('.big'), pp=box.querySelector('.pp'), tr=box.querySelector('.track'),
+      fill=tr.querySelector('b'), tm=box.querySelector('.time'), mu=box.querySelector('.mute'), q=box.querySelector('.q'), fs=box.querySelector('.fs');
+  var PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+      PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+  function f(s){s=Math.max(0,s|0);return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+  function upd(){var d=v.duration||15.6;fill.style.width=(v.currentTime/d*100)+'%';tm.textContent=f(v.currentTime)+' / '+f(d)}
+  function toggle(){ if(v.paused){v.muted=false;v.play();}else v.pause(); }
+  big.addEventListener('click',toggle); v.addEventListener('click',toggle); pp.addEventListener('click',toggle);
+  v.addEventListener('play',function(){box.classList.add('on');pp.innerHTML=PAUSE});
+  v.addEventListener('pause',function(){pp.innerHTML=PLAY});
+  v.addEventListener('ended',function(){box.classList.remove('on');pp.innerHTML=PLAY});
+  v.addEventListener('timeupdate',upd); v.addEventListener('loadedmetadata',upd);
+  function seek(e){var r=tr.getBoundingClientRect();var x=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width;v.currentTime=Math.min(Math.max(x,0),1)*(v.duration||15.6);upd()}
+  var drag=false;
+  tr.addEventListener('pointerdown',function(e){drag=true;tr.setPointerCapture(e.pointerId);seek(e)});
+  tr.addEventListener('pointermove',function(e){if(drag)seek(e)});
+  tr.addEventListener('pointerup',function(){drag=false});
+  tr.addEventListener('keydown',function(e){if(e.key==='ArrowRight')v.currentTime+=1;if(e.key==='ArrowLeft')v.currentTime-=1;upd()});
+  mu.addEventListener('click',function(){v.muted=!v.muted;mu.style.opacity=v.muted?.45:1});
+  q.addEventListener('click',function(){var t=v.currentTime,p=!v.paused,uhd=q.textContent==='HD';
+    v.src=uhd?v.dataset.uhd:v.dataset.hd;q.textContent=uhd?'4K':'HD';
+    v.addEventListener('loadedmetadata',function h(){v.currentTime=t;if(p)v.play();v.removeEventListener('loadedmetadata',h)});});
+  fs.addEventListener('click',function(){var el=box;
+    if(document.fullscreenElement){document.exitFullscreen();return}
+    if(el.requestFullscreen)el.requestFullscreen();else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();});
+  document.addEventListener('keydown',function(e){if(e.code==='Space'&&box.getBoundingClientRect().top<innerHeight&&box.getBoundingClientRect().bottom>0&&box.classList.contains('on')&&e.target===document.body){e.preventDefault();toggle()}});
 })();
 </script>

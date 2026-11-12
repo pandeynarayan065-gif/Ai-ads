@@ -18,7 +18,7 @@ flowchart LR
 - `README.md`: AI Ads
 - `REPO_MAP.md`: Repo map
 - `SETUP.md`: Setup for a new chat, account or container
-- `STATUS.md`: Status (updated 4 Nov 2026)
+- `STATUS.md`: Status (updated 12 Nov 2026)
 
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
@@ -58,7 +58,7 @@ flowchart LR
 - `prompt-seedance-4s-front-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-4s-test.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Use Image 1 only f
 - `prompt-seedance-6s-macros.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
-- media: 2 .mp4
+- media: 3 .mp4
 
 ## ads/misfits/clients/avrana/demo-death-glory/takes
 - media: 3 .mp4

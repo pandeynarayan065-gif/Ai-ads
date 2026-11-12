@@ -56,3 +56,14 @@ or their mockups; kie top-up (~$5) to generate.
 ## Close
 "We'll make the free concept from your photos within 48 hours. If you like it, start with the Starter or the Sprint."
 50% upfront.
+
+## Last-minute re-check (11 Nov, before the call)
+- Still 21 products, all vendor **Apliiq** (SKUs APQ-…): 7 hoodies, 7 sweatshirts, 7 tees. Newest: Apex / House of Grace
+  sweatshirts + Apex shirt (5 Nov), three Blanks (9 Nov). All 506 variants show in stock (POD: nothing is held).
+- Prices: designed hoodies $60–79 (Death & Glory is the cheapest at $60; Apex the dearest at $75), sweatshirts $50–64,
+  tees $50–60.50. Blanks cost more than designed pieces (hoodie blank $69.99 vs Death & Glory hoodie $60; blank tee
+  $59.99). No sale / compare-at prices; the only offer is 25% off for email signup.
+- Still: no Meta pixel, TikTok pixel or Google Analytics (Klaviyo only); social icons still the theme defaults
+  (facebook.com, instagram.com, twitter.com, tiktok.com/@shopify); shipping policy and About page 404.
+- Ask: Apliiq cost per hoodie and per tee (margin decides what an ad can pay for a sale), Apliiq production + delivery
+  time (goes in the missing shipping policy), whether he's ordered a sample, whether the inside label is Avrana's.
