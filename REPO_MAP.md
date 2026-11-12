@@ -41,6 +41,7 @@ flowchart LR
 - `deploy_site.py`: Deploy the Avrana pitch site folder to https://misfits-avrana.vercel.app (Vercel token injected by the session proxy;
 - `fetch_images.py`: Download every product image from avrana.co (Shopify products.json) into product-images/<product>/NN.jpg at
 - `call-prep.md`: Avrana — call prep (Jose, Discord, Wed 11 Nov 2026, 11:00 AM CST = 10:30 PM IST)
+- `deliverables-15-day.md`: Avrana × Misfits: 15-day Content Engine (trial)
 - `prompt-log.md`: Avrana prompt log
 - media: 1 .jpg
 
