@@ -8,6 +8,7 @@
   to -14 LUFS. The bed is a placeholder: swap in the shop's choice of music with --music <file>.
 
   python3 finish_film.py <take.mp4> <out.mp4> [--store "Shop name"] [--trim 12.0] [--card 2.4] [--music track.m4a]
+         [--size 2160x3840 --audio <original take> --sharpen 0]   (for a Real-ESRGAN upscale, which has no sound)
 """
 import argparse
 import subprocess
@@ -67,17 +68,19 @@ def with_alpha(layer, a):
 
 
 def card_frames(seconds, store):
-    name = tracked(store.upper(), ImageFont.truetype(str(FONTS / "InstrumentSerif-Regular.ttf"), 84), 9)
-    if name.width > W - 140:
-        name = name.resize((W - 140, round(name.height * (W - 140) / name.width)), Image.LANCZOS)
-    rule = Image.new("RGBA", (120, 2), (214, 178, 110, 255))
-    credit = with_alpha(tracked("FILM BY MISFITS  ·  MISFITSAGENCY.IN", ImageFont.truetype(str(FONTS / "JetBrainsMono-Regular.ttf"), 24), 4), 0.6)
+    k = W / 1080  # laid out for 1080x1920, scales with --size
+    name = tracked(store.upper(), ImageFont.truetype(str(FONTS / "InstrumentSerif-Regular.ttf"), round(84 * k)), 9 * k)
+    if name.width > W - 140 * k:
+        nw = round(W - 140 * k)
+        name = name.resize((nw, round(name.height * nw / name.width)), Image.LANCZOS)
+    rule = Image.new("RGBA", (round(120 * k), max(2, round(2 * k))), (214, 178, 110, 255))
+    credit = with_alpha(tracked("FILM BY MISFITS  ·  MISFITSAGENCY.IN", ImageFont.truetype(str(FONTS / "JetBrainsMono-Regular.ttf"), round(24 * k)), 4 * k), 0.6)
     for i in range(round(seconds * FPS)):
         t = i / FPS
         f = Image.new("RGBA", (W, H), (0, 0, 0, 255))
-        f.alpha_composite(with_alpha(name, ease((t - 0.10) / 0.7)), ((W - name.width) // 2, 880 - name.height // 2))
-        f.alpha_composite(with_alpha(rule, ease((t - 0.35) / 0.6)), ((W - rule.width) // 2, 980))
-        f.alpha_composite(with_alpha(credit, ease((t - 0.7) / 0.6)), ((W - credit.width) // 2, 1700))
+        f.alpha_composite(with_alpha(name, ease((t - 0.10) / 0.7)), ((W - name.width) // 2, round(880 * k) - name.height // 2))
+        f.alpha_composite(with_alpha(rule, ease((t - 0.35) / 0.6)), ((W - rule.width) // 2, round(980 * k)))
+        f.alpha_composite(with_alpha(credit, ease((t - 0.7) / 0.6)), ((W - credit.width) // 2, round(1700 * k)))
         yield f.convert("RGB").tobytes()
 
 
@@ -119,7 +122,14 @@ def main():
     ap.add_argument("--card", type=float, default=2.4)
     ap.add_argument("--music", help="use this track instead of the built-in bed")
     ap.add_argument("--crf", type=int, default=18)
+    ap.add_argument("--size", default="1080x1920")
+    ap.add_argument("--audio", help="take the sound (and the cut times) from this file, e.g. the original take")
+    ap.add_argument("--sharpen", type=float, default=0.5, help="unsharp amount; 0 for an upscaled source")
+    ap.add_argument("--maxrate", help="cap the video bitrate, e.g. 60M for a 4K master")
     args = ap.parse_args()
+    global W, H
+    W, H = (int(v) for v in args.size.split("x"))
+    snd = args.audio or args.take
     T = args.trim or duration(args.take)
     C = args.card
     with tempfile.TemporaryDirectory() as tmp:
@@ -133,16 +143,17 @@ def main():
         enc.wait()
         music = args.music
         if not music:
-            bed(bedf, T + C, cuts(args.take, T), T)
+            bed(bedf, T + C, cuts(snd, T), T)
             music = str(bedf)
-        fc = (f"[0:v]trim=0:{T},setpts=PTS-STARTPTS,fps={FPS},scale={W}:{H}:flags=lanczos,unsharp=5:5:0.5,"
+        fc = (f"[0:v]trim=0:{T},setpts=PTS-STARTPTS,fps={FPS},scale={W}:{H}:flags=lanczos,{f'unsharp=5:5:{args.sharpen},' if args.sharpen else ''}"
               f"format=yuv420p,setsar=1[v0];[1:v]fps={FPS},format=yuv420p,setsar=1[v1];[v0][v1]concat=n=2:v=1:a=0[v];"
-              f"[0:a]atrim=0:{T},asetpts=PTS-STARTPTS,aresample={SR},aformat=channel_layouts=stereo,volume=0.8,"
+              f"[3:a]atrim=0:{T},asetpts=PTS-STARTPTS,aresample={SR},aformat=channel_layouts=stereo,volume=0.8,"
               f"apad=whole_dur={T + C},afade=t=out:st={T - 0.2}:d=1.0[a0];"
               f"[2:a]aresample={SR},aformat=channel_layouts=stereo,atrim=0:{T + C},afade=t=out:st={T + C - 1.2}:d=1.2[a1];"
               f"[a0][a1]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample={SR},atrim=0:{T + C}[a]")
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", args.take, "-i", str(card), "-i", music,
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", args.take, "-i", str(card), "-i", music, "-i", snd,
                         "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", str(args.crf),
+                        *(["-maxrate", args.maxrate, "-bufsize", str(int(args.maxrate.rstrip("M")) * 2) + "M"] if args.maxrate else []),
                         "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "256k", "-movflags",
                         "+faststart", args.out], check=True)
     print(f"Saved {args.out}: {T:.2f} s film + {C:.1f} s card at {W}x{H}")
