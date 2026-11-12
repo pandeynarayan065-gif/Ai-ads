@@ -150,7 +150,7 @@ flowchart LR
 - `captions.md`: Jewellery demo: reel captions
 - `prompt-seedance-12s.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
 - `prompt-seedance-4s-test.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
-- media: 3 .mp4; deliverables: `misfits-jewellery-demo-4k.mp4`, `misfits-jewellery-demo.mp4`, `misfits-jewellery-showcase.mp4`
+- media: 4 .mp4; deliverables: `misfits-jewellery-demo-4k.mp4`, `misfits-jewellery-demo.mp4`, `misfits-jewellery-showcase-4k.mp4`, `misfits-jewellery-showcase.mp4`
 
 ## ads/misfits/jewellery-demo/refs
 - media: 2 .jpg
