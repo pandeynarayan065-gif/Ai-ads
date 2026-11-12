@@ -148,7 +148,7 @@ flowchart LR
 - `finish_film.py`: Finish the jewellery demo film for showing to shop owners: 1080x1920 with a sound bed and an end card.
 - `prompt-seedance-12s.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
 - `prompt-seedance-4s-test.md`: Image 1 is the product photo of the necklace, worn on a linen display bust. Image 2 is a close detail of the f
-- media: 1 .mp4; deliverables: `misfits-jewellery-demo.mp4`
+- media: 2 .mp4; deliverables: `misfits-jewellery-demo-4k.mp4`, `misfits-jewellery-demo.mp4`
 
 ## ads/misfits/jewellery-demo/refs
 - media: 2 .jpg
