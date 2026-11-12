@@ -68,7 +68,7 @@ flowchart LR
 - media: 3 .mp4
 
 ## ads/misfits/clients/avrana/demo-game-cutscene
-- `prompt-seedance-15s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-18s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 
 ## ads/misfits/clients/avrana/product-images
 - media: 1 .png
