@@ -14,7 +14,7 @@ Open work, newest first. Each project's `plan.md` has the details; finished mast
   account, purpose code P1007), pending.
 - **Death & Glory demo film: final.** `demo-death-glory/avrana-death-glory-film.mp4` (1080p) and `-4k.mp4`; 120 MB
   master `-4k-master.mp4` local only. Live on https://misfits-avrana.vercel.app (`deploy_site.py`).
-- **Game-cutscene ad (in progress, on Higgsfield):** `demo-game-cutscene/prompt-seedance-18s-night-3refs.md` (night luxury skyline; older day version: `-rooftop-4refs.md`) with
+- **Game-cutscene ad (in progress, on Higgsfield):** `demo-game-cutscene/prompt-seedance-18s-epic-night.md` (2 refs only; night skyline, epic rain-and-backlight look; earlier: `-night-3refs.md`; older day version: `-rooftop-4refs.md`) with
   refs 1 hoodie back, 2 hoodie front, 3 `refs/3-style-reference.jpg`, 4 `refs/4-background-reference.jpg`.
   Takes so far in `demo-game-cutscene/takes/` (both rejected: low-poly toy look, fantasy village). Original
   characters only (no Jin Kazama / Dante likeness: it's a paid client ad).
