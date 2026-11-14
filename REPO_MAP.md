@@ -23,6 +23,11 @@ flowchart LR
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
 
+## ads/avrana/hoodie-reel
+- `add_captions.py`: Burn-in captions for the Avrana hoodie reel (Narayan, 14 Nov 2026: "Add captions like this and the website is
+- `plan.md`: Avrana hoodie reel: captions
+- media: 2 .mp4
+
 ## ads/jpg-spec/ultra-male-12s
 - `edit_ultra_male.py`: Ultra Male spec edit, frame-exact, from the take and its inserts (Narayan, 4-5 Nov).
 - `plan.md`: Jean Paul Gaultier Ultra Male — 12 s portfolio spec ad (ad 3)
