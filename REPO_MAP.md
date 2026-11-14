@@ -15,10 +15,11 @@ flowchart LR
 
 ## (root)
 - `CLAUDE.md`: AI Ads Workspace
+- `HANDOFF.md`: Handoff for a new chat (last updated 14 Nov 2026)
 - `README.md`: AI Ads
 - `REPO_MAP.md`: Repo map
 - `SETUP.md`: Setup for a new chat, account or container
-- `STATUS.md`: Status (updated 12 Nov 2026)
+- `STATUS.md`: Status (updated 14 Nov 2026)
 
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
@@ -70,7 +71,15 @@ flowchart LR
 
 ## ads/misfits/clients/avrana/demo-game-cutscene
 - `prompt-seedance-18s-fighter.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-18s-rooftop-4refs.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-18s-rooftop.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+
+## ads/misfits/clients/avrana/demo-game-cutscene/refs
+- media: 2 .jpg
+
+## ads/misfits/clients/avrana/demo-game-cutscene/takes
+- media: 2 .mp4
 
 ## ads/misfits/clients/avrana/product-images
 - media: 1 .png
