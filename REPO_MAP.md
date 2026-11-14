@@ -38,6 +38,7 @@ flowchart LR
 - media: 9 .mp4
 
 ## ads/misfits
+- `higgsfield-batch.md`: Higgsfield Ultra batch (bought 14 Nov 2026, sale price $79)
 - `prompt-log.md`: Misfits prompt log (own demos and spec work)
 
 ## ads/misfits/clients/avrana
