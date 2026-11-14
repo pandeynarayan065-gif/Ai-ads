@@ -9,7 +9,7 @@ Open work, newest first. Each project's `plan.md` has the details; finished mast
 - **Deal agreed:** 15-day Content Engine, USD 200 (100 now on invoice INV-002, 100 on day 8): 7 video ads 15-30 s,
   7 statics + 2 carousels, calendar, day-15 call. Deliverables: `ads/misfits/clients/avrana/deliverables-15-day.md`.
   Service agreement sent (signed as Anirudh Savaliya; money-back terms, video 1 delivered watermarked until Jose OKs it).
-- **Payment: not received yet** (as of 14 Nov). Jose pays via Wise (Wise-to-Wise by Anirudh's email, or UPI from
+- **Payment: Jose says the first USD 100 is sent** (15 Nov, ~2:42 am IST, Wise to Anirudh's UPI). Confirm it has landed in Kotak (ACH funding can take 1-2 business days). Jose pays via Wise (Wise-to-Wise by Anirudh's email, or UPI from
   Wise). Day 1 = payment received; video 1 due within 24 h after that. Razorpay international applied for (Misfits
   account, purpose code P1007), pending.
 - **Death & Glory demo film: final.** `demo-death-glory/avrana-death-glory-film.mp4` (1080p) and `-4k.mp4`; 120 MB
