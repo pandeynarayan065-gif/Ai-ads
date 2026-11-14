@@ -32,8 +32,8 @@ CAPTIONS = [
     (15.38, "where'd you get it"),
     (16.20, "www.avrana.co"),
 ]
-SIZE = 0.064          # font size, fraction of frame width
-MAX_W = 0.84          # wrap width, fraction of frame width
+SIZE = 0.058          # font size, fraction of frame width
+MAX_W = 0.70          # wrap width, fraction of frame width (0.84 ran edge to edge: "not ideal")
 CENTRE_Y = 0.74       # caption block centre, fraction of frame height
 
 
