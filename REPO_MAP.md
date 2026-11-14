@@ -74,6 +74,7 @@ flowchart LR
 - `prompt-seedance-18s-fighter.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s-night-3refs.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s-panther-lounge.md`: Image 1 is Avrana's official product photo of a black hoodie from the back. Image 2 is Avrana's official produ
+- `prompt-seedance-18s-panther-party.md`: Image 1 is Avrana's official product photo of a black hoodie from the back. Image 2 is Avrana's official produ
 - `prompt-seedance-18s-rooftop-4refs.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s-rooftop.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
