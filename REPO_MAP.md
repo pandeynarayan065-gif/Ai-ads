@@ -78,6 +78,7 @@ flowchart LR
 - `prompt-seedance-18s-rooftop-4refs.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s-rooftop.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
 - `prompt-seedance-18s.md`: Image 1 is Avrana's official product photo of the black Death & Glory hoodie from the back. Image 2 is Avrana'
+- `prompt-seedance-20s-artist-v2.md`: Image 1 is Avrana's official product photo of a black hoodie from the back. Image 2 is Avrana's official produ
 - media: 1 .mp4
 
 ## ads/misfits/clients/avrana/demo-game-cutscene/refs
