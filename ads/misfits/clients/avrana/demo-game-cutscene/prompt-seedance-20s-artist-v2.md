@@ -8,7 +8,7 @@ Hard cuts only throughout: every shot is a completely separate camera setup. No 
 
 Setting, inherited by every shot: a loft art studio with whitewashed brick walls, tall factory windows with warm late-afternoon sun pouring through in long beams, dust in the light, pencil sketches of deer and animals pinned to the walls, canvases leaning in stacks, an easel, a worn black leather armchair, paint jars on a wooden table, a concrete floor with paint marks.
 
-Audio, inherited by every shot: <Hero> speaks every line himself in English, a calm, low, sincere voice, close and clear. He always pronounces the brand name Avrana as AV-rah-nuh: the first A as in "have", stress on the first syllable, never "AH-vrah-nuh". One other voice, once: a younger man calling out from off screen in the fifth shot. Under it: soft room tone, a pencil on paper, distant city outside. No music.
+Audio, inherited by every shot: <Hero> speaks every line himself in English, a calm, low, sincere voice, close and clear. He always pronounces the brand name Avrana as AV-rah-nuh: the first A sounds like the a in the word have, stress on the first syllable, never AH-vrah-nuh. One other voice, once: a younger man calling out from off screen in the fifth shot. Under it: soft room tone, a pencil on paper, distant city outside. No music.
 
 Never render: any text, letters, numbers, subtitles, captions or logos anywhere except the emblem on the chest of <Subject 1>, which matches Image 2 exactly; a misspelled or redrawn emblem; a changed deer artwork; the deer artwork on the front or the emblem on the back; a second person on screen.
 
