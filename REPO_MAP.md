@@ -50,6 +50,9 @@ flowchart LR
 - `prompt-log.md`: Avrana prompt log
 - media: 1 .jpg
 
+## ads/misfits/clients/avrana/apex-editorial
+- media: 1 .mp4
+
 ## ads/misfits/clients/avrana/demo-death-glory
 - `deflicker_subject.py`: Take the glow flashes off the print in a Seedance take, shot by shot.
 - `finish_film.py`: Finish the Death & Glory demo film for Avrana: a 1080x1920 master with an end card.
