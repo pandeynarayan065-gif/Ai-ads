@@ -1,0 +1,23 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 720
+PlayResY: 1280
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Sub,Inter,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,3.6,2,2,50,50,320,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.46,0:00:02.55,Sub,,0,0,0,,I've drawn every day
+Dialogue: 0,0:00:02.58,0:00:03.69,Sub,,0,0,0,,since I was a kid.
+Dialogue: 0,0:00:04.48,0:00:05.89,Sub,,0,0,0,,Nobody saw a single page,
+Dialogue: 0,0:00:06.02,0:00:07.43,Sub,,0,0,0,,so, done.
+Dialogue: 0,0:00:08.70,0:00:09.47,Sub,,0,0,0,,Turns out I just needed
+Dialogue: 0,0:00:09.50,0:00:10.61,Sub,,0,0,0,,a different canvas.
+Dialogue: 0,0:00:11.38,0:00:13.45,Sub,,0,0,0,,Avrana, made by artists,
+Dialogue: 0,0:00:13.60,0:00:14.55,Sub,,0,0,0,,for artists.
+Dialogue: 0,0:00:14.78,0:00:15.85,Sub,,0,0,0,,Now I wear my art.
+Dialogue: 0,0:00:16.08,0:00:17.31,Sub,,0,0,70,,That hoodie looks sick, dude,
+Dialogue: 0,0:00:17.34,0:00:18.29,Sub,,0,0,70,,where'd you get it?
+Dialogue: 0,0:00:18.40,0:00:19.99,Sub,,0,0,0,,Get yours at avrana.co
