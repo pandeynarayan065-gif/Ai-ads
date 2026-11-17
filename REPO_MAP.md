@@ -23,10 +23,35 @@ flowchart LR
 ## ads
 - `_shot-template.md`: Shot <nn>: <slug>
 
+## ads/avrana
+- `prompt-log.md`: Avrana prompt log
+
+## ads/avrana/death-glory-12s
+- `prompt-seedance-12s.md`: Image 1 is Avrana's official product photo of the real black hoodie, front view. Use Image 1 only for the hood
+
+## ads/avrana/death-glory-12s/film
+- `00-brief.md`: 00 Brief: avrana / death-glory-12s
+- `00-reverse.md`: 00 Reverse: refs/ref-video-hoodie-reel-20261114.mp4
+- `01-research.md`: 01 Research: avrana / death-glory-12s
+- `02-story.md`: 02 Story: avrana / death-glory-12s
+- `03-storyboard.md`: 03 Storyboard: avrana / death-glory-12s — 12 s, 10 shots
+- `04-director.md`: 04 Director review: avrana / death-glory-12s
+- `05-dop.md`: 05 DoP: avrana / death-glory-12s
+- `06-prompt.md`: 06 Prompt: avrana / death-glory-12s — version 2
+- `07-reality-r1.md`: 07 Reality check, round 1: prompt-seedance-12s.md (version 1)
+- `07-reality-r2.md`: 07 Reality check, round 2: prompt-seedance-12s.md (version 2)
+- `page.md`: avrana / death-glory-12s — ready for your yes (crew test: NOT to be generated)
+
+## ads/avrana/death-glory-12s/refs
+- media: 5 .jpg, 1 .mp4
+
 ## ads/avrana/hoodie-reel
 - `add_captions.py`: Burn-in captions for the Avrana hoodie reel (Narayan, 14 Nov 2026: "Add captions like this and the website is
 - `plan.md`: Avrana hoodie reel: captions
 - media: 2 .mp4
+
+## ads/jpg-spec
+- `prompt-log.md`: Jean Paul Gaultier (spec) prompt log
 
 ## ads/jpg-spec/ultra-male-12s
 - `edit_ultra_male.py`: Ultra Male spec edit, frame-exact, from the take and its inserts (Narayan, 4-5 Nov).
@@ -42,6 +67,9 @@ flowchart LR
 ## ads/jpg-spec/ultra-male-12s/takes
 - media: 9 .mp4
 
+## ads/redbull-spec
+- `prompt-log.md`: Red Bull (spec) prompt log
+
 ## ads/redbull-spec/cinematic-12s
 - `clean_logos.py`: Paint out the stray marks Seedance put on the Red Bull take (takes/20261104-192915-1.mp4), frame by frame:
 - `edit_redbull.py`: Red Bull spec edit: the cleaned take minus the cliff dive (Narayan, 4 Nov: "Remove this shot from redbull").
@@ -54,6 +82,9 @@ flowchart LR
 
 ## ads/redbull-spec/cinematic-12s/takes
 - media: 1 .jpg, 2 .mp4
+
+## ads/samsung-spec
+- `prompt-log.md`: Samsung (spec) prompt log
 
 ## ads/samsung-spec/fold8-ultra-12s
 - `add_opener.py`: Samsung spec edit v2: the iPhone Duo opener in front of the v1 edit (Narayan, 4 Nov: "create the clip before shot 1
@@ -324,8 +355,12 @@ flowchart LR
 
 ## brand
 - `_template.md`: Brand: <Name>
+- `avrana.md`: Avrana
 - `misfits.md`: Brand: Misfits
 - `spraymax.md`: Brand: Spraymax
+
+## brand/avrana
+- `product-lock.md`: Avrana product lock: Death & Glory Hoodie (black)
 
 ## brand/misfits
 - `build_brand.py`: Misfits brand kit: logo (SVG), social and web assets (HTML -> PNG via render.js), palette.
@@ -357,6 +392,7 @@ flowchart LR
 
 ## briefs
 - `2026-10-05-himalayan-launch.md`: Brief: Himalayan Launch (spec ad / pitch)
+- `2026-11-17-avrana-death-glory.md`: Brief: Avrana — Death & Glory hoodie film (crew test)
 - `_template.md`: Brief: <Campaign name>
 
 ## reference
@@ -367,6 +403,7 @@ flowchart LR
 - `output-format.md`: Ads File Format
 - `platform-specs.md`: Platform Text Specs
 - `quick.md`: AI video and stills: quick reference
+- `seedance-rules.md`: Seedance 2.5 rulebook (the film crew's single source)
 
 ## reference/creators
 - `0xroas.md`: @0xROAS ("0x ROAS"): AI UGC ads (Sora 2, Seedance 2.0/2.5, Veo 3.1, lipsync stacks)
