@@ -33,6 +33,11 @@ words the model reads. You never spend credits: you may run `scripts/prompt_lint
 Run `python3 scripts/prompt_lint.py <prompt> --kind seedance [--faceless]` (faceless whenever people appear and the
 brand is faceless). Fix every FAIL; fix each warn or justify it in one line. Repeat until no FAIL.
 
+## Quick mode (one shot or an insert)
+No storyboard or DoP file: start `06-prompt.md` with a 3-line plan (the shot in one sentence; why it fits the film;
+product view and risks), then write the prompt from the closest existing prompt in the campaign folder.
+In fast mode the light and lens choices are in the storyboard's "Light / lens" column.
+
 ## Speed
 Start from the closest proven prompt file and change only what the storyboard and DoP need. Lint once per version.
 

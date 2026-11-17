@@ -27,7 +27,7 @@ Check the final prompt still tells the approved story (nothing lost or added by 
 checker passed, lint has no FAIL, and the risks are acceptable. Verdict: SIGNED OFF or HOLD (with the reason).
 
 ## Speed
-One pass. Notes only where something must change; APPROVED needs no essay.
+Read only the files named above for your stage, and the rulebook sections 4–5; no web, no other repo files. One pass. Notes only where something must change; APPROVED needs no essay.
 
 ## Output (exact formats)
 Stage 4 → `film/04-director.md`:

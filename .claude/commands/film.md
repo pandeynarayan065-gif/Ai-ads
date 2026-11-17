@@ -1,6 +1,6 @@
 ---
-description: Run the Seedance 2.5 film crew (research → story → storyboard → director → DoP → prompt → reality check → sign-off) and show one page with the storyboard, final prompt, lint, cost and risks. Never spends credits.
-argument-hint: <brand> <campaign> <idea> [length s] [reference files]
+description: Run the Seedance 2.5 film crew and show one page with the storyboard, final prompt, lint, cost and risks. Modes - quick (one insert shot, ~3 min), fast (default film, ~6-8 min), full (all 8 stages incl. web research and director review). Never spends credits.
+argument-hint: <brand> <campaign> <idea> [quick|fast|full] [length s] [reference files]
 ---
 Run the film crew for: $ARGUMENTS
 
@@ -26,12 +26,29 @@ Their shared rulebook is `reference/seedance-rules.md`. Work folder: `ads/<brand
 - Write `film/00-brief.md`: brand, campaign, idea in his words, length, resolution, platform, references (copied into
   `ads/<brand>/<campaign>/refs/` if he attached them), budget = current credits if known, what is in/out.
 
-## Speed (Narayan: "make them faster")
+## Modes (Narayan: "FASTER BRO AM NOT GONNA WAIT THIS LONG FOR EACH GENERATION")
+Pick the lightest mode that fits; say which one you used on the page.
+
+| Mode | When | Stages | Time |
+|---|---|---|---|
+| `quick` | One shot or a 4–6 s insert into an existing film | prompt-engineer (writes a 3-line shot plan + the prompt) → reality-checker (1 round; 1 rewrite max) → spend gate | ~3 min |
+| `fast` (default) | A new film for a brand we already know | storyboard-artist (story + shots + light/lens columns in one file) → prompt-engineer → reality-checker (≤2 rounds) → spend gate; director signs off in parallel with the spend gate | ~6–8 min |
+| `full` | New brand, new category, or Narayan asks for research | every stage below | ~15–20 min |
+
+In `fast`, the storyboard artist writes `03-storyboard.md` with the hook and the one feeling at the top and a light/lens
+column, so `02-story.md` and `05-dop.md` are skipped; the prompt engineer reads the DoP choices from the storyboard.
+In `quick`, the prompt engineer works from the brief, the existing film's prompt and the rulebook, and writes the plan at
+the top of `06-prompt.md`. Reference decoding (`reverse-engineer` job a) runs in parallel in any mode when Narayan gives
+references.
+
+## Speed
 - Independent stages run in parallel (research ∥ reverse; director review ∥ DoP). Spawn them in one message.
 - `fast` in the arguments: the researcher skips the web and works from the rulebook and `reference/creators/`.
 - Give each agent a one-paragraph prompt (brand, campaign, folder, what's different); its file holds the rules.
 - Lighter stages (researcher, story, storyboard, DoP) run on a faster model; prompt engineer, reality checker,
   director and reverse engineer keep the main model.
+
+## Full mode, stage by stage
 
 ## 1. Research ∥ reverse (parallel)
 Spawn in one message, in the background:

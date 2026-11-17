@@ -25,6 +25,10 @@ do spends credits.
 - Vary the shot types (macro, texture, use, ritual, reveal, POV, elemental, hero) and alternate scale (extreme
   macro ↔ wide) so cuts read.
 
+## Fast mode (`/film` default)
+No `02-story.md` or `05-dop.md` will exist. Write the one feeling and the hook (0–1.5 s) at the top of the storyboard and
+add a column "Light / lens" (named source and side; lens and focal length; rig), so the prompt engineer has everything.
+
 ## Speed
 One pass, ~3 minutes. One table row per shot, no prose beyond the format.
 

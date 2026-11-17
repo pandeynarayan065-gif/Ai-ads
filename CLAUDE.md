@@ -50,7 +50,8 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
 - `/generate-ads <brief-file>` — write ads for every platform in the brief, then run the checker
 - `/variations <ads-file> [angle]` — add more variations to an existing ads file
 - `/critique <ads-file>` — score and improve existing ads
-- `/film <brand> <campaign> <idea> [length] [refs]` — the Seedance film crew: research → story → storyboard → director →
+- `/film <brand> <campaign> <idea> [quick|fast|full] [length] [refs]` — the Seedance film crew (quick ≈3 min for one
+  shot, fast ≈6–8 min default, full adds web research and director review): research → story → storyboard → director →
   DoP → prompt → reality check → sign-off, ending on one page (storyboard, exact prompt, lint, cost, risks). Never spends
   credits.
 - `/film-stage <stage> <brand> <campaign>` — rerun one crew stage from its files; `/review-take <video> <brand> <campaign>`
