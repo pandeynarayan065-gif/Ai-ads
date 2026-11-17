@@ -4,6 +4,9 @@ argument-hint: <brand> <campaign> <shot idea>
 ---
 Make one AI shot: $ARGUMENTS
 
+For any Seedance 2.5 generation (a film or a single insert) use `/film` instead: every Seedance prompt goes through
+the film crew (`.claude/agents/`, rulebook `reference/seedance-rules.md`). `/shot` remains for Nano Banana stills.
+
 1. Read `reference/quick.md`, `brand/<brand>/product-lock.md`, `brand/<brand>/preferences.md` (if there is
    one) and the newest rows of `ads/<brand>/prompt-log.md`. Read the campaign's `edit-plan.md` or `notes.txt` too,
    if there is one. Open `reference/ai-video-playbook.md` or `reference/ai-video-qa.md` only for a section

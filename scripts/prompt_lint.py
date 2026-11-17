@@ -13,6 +13,10 @@ Usage:
 --faceless  the brand needs faceless people: fail if a person appears without a face rule
 --sd        Seedance version (default 2.5); 2.0 ignores timestamps and only follows "Shot N"
 
+Seedance checks also follow reference/seedance-rules.md: runs over 30 s fail; print-bearing surfaces not stated blank,
+a lying product, a hand over the product, a reflection-only reference, a slow-mo ending, real brands/characters and
+NSFW-trigger words warn (each maps to a failure we paid for).
+
 FAIL = fix before the dry run. WARN = look again. Exit code 1 if anything fails.
 The rules and their sources are in reference/ai-video-playbook.md.
 """
@@ -54,6 +58,24 @@ MATERIALS = r"\b(plastic|glass|wool|slate|marble|metal|chrome|frosted|matte|glos
 PERSON = r"\b(man|woman|he|she|his|her|person|guy|girl|boy|climber|mountaineer|people)\b"
 FACE_RULE = r"\bfaces?\b|faceless|from behind|back of (his|her) head|never turns|cropped (below|above)|hands only"
 WATER_AUDIO = r"\b(water|wave|waves|splash\w*|bubbl\w*|echo\w*|drip\w*|pour\w*|ocean|sea)\b"
+# film-crew checks (reference/seedance-rules.md): what Seedance 2.5 has got wrong for us
+# surfaces that carry print in life (the product's own label and cap come from the refs, so they are not listed)
+PRINT_SURFACES = r"\b(chips?|gloves?|wingsuits?|jerseys?|helmets?|race suits?|signs?|billboards?|screens?|displays?|" \
+                 r"posters?|books?|newspapers?|packaging|boxes|tins?|t-?shirts?|sweatshirts?|banners?|flags?|receipts?|menus?)\b"
+BLANK = r"\b(blank|plain|unmarked|abstract|gradient|no (readable )?(text|markings|logos?|letters|print|ui)|" \
+        r"without (text|markings|logos?))\b"
+IP_WORDS = [r"\bdisney\b", r"\bpixar\b", r"\bmarvel\b", r"\bdc comics\b", r"\bspider-?man\b", r"\bbatman\b",
+            r"\bsuperman\b", r"\bmickey\b", r"\bpokemon\b", r"\bpikachu\b", r"\bnaruto\b", r"\bgoku\b", r"\bmario\b",
+            r"\btekken\b", r"\bjin kazama\b", r"\bdevil may cry\b", r"\bstar wars\b", r"\bharry potter\b",
+            r"\bghibli\b", r"\bin the style of\b", r"\blooks like (a |the )?(famous|celebrity)", r"\bcelebrity\b",
+            r"\bnike\b", r"\badidas\b", r"\bgucci\b", r"\blouis vuitton\b", r"\bsupreme\b", r"\bcoca-?cola\b"]
+NSFW = [r"\bnude\b", r"\bnaked\b", r"\btopless\b", r"\bshirtless\b", r"\bbare[- ]chested\b", r"\bsexy\b",
+        r"\bsensual\b", r"\bseductive\b", r"\blingerie\b", r"\bbikini\b", r"\bunderwear\b", r"\bblood\w*",
+        r"\bgore\b", r"\bgun\b", r"\bweapon\w*", r"\bknife\b", r"\bdrugs?\b", r"\bchild\b", r"\bkids?\b",
+        r"\bteen\w*\b"]
+LYING = r"\b(lies|lying|on its side|laid down|lays? flat)\b"
+HAND_OVER = r"\bhand\w* (passes|passing|slides?|sliding|wipes?|wiping|sweeps?) (over|across)"
+REFLECT_REF = r"image ?\d[^.]{0,80}\b(only )?for (the |a )?reflection"
 
 
 def unnegated(pattern, text):
@@ -165,6 +187,39 @@ def lint(path, kind, faceless, sd):
                 warns.append("water/wave/echo words in the sound line make Seedance audio bubble or whistle; "
                              "ask for no BGM and add liquid SFX in post")
                 break
+    if kind == "seedance":
+        stamps = [int(m.group(1)) * 60 + float(m.group(2)) for m in re.finditer(r"\[(\d\d):(\d\d(?:\.\d)?)\]", text)]
+        if stamps and max(stamps) >= 30:
+            fails.append(f"timestamp {max(stamps):.1f} s: one Seedance 2.5 run is 4-30 s on kie (20 s on Higgsfield)")
+        printy, lying, hands = {}, [], []
+        for name, block in shots:
+            if not re.search(BLANK, block, flags=re.I):
+                for m in re.finditer(PRINT_SURFACES, block, flags=re.I):
+                    printy.setdefault(m.group(0).lower(), []).append(name)
+            if unnegated(LYING, block):
+                lying.append(name)
+            if unnegated(HAND_OVER, block):
+                hands.append(name)
+        for word, where in printy.items():
+            warns.append(f'"{word}" ({", ".join(dict.fromkeys(where))}): carries print in real life and Seedance writes '
+                         f"fake text there (Samsung chip, Red Bull gloves); say in the shot that it is blank/plain")
+        if lying:
+            warns.append(f"product lies down ({', '.join(lying)}): Seedance stands products upright; use a reference "
+                         f"photographed lying down or a first frame where it already lies, and trim upright moments")
+        if hands:
+            warns.append(f"a hand moves over the product ({', '.join(hands)}): it swells or morphs under the hand")
+        if re.search(REFLECT_REF, text, flags=re.I):
+            warns.append("a reference used only for a reflection gets pasted in flat: describe the reflection in "
+                         "words and leave that reference out")
+        if shots and re.search(r"slow[- ]?motion|slowed|freeze|frozen|\d{3,4} ?fps", shots[-1][1], flags=re.I):
+            warns.append("slow motion or a freeze in the last shot: end in real time (Narayan: no slow-mo endings)")
+    for p in IP_WORDS:
+        for h in unnegated(p, text):
+            warns.append(f'"{h}": real brand, character or likeness. Allowed only for the brand being advertised '
+                         f"(spec ads from its own photos); never copyrighted characters or look-alikes")
+    for p in NSFW:
+        for h in unnegated(p, text):
+            warns.append(f'"{h}": can trip the model\'s safety filter or the platform; rephrase')
     if faceless and unnegated(PERSON, text) and not re.search(FACE_RULE, text, flags=re.I):
         fails.append("a person appears with no face rule: say 'seen from behind, face never visible' (or crop to hands)")
 
