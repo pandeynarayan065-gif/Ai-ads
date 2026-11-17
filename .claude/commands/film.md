@@ -4,8 +4,10 @@ argument-hint: <brand> <campaign> <idea> [length s] [reference files]
 ---
 Run the film crew for: $ARGUMENTS
 
-Every Seedance 2.5 generation goes through this crew. The crew is in `.claude/agents/`; their shared rulebook is
-`reference/seedance-rules.md`. Work folder: `ads/<brand>/<campaign>/film/`.
+Every Seedance 2.5 generation goes through this crew. Spawn each agent by its name (`subagent_type`). Agents in
+`.claude/agents/` register when a session starts: if one isn't found (files added mid-session), spawn
+`general-purpose` with "You are the film crew's `<name>` agent. Read `.claude/agents/<name>.md` and follow it exactly."
+Their shared rulebook is `reference/seedance-rules.md`. Work folder: `ads/<brand>/<campaign>/film/`.
 
 ## Hard rules (never break)
 - **No credits.** The crew never runs `kie_generate.py ... --yes`. You (the main session) only run `credits` and a

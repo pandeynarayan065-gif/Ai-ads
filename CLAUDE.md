@@ -50,7 +50,12 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
 - `/generate-ads <brief-file>` — write ads for every platform in the brief, then run the checker
 - `/variations <ads-file> [angle]` — add more variations to an existing ads file
 - `/critique <ads-file>` — score and improve existing ads
-- `/shot <brand> <campaign> <shot idea>` — plan, prompt, QA and generate one AI video shot (playbook below)
+- `/film <brand> <campaign> <idea> [length] [refs]` — the Seedance film crew: research → story → storyboard → director →
+  DoP → prompt → reality check → sign-off, ending on one page (storyboard, exact prompt, lint, cost, risks). Never spends
+  credits.
+- `/film-stage <stage> <brand> <campaign>` — rerun one crew stage from its files; `/review-take <video> <brand> <campaign>`
+  — score a finished take, trace failures to prompt words, log the lesson
+- `/shot <brand> <campaign> <shot idea>` — plan, prompt and QA one Nano Banana still (Seedance goes through `/film`)
 
 ## Image generation (kie.ai)
 
@@ -63,6 +68,10 @@ Use the structure in `reference/output-format.md` so `scripts/check_limits.py` c
   quotes in the prompt. Use real product/logo photos as `--ref` images whenever available.
 
 ## AI video shots
+
+- **Every Seedance 2.5 generation goes through the film crew** (`/film`; agents in `.claude/agents/`; their shared
+  rulebook `reference/seedance-rules.md`, which holds every lesson we paid for). Seedance 2.5 is the only video model
+  (kie, 4–30 s per run; or Higgsfield on the website, up to 20 s). Stage files live in `ads/<brand>/<campaign>/film/`.
 
 - Start from `reference/quick.md` (one page). The full rules are in `reference/ai-video-playbook.md`: still first, then animate;
   one camera move and one action per shot; only things a real crew could film; image-to-video prompts describe

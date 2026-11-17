@@ -4,6 +4,14 @@ One page to read instead of the full playbook. Open `reference/ai-video-playbook
 only for something this page doesn't cover. For Spraymax, also read `brand/spraymax/preferences.md` and
 `brand/spraymax/product-lock.md`.
 
+## Seedance film crew (use it for every Seedance generation)
+
+`/film <brand> <campaign> <idea>` runs eight agents (`.claude/agents/`: researcher, reverse-engineer, story-writer,
+storyboard-artist, director, dop, prompt-engineer, reality-checker) over `reference/seedance-rules.md` and ends on
+`ads/<brand>/<campaign>/film/page.md` for Narayan's yes. `/film-stage <stage>` reruns one stage; `/review-take <video>`
+scores a take and logs the lesson. Lint now also warns on print-bearing surfaces, lying products, hands over the
+product, reflection-only refs, slow-mo endings, real brands/characters and NSFW-trigger words, and fails runs over 30 s.
+
 ## Rules that make a shot work
 
 1. **Real-crew test:** only what a real crew could film in a day (real water, wind, light, the real bottle).
@@ -20,7 +28,7 @@ only for something this page doesn't cover. For Spraymax, also read `brand/spray
 |---|---|---|
 | Still, or an edit of a frame we have | Nano Banana Pro, 2K | 18 cr |
 | Multi-shot film from real product photos | Seedance 2.5, reference images, `[mm:ss.s]` timestamps, hard-cuts rule | 720p 63 cr/s, 480p 28 cr/s, 1080p 158 cr/s |
-| Shortest Seedance 2.5 clip | 4 s: a 3 s request is refused (kie 500 "Value must be within the specified range", uncharged) | 4 x rate |
+| Seedance 2.5 run length | 4–30 s per run (Narayan, 17 Nov); 3 s is refused (kie 500 "Value must be within the specified range", uncharged). Higgsfield: up to 20 s | rate x s |
 | Exact start (and end) frame | Seedance 2.5, `--first-frame` (`--last-frame`) with `--aspect adaptive` (9:16 is rejected); refs can't be combined | same |
 | Upscale | Real-ESRGAN, local and free (`scripts/esrgan_upscale.py`, ~11 s/frame); Topaz on kie failed 4/4 | free |
 

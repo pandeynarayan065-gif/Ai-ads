@@ -9,8 +9,6 @@ Lint = today's `scripts/prompt_lint.py --faceless` result on the prompt as sent 
 
 | Shot | Model / mode | Lint | Verdict | What happened | Rule it gave us |
 |---|---|---|---|---|---|
-| Red Bull spec 12 s (stunts + can macros) | Seedance 2.5, reference (official redbull.com can), 720p, 12 s, 756 cr | PASS | **Kept** (cliff dive cut by Narayan) | 13 shots in order; can print exact incl. small lines; helmets, no faces; a real glove brand's star logo on the gloves and pseudo-letters on a wingsuit, painted out in post | Real brand logos appear on gear; ask for plain gear and check every frame |
-| Samsung Fold8 Ultra spec 12 s (breakdown) | Seedance 2.5, reference (3 official samsung.com photos), 720p, 12 s, 756 cr | PASS | **Kept**, chip shot remade | 13 shots in order; vertical camera column right (fixed in the prompt from the official photos); natural hands; fake text on the chip lid | Collect every official angle first; a blank-surface first frame stops fake print (remake, first frame, 4 s, 252 cr, `--aspect adaptive`) |
 | Studio "tethys" (sea becomes mountains) | Veo 3.1 Fast, first frame | FAIL: transformation | Rejected: "Both lowk ass bro" | Water welled out of the slate and turned to rock; read as CGI | Real-crew test: no transformations |
 | Studio "zero-g" (drops float round the bottle) | Veo 3.1 Fast, first frame | FAIL: magic ("gravity switches off", float) | Rejected (same) | Floating drops, CGI look; the camera didn't move (push-in added in post) | Real-crew test; one camera move, and expect to add it in post |
 | Studio hero v2 (real proportions, sticker, clear cap) | Veo 3.1 Fast, first frame | FAIL: 411 words | **Kept** (in the edit) | Real-looking splash; small text garbled (fixed with `fix_text_v2.py`) | Build the first frame at real proportions; fix small text in post |
@@ -50,7 +48,3 @@ Lint = today's `scripts/prompt_lint.py --faceless` result on the prompt as sent 
 
 - kie: Veo 3.1 Fast 1080p 8 s = 65 cr; Nano Banana Pro 2K = 18 cr. 1 cr = $0.005.
 - Balances on 2026-10-17: new account 10 cr, old account 37 cr. Neither is enough for a Veo take; top up first.
-| 2026-11-04 | samsung-spec | Opener 4 s, Seedance 2.5 ref mode, 3 official refs | iPhone Duo true to Apple photo; Fold8 reflection pasted-looking from ~2.7 s | Keep frames 0-64 as an opener before shot 1 |
-| 2026-11-04 | jpg-spec | Ultra Male 12 s, Seedance 2.5 ref mode, 1 official packshot, 12 shots (Prada-reel grammar + sea at night) | Keeper: bottle true in every shot, no fake text, real-time ending | Upscale and finish |
-| 2026-11-04 | jpg-spec | Storm insert 4 s, Seedance 2.5 480p ref mode (3 s refused) | Keeper: bottle true, rain beads, lightning fork; 480p holds up after upscale | Frames 46-65 replace the spray shot |
-| 2026-11-05 | jpg-spec | Lavender gust insert 4 s, Seedance 2.5 480p ref mode | Keeper: bottle true, buds stream past and pile at the base (read more as buds than sprigs) | Frames 26-49 after the side silhouette |
