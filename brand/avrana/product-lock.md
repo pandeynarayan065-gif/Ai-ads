@@ -8,15 +8,18 @@ Copy the block word for word into Seedance prompts. Fabric weight, composition a
 > <Subject 1> is a black pullover hoodie with a roomy hood, a front kangaroo pocket, long sleeves with ribbed cuffs
 > and a ribbed hem, in matte black cotton-look fleece. On the chest, centred, an ornate white print: the word Avrana
 > in flowing script inside a symmetrical white filigree frame, about as wide as the chest. On the back, centred
-> between the shoulders, a large white print of an antlered deer skull with spreading antlers, as tall as the upper
-> back. The prints are white and slightly cracked-matte like screen print, exactly as in Images 1 and 2.
+> between the shoulders, a large print of an antlered deer skull with spreading antlers, as tall as the upper
+> back: a shaded, distressed engraving-style skull in white and grey, about four points on each antler, not a flat
+> white shape. Both prints are matte screen print, exactly as in Images 1 and 2.
 
 ## Reference roles
 | File | Use it for |
 |---|---|
 | `01-death-glory-hoodie-black-front-official.jpg` | The hoodie front: shape, hood, pocket, the chest print (Image 1) |
 | `02-death-glory-hoodie-black-back-official.jpg` | The back print: the antlered skull (Image 2) |
-| `03-death-glory-hoodie-worn-hood-up-official.jpg` | How it hangs worn, hood up (a person: never a face reference) |
+| `03-death-glory-hoodie-worn-hood-up-official.jpg` | How it hangs worn, hood up (shows a model's face: never a generation ref) |
+| `04-death-glory-hoodie-worn-back-hood-up-official.jpg` | Worn from behind, hood up, skull on a body: the faceless worn reference |
+| `05-death-glory-hoodie-lying-flat-official.jpg` | Lying flat (counters the upright bias); ignore the skateboard and cup in it |
 
 ## What models will get wrong (check every frame)
 | Risk | Why | Prevention |

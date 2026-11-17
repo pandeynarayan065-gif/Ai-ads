@@ -16,7 +16,7 @@ Facts below are from avrana.co (read 17 Nov 2026) unless marked [VERIFY]. Never 
 ## Designs (collections on the site)
 Apex (white Avrana script front; large white roaring tiger back), Death & Glory (ornate white Avrana lettering in a
 filigree frame front; white antlered skull back), Eternal Grace, Instinct, Untamed, House of Grace.
-Prices seen: Apex Hoodie $75; Death & Glory Hoodie/Shirt/Sweatshirt $60; Eternal Grace Hoodie $65; Apex Shirt $52.
+Prices seen: Apex Hoodie $75; Death & Glory Hoodie/Shirt/Sweatshirt $60 (hoodie: $60 XS–XL, $62 XXL, $64 XXXL); Eternal Grace Hoodie $65; Apex Shirt $52.
 
 ## Death & Glory (the design's own words, from its product page)
 "The Death & Glory hoodie expresses transformation and rebirth through a design about refusing to be destroyed."
