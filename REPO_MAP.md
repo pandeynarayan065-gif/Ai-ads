@@ -412,6 +412,7 @@ flowchart LR
 - `higgsfield-manifest-brand-film.md`: Higgsfield "Manifest" — 68 s brand film, Seedance 2.5 (Higgsfield's own read-only project brief)
 - `higgsfield-seedance-ex-nihilo.md`: Higgsfield: Seedance 2.5 luxury product film (Ex Nihilo "Blue Talisman")
 - `prada-green-glass-reflections.md`: "Even glass reflections can look this real" — Prada green-glass perfume breakdown (Instagram reel)
+- `velvetengine-14-lights.md`: @velvetengine "Every light and the prompt for it" (Seedance reel) — reverse-engineered lighting library
 
 ## scripts
 - `check_limits.py`: Check ad copy files against platform character limits.

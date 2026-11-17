@@ -9,6 +9,7 @@ relevant file before writing prompts in that style. Add a new file whenever we s
 |---|---|---|
 | `higgsfield-seedance-ex-nihilo.md` | Higgsfield's Seedance 2.5 luxury perfume film (one product sheet + one timestamped prompt) | Premium multi-shot product films in one generation |
 | `higgsfield-manifest-brand-film.md` | Higgsfield's own 68 s Seedance 2.5 brand film: full brief, shot prompts, prices | The prompt method (must-not-fail first, fenced camera moves, exact cut counts, failure conditions), Higgsfield costs |
+| `velvetengine-14-lights.md` | Reel: one subject relit 14 ways (high key → volumetric), Seedance | A lighting library: paste-ready light blocks by craft name |
 | `prada-green-glass-reflections.md` | Reel: Prada green-glass perfume ad with its full prompt | Glass and perfume product films: lighting through glass, macro grammar |
 | `0xroas.md` | @0xROAS on X: AI UGC ads (Seedance etc.) | UGC-style ads, reference-video motion, jump-cut montages |
 
