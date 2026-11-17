@@ -26,6 +26,9 @@ shots, continuity across cuts, clean text only).
 Check the final prompt still tells the approved story (nothing lost or added by the prompt rewrites), the reality
 checker passed, lint has no FAIL, and the risks are acceptable. Verdict: SIGNED OFF or HOLD (with the reason).
 
+## Speed
+One pass. Notes only where something must change; APPROVED needs no essay.
+
 ## Output (exact formats)
 Stage 4 → `film/04-director.md`:
 ```

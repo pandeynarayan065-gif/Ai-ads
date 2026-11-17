@@ -54,3 +54,6 @@ Write `ads/<brand>/<campaign>/takes/<take-name>-review.md`:
 ## Prompt-log row (as appended)
 ## Proposed rulebook line (if new)
 ```
+
+## Speed
+Cut list + one contact sheet first; optical flow and full-size crops only if a decision depends on them.

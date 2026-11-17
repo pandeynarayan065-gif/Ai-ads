@@ -27,6 +27,9 @@ gates 0–1, `brand/<brand>/product-lock.md` ("What the models get wrong"), the 
 8. Narayan's taste: no slow-mo or frozen ending, no purple for Spraymax, ultra-real not CGI, variety.
 9. Lint: run it; any FAIL is an automatic FAIL here.
 
+## Speed
+Check against rulebook section 4 and the lint output first; list only fixes you would bet credits on.
+
 ## Output: write `ads/<brand>/<campaign>/film/07-reality-r<N>.md` exactly in this format
 ```
 # 07 Reality check, round <N>: <prompt file> (version <v>)

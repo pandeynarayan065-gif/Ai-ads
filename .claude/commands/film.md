@@ -26,6 +26,13 @@ Their shared rulebook is `reference/seedance-rules.md`. Work folder: `ads/<brand
 - Write `film/00-brief.md`: brand, campaign, idea in his words, length, resolution, platform, references (copied into
   `ads/<brand>/<campaign>/refs/` if he attached them), budget = current credits if known, what is in/out.
 
+## Speed (Narayan: "make them faster")
+- Independent stages run in parallel (research ∥ reverse; director review ∥ DoP). Spawn them in one message.
+- `fast` in the arguments: the researcher skips the web and works from the rulebook and `reference/creators/`.
+- Give each agent a one-paragraph prompt (brand, campaign, folder, what's different); its file holds the rules.
+- Lighter stages (researcher, story, storyboard, DoP) run on a faster model; prompt engineer, reality checker,
+  director and reverse engineer keep the main model.
+
 ## 1. Research ∥ reverse (parallel)
 Spawn in one message, in the background:
 - `researcher` → `film/01-research.md` (and any `reference/creators/` study, official refs in `refs/`).
@@ -36,8 +43,9 @@ Wait for both.
 Run in order: `story-writer` → `storyboard-artist` → `director` (review). If the director says REVISE, run
 `storyboard-artist` once more with the notes, then `director` again. A second REVISE: stop and show Narayan both.
 
-## 5. DoP → 6. Prompt → 7. Reality loop
-`dop` → `prompt-engineer` (v1) → `reality-checker` (round 1). On FAIL: `prompt-engineer` (v2, applies every fix) →
+## 5. DoP (in parallel with the director review) → 6. Prompt → 7. Reality loop
+Speed: start `dop` on `03-storyboard.md` in the same message as the `director` review; if the director says REVISE,
+rerun `dop` only after the revised storyboard. Then `prompt-engineer` (v1) → `reality-checker` (round 1). On FAIL: `prompt-engineer` (v2, applies every fix) →
 `reality-checker` (round 2). If round 2 also FAILs, **stop**: show Narayan the open fixes and ask how to proceed
 (that is the 2-loop limit).
 

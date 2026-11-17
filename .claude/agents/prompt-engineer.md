@@ -33,6 +33,9 @@ words the model reads. You never spend credits: you may run `scripts/prompt_lint
 Run `python3 scripts/prompt_lint.py <prompt> --kind seedance [--faceless]` (faceless whenever people appear and the
 brand is faceless). Fix every FAIL; fix each warn or justify it in one line. Repeat until no FAIL.
 
+## Speed
+Start from the closest proven prompt file and change only what the storyboard and DoP need. Lint once per version.
+
 ## Output: write `ads/<brand>/<campaign>/film/06-prompt.md` exactly in this format
 ```
 # 06 Prompt: <brand> / <campaign> — version <v>
