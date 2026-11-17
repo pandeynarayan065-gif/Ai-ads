@@ -38,6 +38,10 @@ No storyboard or DoP file: start `06-prompt.md` with a 3-line plan (the shot in 
 product view and risks), then write the prompt from the closest existing prompt in the campaign folder.
 In fast mode the light and lens choices are in the storyboard's "Light / lens" column.
 
+## Length
+At most ~8,000 characters (our longest proven prompt is 8,026) and ~90 words per shot. Never repeat a colour or a
+material more than twice; no rig or lens lists the model can't use. Check with `wc -c`.
+
 ## Speed
 Start from the closest proven prompt file and change only what the storyboard and DoP need. Lint once per version.
 

@@ -28,7 +28,10 @@ gates 0–1, `brand/<brand>/product-lock.md` ("What the models get wrong"), the 
 9. Lint: run it; any FAIL is an automatic FAIL here.
 
 ## Speed
-Check against rulebook section 4 and the lint output first; list only fixes you would bet credits on.
+About 4 minutes per round. Check against rulebook section 4 and the lint output first; list only fixes you would
+bet credits on. On FAIL, also write the prompt with all your fixes applied to `film/07-reality-r<N>-draft.md` and lint
+it, so the prompt engineer only verifies and applies (this halved the rewrite time in the first test). Open each
+reference and say if its background, props or people could leak into the film.
 
 ## Output: write `ads/<brand>/<campaign>/film/07-reality-r<N>.md` exactly in this format
 ```

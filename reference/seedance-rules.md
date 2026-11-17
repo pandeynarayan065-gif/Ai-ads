@@ -83,6 +83,10 @@ locked-off, holds still, handheld, rises/crane. One family per shot. [scripts/pr
 | Slow-motion or frozen end shot | Spraymax ocean v1 ("the endshot is stupid and lasts too long") | End shots in real time and short; no slow-mo ending [N] |
 | Chrome/colour differs between cuts of the same object | Samsung iPhone → logo shot ("sloppy") | Fix in post with one fixed grade per shot, no masks (`grade_logo_shot.py`) [N] |
 | Product drifts from text-only details | Veo/Seedance | Official product photos as references; collect every angle first (camera layout fixed from samsung.com) [LOG] |
+| Busy background in a reference bleeds into the film (peach wall, roses) | Avrana crew test (caught before spending) | Only pass refs on a clean background; drop a worn/lifestyle photo and describe the worn shape in words [crew r1] |
+| Clothing not described gets invented logos, patches, rips | Avrana crew test | Describe every garment in frame plainly ("plain matte black trousers and plain black boots, no logos") [crew r1] |
+| Apparel packshots are ghost-mannequin (hollow body) | Avrana | For lying shots say "empty, lying flat, no body inside, hood folded flat"; Images 1–2 for print and cut only [crew] |
+| An effect in the inherited look block (smoke, embers) leaks into every shot | Avrana crew test | Effects go only in the shot that has them [crew r1] |
 | Water words in the sound line → bubbling audio | Spraymax | No water/wave/echo words in the sound line; silent generation [PB] |
 
 ## 5. Concept rules (the director and reality checker enforce these)
@@ -112,6 +116,11 @@ locked-off, holds still, handheld, rises/crane. One family per shot. [scripts/pr
 - Judge a take by its best seconds: we use 0.6–2 s of each shot. A take with one bad shot is usually kept and the
   shot is cut or replaced with a 4 s insert. [PB, LOG]
 - Post, not regeneration, for: colour continuity, small print, upscaling (Real-ESRGAN), supers, captions. [QR]
+
+## 6b. Prompt length
+Proven multi-shot prompts run 950–1,400 words, 8,026 characters at most (Spraymax cinematic). Keep new ones at or under
+that; trim repeats (a colour said ten times), rig/lens lists the model can't use, and framing fractions. Longer prompts
+risk the end being dropped (no hero shot) [VERIFY: no kie limit known].
 
 ## 7. Open questions for Narayan [VERIFY]
 

@@ -44,7 +44,9 @@ references.
 ## Speed
 - Independent stages run in parallel (research ∥ reverse; director review ∥ DoP). Spawn them in one message.
 - Only `full` searches the web; `quick` and `fast` work from the rulebook and `reference/creators/`.
-- Give each agent a one-paragraph prompt (brand, campaign, folder, what's different); its file holds the rules.
+- Give each agent a one-paragraph prompt (brand, campaign, folder, what's different); its file holds the rules. Start
+  every spawn prompt with "Read reference/seedance-rules.md first" (the storyboard artist skipped it once and planned
+  a first frame inside a reference run).
 - Lighter stages (researcher, story, storyboard, DoP) run on a faster model; prompt engineer, reality checker,
   director and reverse engineer keep the main model.
 

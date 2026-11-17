@@ -60,7 +60,7 @@ FACE_RULE = r"\bfaces?\b|faceless|from behind|back of (his|her) head|never turns
 WATER_AUDIO = r"\b(water|wave|waves|splash\w*|bubbl\w*|echo\w*|drip\w*|pour\w*|ocean|sea)\b"
 # film-crew checks (reference/seedance-rules.md): what Seedance 2.5 has got wrong for us
 # surfaces that carry print in life (the product's own label and cap come from the refs, so they are not listed)
-PRINT_SURFACES = r"\b(chips?|gloves?|wingsuits?|jerseys?|helmets?|race suits?|signs?|billboards?|screens?|displays?|" \
+PRINT_SURFACES = r"\b(chips?|gloves?|wingsuits?|jerseys?|helmets?|race suits?|signs?|billboards?|screens?(?![- ]print)|displays?|" \
                  r"posters?|books?|newspapers?|packaging|boxes|tins?|t-?shirts?|sweatshirts?|banners?|flags?|receipts?|menus?)\b"
 BLANK = r"\b(blank|plain|unmarked|abstract|gradient|no (readable )?(text|markings|logos?|letters|print|ui)|" \
         r"without (text|markings|logos?))\b"
