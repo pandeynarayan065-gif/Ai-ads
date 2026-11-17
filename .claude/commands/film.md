@@ -43,7 +43,7 @@ references.
 
 ## Speed
 - Independent stages run in parallel (research ∥ reverse; director review ∥ DoP). Spawn them in one message.
-- `fast` in the arguments: the researcher skips the web and works from the rulebook and `reference/creators/`.
+- Only `full` searches the web; `quick` and `fast` work from the rulebook and `reference/creators/`.
 - Give each agent a one-paragraph prompt (brand, campaign, folder, what's different); its file holds the rules.
 - Lighter stages (researcher, story, storyboard, DoP) run on a faster model; prompt engineer, reality checker,
   director and reverse engineer keep the main model.
