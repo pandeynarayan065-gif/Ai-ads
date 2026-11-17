@@ -2,8 +2,8 @@
 
 Every rule and hard-won lesson for Seedance 2.5 in one page. All the `.claude/agents/` crew read this before they
 work. Each line names where it came from: **[PB]** `reference/ai-video-playbook.md`, **[QA]** `reference/ai-video-qa.md`,
-**[QR]** `reference/quick.md`, **[LOG]** `ads/<brand>/prompt-log.md`, **[HF]** / **[0x]** / **[PR]** the creator
-studies in `reference/creators/` (Higgsfield Ex Nihilo, @0xROAS, Prada glass reel), **[N]** Narayan in chat (date).
+**[QR]** `reference/quick.md`, **[LOG]** `ads/<brand>/prompt-log.md`, **[HF]** / **[0x]** / **[PR]** / **[HM]** the
+creator studies in `reference/creators/` (Higgsfield Ex Nihilo, @0xROAS, Prada glass reel, Higgsfield Manifest), **[N]** Narayan in chat (date).
 **[VERIFY]** = not confirmed by the repo, kie.ai docs or Narayan: ask before relying on it.
 
 ## 1. Money and safety (never break)
@@ -31,10 +31,10 @@ studies in `reference/creators/` (Higgsfield Ex Nihilo, @0xROAS, Prada glass ree
 | Modes | Reference images (`--ref`, Image 1, 2, … = order given) **or** first frame (`--first-frame`, optional `--last-frame`). Never both in one request | [PB §5.5] |
 | First-frame aspect | Must be `--aspect adaptive`; 9:16 is rejected (422, uncharged) | [QR, Samsung chip remake] |
 | Audio | Off by default (`--audio` turns it on). We always generate silent and build sound in post | [PB, all takes] |
-| Draft | `--draft` = 480p; `seedance-final` renders 1080p from the draft (price not listed by kie) [VERIFY] | [PB §5.5] |
+| Draft | `--draft` = 480p; `seedance-final` renders 1080p from the draft (price not listed by kie) [VERIFY]. Higgsfield's own team drafts at 480p and regenerates keepers at 1080p/4K | [PB §5.5, HM] |
 | 480p fallback | 4 s at 480p (112 cr) upscaled with Real-ESRGAN cut in cleanly next to 720p footage | [LOG jpg storm, lavender] |
 | Max reference images | We have used 1–3. The upper limit is **[VERIFY]** | |
-| Higgsfield website | Same model, prompt pasted by hand; up to 20 s per run [N 17 Nov]; credit cost per second **[VERIFY]** | |
+| Higgsfield website | Same model, prompt pasted by hand; up to 20 s per run [N 17 Nov]. Higgsfield credits per second (17 Nov): 480p 3, 720p 7, 1080p 16, 4K 28; Seedance 2.5 Flash 480p 2, 720p 5. Outputs up to 4K (2880×2160 at 4:3). $ per Higgsfield credit depends on the plan **[VERIFY]** | [HM] |
 | Multi-shot capacity | 12–15 timestamped hard-cut shots in 12 s have worked (Spraymax 15 → 14 visible cuts at its own spacing; Red Bull 13; Samsung 13; JPG 12) | [LOG] |
 
 ## 3. Prompt structure that has worked (copy the order)
@@ -60,7 +60,12 @@ Proven files: `ads/spraymax/cinematic-12s/prompt-seedance-12s.md`, `ads/redbull-
    halos; lens flares; "the product centred and fully lit in every shot". [HF, PB]
 8. **Timestamped shots** `[mm:ss.s]`, start-first, no gaps, ~1 s apart (0.6–1.5 s); each 60–100 words with framing,
    subject, light, **one action** and **one camera move** written last ("Camera pushes in slowly."). [HF, PB, lint]
-9. **"Throughout" line**: product keeps its exact shape, proportions, colours and print from Image 1; "Keep it
+9. **Inside each shot (from Higgsfield's own Manifest film [HM])**: open with the one thing that must not fail; name
+   the camera move with its speed profile and what enters or leaves the frame, then fence it ("a downward tilt, not a
+   push-in, zoom or orbit"); end with the shot's failure conditions ("never in midair; no melting, disappearing
+   fragments or magical glow"). Write lenses as field of view + mm when framing matters.
+10. **Exact cut count** in the hard-cuts block: "Exactly N hard cuts, at 0:01.4, 0:02.4, …, and nowhere else." [HM]
+11. **"Throughout" line**: product keeps its exact shape, proportions, colours and print from Image 1; "Keep it
    subtitle-free, with no captions and no watermark. No music and no voices." [PB §5.5, lint]
 
 Camera words the linter recognises: pushes in, pulls back, drifts left/right/up/down, tilts up/down, pans, orbits,
@@ -87,6 +92,7 @@ locked-off, holds still, handheld, rises/crane. One family per shot. [scripts/pr
 | Clothing not described gets invented logos, patches, rips | Avrana crew test | Describe every garment in frame plainly ("plain matte black trousers and plain black boots, no logos") [crew r1] |
 | Apparel packshots are ghost-mannequin (hollow body) | Avrana | For lying shots say "empty, lying flat, no body inside, hood folded flat"; Images 1–2 for print and cut only [crew] |
 | An effect in the inherited look block (smoke, embers) leaks into every shot | Avrana crew test | Effects go only in the shot that has them [crew r1] |
+| A word with two meanings pulls the model the wrong way ("crane" in a shot full of birds) | Higgsfield Manifest | Replace it in context ("rises straight upward") [HM] |
 | Water words in the sound line → bubbling audio | Spraymax | No water/wave/echo words in the sound line; silent generation [PB] |
 
 ## 5. Concept rules (the director and reality checker enforce these)
@@ -125,6 +131,6 @@ risk the end being dropped (no hero shot) [VERIFY: no kie limit known].
 ## 7. Open questions for Narayan [VERIFY]
 
 1. Maximum reference images per Seedance 2.5 request on kie.
-2. Higgsfield credit cost per second and its resolution options.
+2. $ per Higgsfield credit on Narayan's plan (per-second credit costs are now known, section 2).
 3. Whether `seedance-final` (1080p from a draft) is billed, and at what rate.
 4. Audio-on price difference (we have never generated with audio).

@@ -23,6 +23,9 @@ words the model reads. You never spend credits: you may run `scripts/prompt_lint
 6. Global look (from the DoP). 7. Never-render list, **before** the shots. 8. Timestamped shots `[mm:ss.s]`,
    60–100 words each, framing → subject → light → the one action → the camera sentence last. 9. "Throughout:" line
    ending "Keep it subtitle-free, with no captions and no watermark. No music and no voices."
+- Per shot (Higgsfield's method): first the one thing that must not fail; the camera move with its speed and end
+  point, fenced ("a push-in, not a zoom or orbit"); last the failure conditions. The hard-cuts block states the exact
+  number and times of cuts ("Exactly 9 hard cuts, at 0:01.4, …, and nowhere else").
 - Audio: we generate silent. Never put water/wave/echo words in a sound line.
 - Name surfaces that would carry print as blank ("its blank polished metal lid, no markings").
 - People: faceless wording ("seen only from behind / from the wrist down; the face is never visible") unless the

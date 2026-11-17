@@ -25,7 +25,9 @@ gates 0–1, `brand/<brand>/product-lock.md` ("What the models get wrong"), the 
 7. Platform and legal: NSFW-trigger words (nudity, shirtless, sensual, blood, weapons, drugs), real people's names
    or likeness, copyrighted characters or look-alikes, other brands' logos or products, claims not in the brand file.
 8. Narayan's taste: no slow-mo or frozen ending, no purple for Spraymax, ultra-real not CGI, variety.
-9. Lint: run it; any FAIL is an automatic FAIL here.
+9. Misreads: words with a second meaning in context ("crane" near birds, "screen" near print, "draft" near
+   wind); a camera move that isn't fenced against its neighbours (push-in vs zoom vs orbit).
+10. Lint: run it; any FAIL is an automatic FAIL here.
 
 ## Speed
 About 4 minutes per round. Check against rulebook section 4 and the lint output first; list only fixes you would

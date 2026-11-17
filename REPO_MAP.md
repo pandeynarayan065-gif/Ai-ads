@@ -40,6 +40,7 @@ flowchart LR
 - `06-prompt.md`: 06 Prompt: avrana / death-glory-12s — version 2
 - `07-reality-r1.md`: 07 Reality check, round 1: prompt-seedance-12s.md (version 1)
 - `07-reality-r2.md`: 07 Reality check, round 2: prompt-seedance-12s.md (version 2)
+- `08-signoff.md`: 08 Director sign-off
 - `page.md`: avrana / death-glory-12s — ready for your yes (crew test: NOT to be generated)
 
 ## ads/avrana/death-glory-12s/refs
@@ -408,6 +409,7 @@ flowchart LR
 ## reference/creators
 - `0xroas.md`: @0xROAS ("0x ROAS"): AI UGC ads (Sora 2, Seedance 2.0/2.5, Veo 3.1, lipsync stacks)
 - `README.md`: Creator studies
+- `higgsfield-manifest-brand-film.md`: Higgsfield "Manifest" — 68 s brand film, Seedance 2.5 (Higgsfield's own read-only project brief)
 - `higgsfield-seedance-ex-nihilo.md`: Higgsfield: Seedance 2.5 luxury product film (Ex Nihilo "Blue Talisman")
 - `prada-green-glass-reflections.md`: "Even glass reflections can look this real" — Prada green-glass perfume breakdown (Instagram reel)
 
