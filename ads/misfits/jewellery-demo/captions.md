@@ -25,22 +25,22 @@ DM "FILM" or visit misfitsagency.in
 Demo ad made by Misfits.
 #jewellery #jewellerybusiness #jewelleryads #ranchi #delhi #aiads #beforeandafter
 
-## 3. Second demo: the purple butterfly pendant, posted on its own
+## 3. Second demo: the ring, posted on its own
 
-One small pendant. One photo. A whole film.
+This ring never saw a studio.
 
-Every facet of those violet stones, lit like a campaign, without a studio, a model or a shoot day.
+One photo of the piece. No model, no hand shoot, no lights to rent. Every facet catching light like a campaign film.
 
-Jewellers in Ranchi and Delhi: your best piece deserves better than a phone photo on a white table. Send us one picture and we'll show you what it can be.
-DM "FILM" 🦋
+Jewellers in Ranchi and Delhi: send us one photo of your best ring and we'll show you what it can be.
+DM "FILM" 💍
 
 Demo ad made by Misfits.
-#jewellery #pendant #jewelleryads #jewellerybrand #ranchi #delhi #aiads #misfits
+#jewellery #rings #jewelleryads #jewellerybrand #ranchi #delhi #aiads #misfits
 
 ## 4. Second demo, short version
 
-Small piece. Big film. 🦋
-Made from one photo, no shoot.
+One ring. One photo. One film. 💍
+No shoot needed.
 Jewellers, DM "FILM" for yours.
 
-#jewellery #jewelleryads #ranchi #delhi #aiads #misfits
+#jewellery #rings #jewelleryads #ranchi #delhi #aiads #misfits
