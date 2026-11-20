@@ -2,7 +2,7 @@
 """Beat-synced recreation of Narayan's 'why do we fall, sir?' edit (lv_0_20261120075217), carried on to "Never.".
 
 Cuts sit on the score's beat grid (0.6847 s, first beat at 0.225 s; half and quarter beats for the flurries),
-measured from the audio. Same shots and order as his edit, taken from the clean sources hf1/hf2.
+measured from the audio. Same shots and order as his edit, from the clean sources hf1/hf2, plus five keepers from hf3 (the fall-and-rise take).
 
   python3 cut_beats.py <dir with hf1.mp4 hf2.mp4 bat.mp4> <out.mp4> [--size 2160x3840]
 """
@@ -18,8 +18,9 @@ h = lambda k: B(k) + 0.6847 / 2              # half beat after beat k
 q = lambda k, n: B(k) + 0.6847 * n / 4       # quarter beats
 # (cut-in time on the edit timeline, source, source in-point); each shot runs to the next cut
 CUTS = [
-    (0.0,      "hf1", 0.00),   # silhouette facing us, floor light      "Why do we fall, sir?"
-    (B(2),     "hf1", 13.12),  # from behind, arms out                   flurry on half beats
+    (0.0,      "hf1", 0.00),   # silhouette facing us, floor light      "Why do we
+    (B(1),     "hf3", 0.30),   # he falls backward                       fall, sir?"
+    (B(2),     "hf1", 13.45),  # from behind, arms out                   flurry on half beats
     (h(2),     "hf1", 14.03),  # bottle macro
     (B(3),     "hf1", 16.16),  # silhouette in the light
     (h(3),     "hf1", 17.80),  # far, tiny silhouette
@@ -29,18 +30,19 @@ CUTS = [
     (q(6, 1),  "hf2", 14.67),  # hair macro
     (q(6, 2),  "hf2", 17.55),  # bottle in smoke
     (q(6, 3),  "hf2", 18.55),  # face
-    (B(7),     "hf1", 12.625), # from behind, arms out                   "So that we can learn"
-    (B(9),     "hf1", 11.28),  # bottle on the ledge, dust              "to pick ourselves up"
+    (B(7),     "hf3", 5.75),   # hand slaps the wet floor               "So that we can learn
+    (B(8),     "hf1", 12.625), # from behind, arms out                  to pick ourselves up"
+    (B(9),     "hf1", 11.28),  # bottle on the ledge, dust
     (B(10),    "hf2", 6.59),   # hands, bottle
     (h(10),    "hf2", 9.10),   # spray macro
     (B(11),    "hf2", 12.32),  # hair
     (h(11),    "hf2", 3.89),   # profile
-    (B(13),    "hf2", 15.81),  # stands, bottle in hand
+    (B(13),    "hf3", 11.05),  # sea water hits him, he doesn't flinch
     (B(14),    "hf2", 18.40),  # looks into the lens                    "I just haven't given up on me"
-    (B(16),    "hf2", 10.50),  # hands through hair
+    (B(16),    "hf3", 12.75),  # sweeps his hair back
     (B(17),    "hf1", 7.02),   # bottle in the splash
-    (B(18),    "hf1", 9.75),   # sprays, backlit
-    (B(19),    "hf2", 0.30),   # full figure, studio
+    (B(18),    "hf3", 15.45),  # gale on the coat, he stands unmoved
+    (B(19),    "hf1", 9.75),   # sprays, backlit
     (B(20),    "hf2", 17.06),  # bottle in smoke
     (14.55,    "hf1", 19.04),  # hero: bottle + his silhouette          "Never."
 ]
@@ -56,18 +58,20 @@ for i, line in enumerate(["why do we", "fall, sir?"]):
 sh = Image.new("RGBA", (W, H), (0, 0, 0, 0)); sh.putalpha(txt.getchannel("A").filter(ImageFilter.GaussianBlur(10 * k)).point(lambda v: int(v * .55)))
 c = Image.new("RGBA", (W, H), (0, 0, 0, 0)); c.alpha_composite(sh); c.alpha_composite(txt); c.save(cap)
 
-ins = ["-i", f"{src}/hf1.mp4", "-i", f"{src}/hf2.mp4", "-ss", str(A0), "-t", str(END), "-i", f"{src}/bat.mp4",
+ins = ["-i", f"{src}/hf1.mp4", "-i", f"{src}/hf2.mp4", "-i", f"{src}/hf3.mp4", "-ss", str(A0), "-t", str(END), "-i", f"{src}/bat.mp4",
        "-loop", "1", "-t", str(END), "-i", str(cap)]
-ix = {"hf1": 0, "hf2": 1}
+ix = {"hf1": 0, "hf2": 1, "hf3": 2}
 fc = []
+F = lambda t: round(t * 24)               # frame-exact: every cut lands on the 24 fps grid, no drift
 for i, (t, n, s) in enumerate(CUTS):
-    d_ = (CUTS[i + 1][0] if i + 1 < len(CUTS) else END) - t
-    fc.append(f"[{ix[n]}:v]trim=start={s:.3f}:duration={d_:.3f},setpts=PTS-STARTPTS,fps=24,scale={W}:{H}:flags=lanczos,setsar=1[v{i}]")
+    nf = F(CUTS[i + 1][0] if i + 1 < len(CUTS) else END) - F(t)
+    s0 = F(s)
+    fc.append(f"[{ix[n]}:v]fps=24,trim=start_frame={s0}:end_frame={s0 + nf},setpts=PTS-STARTPTS,scale={W}:{H}:flags=lanczos,setsar=1[v{i}]")
 fc.append("".join(f"[v{i}]" for i in range(len(CUTS))) + f"concat=n={len(CUTS)}:v=1:a=0,"
           "eq=contrast=1.06:saturation=0.9,colorbalance=bs=0.03:bm=0.01,unsharp=5:5:0.45,noise=alls=5:allf=t[base]")
-fc.append("[3:v]format=rgba,fade=t=in:st=0.15:d=0.25:alpha=1,fade=t=out:st=1.3:d=0.25:alpha=1[cap]")
+fc.append("[4:v]format=rgba,fade=t=in:st=0.15:d=0.25:alpha=1,fade=t=out:st=1.3:d=0.25:alpha=1[cap]")
 fc.append("[base][cap]overlay=0:0:shortest=1,format=yuv420p[v]")
-fc.append(f"[2:a]atrim=0:{END},asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st={END-0.35}:d=0.35,loudnorm=I=-14:TP=-1.5[a]")
+fc.append(f"[3:a]atrim=0:{END},asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st={END-0.35}:d=0.35,loudnorm=I=-14:TP=-1.5[a]")
 subprocess.run(["ffmpeg", "-v", "error", "-y", *ins, "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
                 "-c:v", "libx264", "-crf", "17", "-preset", "slow", "-maxrate", "40M", "-bufsize", "80M",
                 "-c:a", "aac", "-b:a", "256k", "-movflags", "+faststart", out], check=True)
